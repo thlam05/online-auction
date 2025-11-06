@@ -1,0 +1,48 @@
+{{#section "js"}}
+{{/section}}
+
+
+<div class="row g-5">
+    <div class="col-4">
+        <h3 style="text-align: center;">Sign up</h3>
+        <form id="signup-form" action="/auth/signup" method="POST">
+            <div class="mb-3">
+                <label for="signup-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="signup-email" aria-describedby="emailHelp" name="email">
+                <p class=""></p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-username" class="form-label">Name</label>
+                <input type="text" class="form-control" id="signup-username" name="username">
+                <p class=""></p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signup-password" name="password">
+            </div>
+            <div class="mb-3">
+                <label for="signup-password-confirm" class="form-label">Confirm password</label>
+                <input type="password" class="form-control" id="signup-password-confirm" name="passwordConfirm">
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign up</button>
+            <a href="/auth/signin" class="btn btn-outline-secondary">Sign in</a>
+        </form>
+        <div id="signin-social" class="">
+            <p class="flex-1">Sign up with</p>
+            <div class="d-flex justify-content-around">
+                <button class="btn btn-outline-warning">Google</button>
+                <button class="btn btn-outline-primary">Facebook</button>
+                <button class="btn btn-outline-secondary">Github</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
+        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Odit necessitatibus nihil voluptatem, nam suscipit,
+            reiciendis nemo quaerat doloremque sint consectetur expedita libero quasi facilis soluta in dolorem aperiam,
+            provident quidem?</p>
+    </div>
+</div>

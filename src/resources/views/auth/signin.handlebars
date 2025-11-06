@@ -1,0 +1,57 @@
+{{#section "js"}}
+<script>
+    const showPasswordBtn = document.querySelector(".show-password-btn");
+    const inputPassword = document.querySelector("#signin-password");
+
+    showPasswordBtn.onclick = function (event) {
+        event.preventDefault();
+        if (inputPassword.type == "password") {
+            inputPassword.type = "text";
+        }
+        else if (inputPassword.type == "text") {
+            inputPassword.type = "password";
+        }
+    }
+</script>
+{{/section}}
+
+<div class="row g-5">
+    <div class="col-8">
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus iusto incidunt, sit consequuntur tempora
+            pariatur quam ab enim id doloribus voluptatibus deserunt, officiis porro neque quia quidem veniam adipisci
+            rem!</p>
+    </div>
+
+    <div class="col-4">
+        <h3 style="text-align: center;">Sign in</h3>
+        <form id="signin-form" action="/auth/signin" method="GET">
+            <div class="mb-3">
+                <label for="signin-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="signin-email" aria-describedby="emailHelp" name="email">
+                <p class="signin-message"></p>
+            </div>
+            <div class="mb-3">
+                <label for="signin-password" class="form-label">Password</label>
+                <div class="box-password d-flex justify-content-between">
+                    <input type="password" class="form-control" id="signin-password" name="password">
+                    <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+                    <p class="signin-message"></p>
+                </div>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember-check">
+                <label class="form-check-label" for="remember-check">Remember me</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+            <a href="/auth/signup" class="btn btn-outline-secondary">Sign up</a>
+        </form>
+        <div id="signin-social" class="">
+            <p class="flex-1">Sign in with</p>
+            <div class="d-flex justify-content-around">
+                <button class="btn btn-outline-warning">Google</button>
+                <button class="btn btn-outline-primary">Facebook</button>
+                <button class="btn btn-outline-secondary">Github</button>
+            </div>
+        </div>
+    </div>
+</div>

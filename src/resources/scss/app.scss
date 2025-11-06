@@ -1,0 +1,39 @@
+#header {
+    position: fixed;
+    border-bottom: 1px #ccc solid;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background-color: #fff;
+}
+
+#content {
+    margin-top: 56px;
+}
+
+.box-password {
+    position: relative;
+}
+
+.show-password-btn {
+    position: absolute;
+    right: 0;
+    z-index: 100;
+}
+
+#signin-password {
+    padding-right: 44px;
+}
+
+#signin-form {
+    margin-bottom: 24px;
+}
+
+#signup-form {
+    margin-bottom: 24px;
+}
+
+#signin-social {
+    border-top: 1px solid #ccc;
+    padding-top: 24px;
+}
