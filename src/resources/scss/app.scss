@@ -15,13 +15,20 @@
     position: relative;
 }
 
-.show-password-btn {
+.box-password-confirm {
+    position: relative;
+}
+
+.show-password-btn,
+.show-password-confirm-btn {
     position: absolute;
     right: 0;
     z-index: 100;
 }
 
-#signin-password {
+#signin-password,
+#signup-password,
+#signup-password-confirm {
     padding-right: 44px;
 }
 

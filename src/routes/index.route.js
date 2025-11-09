@@ -1,5 +1,5 @@
-import AuthRouter from "./auth.js";
-import HomeRouter from "./home.js";
+import AuthRouter from "./auth.route.js";
+import HomeRouter from "./home.route.js";
 
 function route(app) {
     app.use("/", HomeRouter);

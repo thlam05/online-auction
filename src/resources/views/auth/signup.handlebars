@@ -1,4 +1,30 @@
 {{#section "js"}}
+<script>
+    const showPasswordBtn = document.querySelector(".show-password-btn");
+    const inputPassword = document.querySelector("#signup-password");
+    const showPasswordConfirmBtn = document.querySelector(".show-password-confirm-btn");
+    const inputPasswordConfirm = document.querySelector("#signup-password-confirm");
+
+    showPasswordBtn.onclick = function (event) {
+        event.preventDefault();
+        if (inputPassword.type == "password") {
+            inputPassword.type = "text";
+        }
+        else if (inputPassword.type == "text") {
+            inputPassword.type = "password";
+        }
+    }
+
+    showPasswordConfirmBtn.onclick = function (event) {
+        event.preventDefault();
+        if (inputPasswordConfirm.type == "password") {
+            inputPasswordConfirm.type = "text";
+        }
+        else if (inputPasswordConfirm.type == "text") {
+            inputPasswordConfirm.type = "password";
+        }
+    }
+</script>
 {{/section}}
 
 
@@ -18,11 +44,17 @@
             </div>
             <div class="mb-3">
                 <label for="signup-password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="signup-password" name="password">
+                <div class="box-password d-flex justify-content-between">
+                    <input type="password" class="form-control" id="signup-password" name="password">
+                    <button class="show-password-btn btn"><i class="bi bi-eye"></i></button>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="signup-password-confirm" class="form-label">Confirm password</label>
-                <input type="password" class="form-control" id="signup-password-confirm" name="passwordConfirm">
+                <div class="box-password-confirm d-flex justify-content-between">
+                    <input type="password" class="form-control" id="signup-password-confirm" name="passwordConfirm">
+                    <button class="show-password-confirm-btn btn"><i class="bi bi-eye"></i></button>
+                </div>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="exampleCheck1">

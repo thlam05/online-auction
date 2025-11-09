@@ -1,5 +1,5 @@
 import express from "express";
-import route from "./routes/index.js";
+import route from "./routes/index.route.js";
 import { engine } from "express-handlebars";
 import expressHandlebarsSections from "express-handlebars-sections";
 
@@ -17,6 +17,13 @@ app.engine("handlebars", engine({
 }));
 app.set("view engine", "handlebars");
 app.set("views", "src/resources/views");
+
+import dp from "../src/utils/db.js"
+
+app.get("/", async (req, res) => {
+    const roles = await dp("roles");
+    res.json(roles);
+});
 
 route(app);
 
