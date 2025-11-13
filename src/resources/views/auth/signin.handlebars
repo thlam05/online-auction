@@ -15,7 +15,7 @@
 </script>
 {{/section}}
 
-<div class="row g-5">
+<div class="row g-5 pt-5 pb-5">
     <div class="col-8">
         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus iusto incidunt, sit consequuntur tempora
             pariatur quam ab enim id doloribus voluptatibus deserunt, officiis porro neque quia quidem veniam adipisci
@@ -24,10 +24,10 @@
 
     <div class="col-4">
         <h3 style="text-align: center;">Sign in</h3>
-        <form id="signin-form" action="/auth/signin" method="GET">
+        <form id="signin-form" action="/auth/signin" method="POST">
             <div class="mb-3">
                 <label for="signin-email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="signin-email" aria-describedby="emailHelp" name="email">
+                <input type="email" class="form-control" id="signin-email" aria-describedby="emailHelp" name="username">
                 <p class="signin-message"></p>
             </div>
             <div class="mb-3">

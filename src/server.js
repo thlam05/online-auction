@@ -2,9 +2,11 @@ import express from "express";
 import route from "./routes/index.route.js";
 import { engine } from "express-handlebars";
 import expressHandlebarsSections from "express-handlebars-sections";
+import config from "./configs/config.js";
+import configSession from "./configs/session.config.js";
 
 const app = express();
-const port = process.env.port || 3000;
+const port = config.port;
 
 app.use(express.urlencoded());
 app.use(express.json());
@@ -18,12 +20,7 @@ app.engine("handlebars", engine({
 app.set("view engine", "handlebars");
 app.set("views", "src/resources/views");
 
-import dp from "../src/utils/db.js"
-
-app.get("/", async (req, res) => {
-    const roles = await dp("roles");
-    res.json(roles);
-});
+// configSession(app);
 
 route(app);
 
