@@ -1,19 +1,14 @@
 import express from "express";
 import passport from "../configs/passport.config.js";
+import authController from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.get("/signin", (req, res, next) => {
-    res.render("auth/signin");
-})
+router.get("/signin", authController.showSignIn);
 
-router.get("/signup", (req, res, next) => {
-    res.render("auth/signup");
-})
+router.get("/signup", authController.showSignUp);
 
-router.get("/otp-verify", (req, res, next) => {
-    res.render("auth/otpVerify");
-})
+router.get("/otp-verify", authController.showOtpVerify);
 
 // router.get("/google", passport.authenticate("google", {
 //     scope: ["profile", "email"]
