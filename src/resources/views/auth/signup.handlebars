@@ -24,14 +24,56 @@
             inputPasswordConfirm.type = "password";
         }
     }
+
+    const emailMessage = document.querySelector(".signup-email-message");
+    const emailInput = document.querySelector("#signup-email");
+    emailInput.oninput = function (event) {
+        emailMessage.innerText = "";
+    }
 </script>
 {{/section}}
-
 
 <div class="row g-5 pt-4 pb-4">
     <div class="col-4">
         <h3 style="text-align: center;">Sign up</h3>
         <form id="signup-form" action="/auth/signup" method="POST">
+            {{#if error}}
+            <div class="mb-3">
+                <label for="signup-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="signup-email" aria-describedby="emailHelp" name="email"
+                    value="{{data.email}}">
+                <p class="signup-email-message text-danger">{{message}}</p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-username" class="form-label">Name</label>
+                <input type="text" class="form-control" id="signup-username" name="username" value="{{data.username}}">
+                <p class=""></p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="signup-address" name="address" value="{{data.address}}">
+                <p class=""></p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-password" class="form-label">Password</label>
+                <div class="box-password d-flex justify-content-between">
+                    <input type="password" class="form-control" id="signup-password" name="password"
+                        value="{{data.password}}">
+                    <button class="show-password-btn btn"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="signup-password-confirm" class="form-label">Confirm password</label>
+                <div class="box-password-confirm d-flex justify-content-between">
+                    <input type="password" class="form-control" id="signup-password-confirm" name="passwordConfirm">
+                    <button class="show-password-confirm-btn btn"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>
+            {{else}}
             <div class="mb-3">
                 <label for="signup-email" class="form-label">Email address</label>
                 <input type="email" class="form-control" id="signup-email" aria-describedby="emailHelp" name="email">
@@ -40,6 +82,11 @@
             <div class="mb-3">
                 <label for="signup-username" class="form-label">Name</label>
                 <input type="text" class="form-control" id="signup-username" name="username">
+                <p class=""></p>
+            </div>
+            <div class="mb-3">
+                <label for="signup-address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="signup-address" name="address">
                 <p class=""></p>
             </div>
             <div class="mb-3">
@@ -60,6 +107,7 @@
                 <input type="checkbox" class="form-check-input" id="exampleCheck1">
                 <label class="form-check-label" for="exampleCheck1">Check me out</label>
             </div>
+            {{/if}}
             <button type="submit" class="btn btn-primary">Sign up</button>
             <a href="/auth/signin" class="btn btn-outline-secondary">Sign in</a>
         </form>

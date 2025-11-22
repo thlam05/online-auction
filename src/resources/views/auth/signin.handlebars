@@ -24,16 +24,20 @@
 
     <div class="col-4">
         <h3 style="text-align: center;">Sign in</h3>
+        {{#if error}}
+        <p class="signin-message text-danger">{{message}}</p>
+        {{/if}}
         <form id="signin-form" action="/auth/signin" method="POST">
             <div class="mb-3">
                 <label for="signin-email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="signin-email" aria-describedby="emailHelp" name="username">
-                <p class="signin-message"></p>
+                <input type="email" class="form-control" id="signin-email" aria-describedby="emailHelp" name="username"
+                    value="{{data.username}}">
             </div>
             <div class="mb-3">
                 <label for="signin-password" class="form-label">Password</label>
                 <div class="box-password d-flex justify-content-between">
-                    <input type="password" class="form-control" id="signin-password" name="password">
+                    <input type="password" class="form-control" id="signin-password" name="password"
+                        value="{{data.password}}">
                     <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
                     <p class="signin-message"></p>
                 </div>
@@ -48,9 +52,9 @@
         <div id="signin-social" class="">
             <p class="flex-1">Sign in with</p>
             <div class="d-flex justify-content-around">
-                <button class="btn btn-outline-warning">Google</button>
-                <button class="btn btn-outline-primary">Facebook</button>
-                <button class="btn btn-outline-secondary">Github</button>
+                <a class="btn btn-outline-warning" href="/auth/google">Google</a>
+                <a class="btn btn-outline-primary" href="/auth/facebook">Facebook</a>
+                <a class="btn btn-outline-secondary" href="/auth/github">Github</a>
             </div>
         </div>
     </div>

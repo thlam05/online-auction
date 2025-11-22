@@ -2,6 +2,7 @@ import session from "express-session";
 import { ConnectSessionKnexStore } from "connect-session-knex";
 import db from "./db.config.js";
 import config from "./config.js";
+import passport from "passport";
 
 function configSession(app) {
     app.use(session({
@@ -14,6 +15,8 @@ function configSession(app) {
         saveUninitialized: true,
         cookie: { maxAge: 1000 * 60 * 60 }
     }));
+
+    app.use(passport.authenticate('session'));
 }
 
 export default configSession;

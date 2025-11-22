@@ -1,7 +1,7 @@
 
 class HomeController {
     // GET - /
-    showHomePage(req, res, next) {
+    getHomePage(req, res, next) {
         res.render("home");
     }
 }

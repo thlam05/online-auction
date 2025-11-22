@@ -1,9 +1,10 @@
 import express from "express";
 import route from "./routes/index.route.js";
-import { engine } from "express-handlebars";
-import expressHandlebarsSections from "express-handlebars-sections";
 import config from "./configs/config.js";
 import configSession from "./configs/session.config.js";
+import configEngine from "./configs/engine.config.js";
+import passport from "passport";
+import { authenticate } from "./middlewares/authenticate.js";
 
 const app = express();
 const port = config.port;
@@ -11,16 +12,14 @@ const port = config.port;
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(express.static("src/public"));
+app.use(passport.initialize());
 
-app.engine("handlebars", engine({
-    helpers: {
-        section: expressHandlebarsSections()
-    }
-}));
-app.set("view engine", "handlebars");
-app.set("views", "src/resources/views");
 
-// configSession(app);
+configEngine(app);
+
+configSession(app);
+
+app.use(authenticate);
 
 route(app);
 

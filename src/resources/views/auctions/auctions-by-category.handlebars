@@ -1,29 +1,309 @@
-{{#section "js"}}
-{{/section}}
+<div class="row .row-cols-2 g-3 pt-3 pb-3">
 
-<div class="row row-cols-2">
-    <div class="col col-3">
-        <div class="card" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                    card's content.</p>
-                <a href="#" class="card-link">Card link</a>
-                <a href="#" class="card-link">Another link</a>
+    <div class="col col-2 pt-2">
+        <div class="card p-2">
+            <h5 class="border-bottom border-gray p-2">Filters</h5>
+
+            <div class="border-bottom border-gray mb-2">
+                <p class="text m-0 ms-2 me-2 border-bottom border-gray pb-1">Category</p>
+
+                <div class="">
+                    <button class="btn category-dropdown-btn" data-bs-toggle="collapse" data-bs-target="#cat1">
+                        Category
+                        <i class="bi bi-chevron-down"></i>
+                        {{!-- <i class="bi bi-chevron-up"></i> --}}
+                    </button>
+
+                    <div id="cat1" class="collapse show">
+                        <ul class="list-unstyled category-dropdown-list">
+                            <li><a href="#" class="text-secondary category-dropdown-item">All Electronics</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Laptops (86)</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Smartphones</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Cameras</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Headphones</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="">
+                    <button class="btn category-dropdown-btn" data-bs-toggle="collapse" data-bs-target="#cat2">
+                        Category
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+
+                    <div id="cat2" class="collapse show">
+                        <ul class="list-unstyled category-dropdown-list">
+                            <li><a href="#" class="text-secondary category-dropdown-item">All Electronics</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Laptops (86)</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Smartphones</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Cameras</a></li>
+                            <li><a href="#" class="text-secondary category-dropdown-item">Headphones</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+
+            <div class="border-bottom border-gray mb-2 pb-2">
+                <p class="text m-0 ms-2">Price range</p>
+                <div class="price-range">
+                    <form action="" class="ps-3 pe-3">
+                        <div class="d-flex align-items-center justify-content-around">
+                            <label for="">Min</label>
+                            <input type="text" class="form-control p-1">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-around mt-1">
+                            <label for="">Max</label>
+                            <input type="text" class="form-control p-1">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-secondary m-2">Filter</button>
         </div>
     </div>
-    <div class="col col-9">
-        <div class="card" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                    card's content.</p>
-                <a href="#" class="card-link">Card link</a>
-                <a href="#" class="card-link">Another link</a>
+
+    <div class="col col-10">
+        <div class="d-flex align-items-center p-3">
+            <span class="me-3">Sort by</span>
+            <select class="form-select w-auto">
+                <option selected>Ending Soonest</option>
+                <option>Starting Soonest</option>
+                <option>Lowest Priceaaaaaaaaaaaaaaaaaaaaaa</option>
+                <option>Highest Price</option>
+            </select>
+        </div>
+        <div class="auctions">
+            <div class="row row-cols-3 g-3">
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+                            class="card-img-top card-product-img" alt="Laptop">
+                        <div class="card-body card-product-info">
+                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Current price:</p>
+                                <p class="mb-1">11000 $</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">By bidder:</p>
+                                <p class="mb-1">USER</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-1">Posted Date:</p>
+                                <p class="mb-1">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Remaining time:</p>
+                                <p class="mb-2">DD HH:MM:SS</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-2">Total Bids:</p>
+                                <p class="mb-2">18</p>
+                            </div>
+                            <div class="">
+                                <a href="#" class="btn btn-primary w-100">Bib now</a>
+                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="paging">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
+
 </div>

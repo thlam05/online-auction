@@ -1,13 +1,14 @@
 import knex from "knex";
+import config from "./config.js";
 
 const db = knex({
     client: "pg",
     connection: {
-        host: "aws-1-ap-southeast-2.pooler.supabase.com",
-        port: 5432,
-        user: "postgres.jusvudcbvawagngobnsm",
-        password: "c1NZUAEy0C8t0v4Y",
-        database: "postgres"
+        host: config.databaseHost,
+        port: config.databasePort,
+        user: config.databaseUser,
+        password: config.databasePassword,
+        database: config.databaseName
     },
     pool: { min: 0, max: 7 }
 });

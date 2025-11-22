@@ -46,7 +46,6 @@
 }
 
 #footer {
-  margin-top: 16px;
   padding: 40px 0;
   border-top: 1px solid #ccc;
   text-align: center;
@@ -59,7 +58,7 @@
 
 .top-list-auction {
   padding-top: 24px;
-  padding-bottom: 16px;
+  padding-bottom: 24px;
 }
 
 .card-title {
@@ -86,6 +85,86 @@
 
 .card-product-info .btn {
   margin-top: 0.5rem;
+}
+
+.auctions {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #ccc;
+}
+
+.paging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.category-dropdown-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 4px 16px;
+  font-size: 14px;
+}
+
+.category-dropdown-list {
+  padding: 0 28px;
+}
+
+.category-dropdown-item {
+  padding: 4px 0;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.price-range {
+  font-size: 14px;
+}
+
+.price-range .form-control {
+  line-height: 20px;
+  width: 80px;
+}
+
+.remaining-time-auction {
+  border-left: 20px solid;
+  padding: 4px 28px;
+  margin-bottom: 16px;
+}
+
+.remaining-time-auction p {
+  margin: 0;
+}
+
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  padding: 8px 20px;
+  height: 100%;
+}
+
+.profile-sidebar-item {
+  padding: 8px;
+  margin: 2px 0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+}
+
+.profile-sidebar-item.active {
+  border: 1px rgb(13, 110, 253) solid;
+  color: rgb(13, 110, 253);
+}
+
+.profile-sidebar-item:hover {
+  background-color: #ccc;
+  cursor: pointer;
+}
+
+.profile-sidebar-item i {
+  margin-right: 16px;
 }
 
 /*# sourceMappingURL=app.css.map */

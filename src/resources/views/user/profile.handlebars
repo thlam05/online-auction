@@ -1,0 +1,65 @@
+<div class="">
+    <p class="fs-4 border-bottom border-gray">Profile information</p>
+    <button type="button" class="btn btn-outline-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalVerify">
+        <i class="bi bi-pencil-square me-2"></i>
+        Edit profile
+    </button>
+
+    <div class="modal fade" id="modalVerify" tabindex="-1" aria-labelledby="modalVerifyTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalVerifyTitle">Verify Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Please enter your password to edit your profile:</p>
+                    <form action="">
+                        <input type="password" id="verifyPassword" class="form-control" placeholder="Enter password">
+                    </form>
+                    <div id="passwordError" class="text-danger mt-2" style="display: none;">
+                        Incorrect password. Please try again.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="verifyBtn">Verify</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form class="form row row-cols-2 g-3">
+        <div class="col">
+            <p class="mb-0">Full name</p>
+            <input type="text" class="form-control" name="username" value="User name" autocomplete="name" disabled>
+        </div>
+
+        <div class="col">
+            <p class="mb-0">Email</p>
+            <input type="email" class="form-control" name="email" value="email@gmail.com" autocomplete="email" disabled>
+        </div>
+
+        <div class="col">
+            <p class="mb-0">Address</p>
+            <input type="text" class="form-control" name="address" value="Address..." autocomplete="street-address"
+                disabled>
+        </div>
+
+        <div class="col"></div>
+
+        <div class="col">
+            <p class="mb-0">Password</p>
+            <input type="password" class="form-control" name="password" value="aaaaaaaa" autocomplete="off" disabled>
+        </div>
+
+        <div class="col d-none">
+            <p class="mb-0">Confirm password</p>
+            <input type="password" class="form-control" name="password-confirm" value="aaaaaaaa" autocomplete="off"
+                disabled>
+        </div>
+    </form>
+</div>

@@ -11,7 +11,13 @@ const User = {
 
     findByEmail(email) {
         return db("users").where({ email: email }).first();
-    }
+    },
+
+    createOne(user) {
+        return db("users").insert(user).returning("*");
+    },
+
+
 };
 
 export default User;

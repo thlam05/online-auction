@@ -4,25 +4,21 @@ import authController from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.get("/signin", authController.showSignIn);
+router.get("/signin", authController.getSignIn);
+router.post("/signin", authController.signIn);
+router.get("/signup", authController.getSignUp);
+router.post('/signup', authController.signUp);
+router.post('/logout', authController.logout);
+router.get("/otp-verify", authController.getOtpVerify);
+router.post('/otp-verify', authController.verifyOtp);
 
-router.get("/signup", authController.showSignUp);
+router.get('/google', passport.authenticate('google', { scope: ['profile'] }));
 
-router.get("/otp-verify", authController.showOtpVerify);
-
-// router.get("/google", passport.authenticate("google", {
-//     scope: ["profile", "email"]
-// }))
-
-// router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }),
-//     (req, res) => {
-//         res.redirect("/");
-//     }
-// )
-
-router.post("/signin", passport.authenticate("local", {
-    successRedirect: '/',
-    failureRedirect: '/auth/signin'
-}))
+router.get('/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    function (req, res) {
+        // Successful authentication, redirect home.
+        res.redirect('/');
+    });
 
 export default router;

@@ -1,0 +1,36 @@
+{{#section "js"}}
+<script>
+    const resendCodeBtn = document.querySelector("#resend-code-btn");
+    resendCodeBtn.onclick = function (event) {
+        resendCodeBtn.disabled = true;
+        resendCodeBtn.innerText = "Resend code 120s";
+        setTimeout(() => {
+            resendCodeBtn.disabled = false;
+        }, 120 * 1000);
+        setInterval(() => {
+            let timeLeft = parseInt(resendCodeBtn.innerText.split(" ")[2]) - 1;
+            if (timeLeft > 0) {
+                resendCodeBtn.innerText = `Resend code ${timeLeft}s`;
+            } else {
+                resendCodeBtn.innerText = "Resend code";
+            }
+        }, 1000);
+    }
+</script>
+{{/section}}
+
+<div class="d-flex justify-content-center" style="margin-top: 200px; margin-bottom: 200px;">
+
+    <div class="col-5">
+        <p class="text-danger">{{message}}</p>
+        <form action="/auth/otp-verify" method="POST">
+            <div class="mb-3">
+                <label for="input-otp-verify" class="form-label">OTP Verify</label>
+                <input type="text" class="form-control" id="input-otp-verify" name="otp">
+                <input type="hidden" name="pendingUserId" value="{{pendingUserId}}">
+            </div>
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+        <button class="btn btn-outline-secondary mt-2" id="resend-code-btn">Resend code</button>
+    </div>
+</div>
