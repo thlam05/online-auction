@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "../configs/passport.config.js";
 import authController from "../controllers/auth.controller.js";
+import { ensureAuthenticated } from "../middlewares/authenticate.js";
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ router.post('/signup', authController.signUp);
 router.post('/logout', authController.logout);
 router.get("/otp-verify", authController.getOtpVerify);
 router.post('/otp-verify', authController.verifyOtp);
+router.post('/verify-password', authController.verifyPassword);
 
 router.get('/google', passport.authenticate('google', { scope: ['profile'] }));
 

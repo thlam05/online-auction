@@ -22,12 +22,16 @@
 <div class="d-flex justify-content-center" style="margin-top: 200px; margin-bottom: 200px;">
 
     <div class="col-5">
+        {{#if error}}
         <p class="text-danger">{{message}}</p>
+        {{/if}}
+        <p class="text-warning">{{message}}</p>
         <form action="/auth/otp-verify" method="POST">
             <div class="mb-3">
                 <label for="input-otp-verify" class="form-label">OTP Verify</label>
                 <input type="text" class="form-control" id="input-otp-verify" name="otp">
                 <input type="hidden" name="pendingUserId" value="{{pendingUserId}}">
+                <input type="hidden" name="email" value="{{email}}">
             </div>
             <button type="submit" class="btn btn-primary">Verify</button>
         </form>

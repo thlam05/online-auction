@@ -6,3 +6,14 @@ export function authenticate(req, res, next) {
     res.locals.isAuthenticated = req.isAuthenticated();
     next();
 }
+
+export function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    else {
+        console.log(req.originalUrl);
+        req.session.redirectTo = req.originalUrl;
+        return res.redirect('/auth/signin');
+    }
+}

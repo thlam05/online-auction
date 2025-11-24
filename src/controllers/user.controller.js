@@ -1,4 +1,4 @@
-
+import userService from "../services/user.service.js";
 
 class UserController {
     // GET - /user/profile
@@ -27,6 +27,21 @@ class UserController {
         res.render("user/activity-bids", {
             layout: "user-layout"
         });
+    }
+
+    // PATHC - /user/profile
+    async updateProfileInformation(req, res, next) {
+        const { email, username, address } = req.body;
+        const result = await userService.updateProfileInformation(req.session.passport.user, { email, username, address });
+        if(result.status === 0 || result.status ===3) {
+            req.session.passport.user.email = email;
+            req.session.passport.user.username = username;
+            req.session.passport.user.address = address;
+        }
+        if(result.status === 3) {
+            
+        }
+        return res.json(result);
     }
 }
 

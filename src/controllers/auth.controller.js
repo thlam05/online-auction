@@ -2,6 +2,7 @@ import passport from "../configs/passport.config.js";
 import authService from "../services/auth.service.js";
 import PendingUser from "../models/pending-user.model.js";
 import { sendOtpEmail } from "../utils/nodemailer.js";
+import bcrypt from "bcrypt";
 
 class AuthController {
     //  GET - /auth/login
@@ -23,8 +24,7 @@ class AuthController {
 
     // POST - /auth/signin
     signIn(req, res, next) {
-        passport.authenticate('local', async (err, user, info) => {
-            console.log("Authentication info:", info);
+        return passport.authenticate('local', async (err, user, info) => {
             if (err) { return next(err); }
             if (!user) {
                 if (info && info.status === 3) {
@@ -32,14 +32,17 @@ class AuthController {
                     const rawData = info.data;
                     rawData.otp = otp;
                     const saveResult = await authService.savePendingUser(rawData);
-                    return res.redirect(`/auth/otp-verify?email=${req.body.email}&pendingUserId=${saveResult.data.id}`);
+                    return res.redirect(`/auth/otp-verify?email=${req.body.username}&pendingUserId=${saveResult.data.id}`);
                 }
                 return res.render("auth/signin", { data: req.body, message: info.message, error: true });
             }
 
             req.logIn(user, (err) => {
                 if (err) return next(err);
-                return res.redirect('/');
+                const redirectTo = req.session.redirectTo || '/';
+                console.log(redirectTo);
+                delete req.session.redirectTo;
+                return res.redirect(redirectTo);
             });
         })(req, res, next);
     }
@@ -69,8 +72,8 @@ class AuthController {
 
     // POST - /auth/otp-verify
     async verifyOtp(req, res, next) {
-        const { otp, pendingUserId } = req.body;
-        const pendingUser = await PendingUser.findById(pendingUserId);
+        const { otp, pendingUserId, email } = req.body;
+        const pendingUser = await PendingUser.findById(pendingUserId) || await PendingUser.findByEmail(email);
         if (pendingUser == undefined) {
             return res.render("/auth/otp-verify", { email: req.body.email, pendingUserId, message: "Invalid pending user. Please sign up again.", error: true });
         }
@@ -82,6 +85,16 @@ class AuthController {
         }
         const createResult = await authService.createUserFromPending(pendingUser);
         res.render("auth/signin", { message: "Account verified successfully. Please sign in." });
+    }
+
+    // POST - /auth/verify-password
+    async verifyPassword(req, res, next) {
+        const { password } = req.body;
+        const user = req.session.passport.user;
+        if (user && bcrypt.compareSync(password, user.password)) {
+            return res.json({ valid: true });
+        }
+        return res.json({ valid: false });
     }
 }
 

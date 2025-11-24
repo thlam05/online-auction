@@ -17,6 +17,9 @@ const User = {
         return db("users").insert(user).returning("*");
     },
 
+    updateOne(id, user) {
+        return db("users").where({ id: id }).update(user);
+    }
 
 };
 

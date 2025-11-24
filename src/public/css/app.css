@@ -167,4 +167,8 @@
   margin-right: 16px;
 }
 
+.form-control.invalid {
+  border-color: #dc3545;
+}
+
 /*# sourceMappingURL=app.css.map */

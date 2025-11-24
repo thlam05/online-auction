@@ -94,7 +94,6 @@ const authService = {
     },
 
     async createUserFromPending(pendingUser) {
-
         const row = await User.createOne({
             username: pendingUser.username,
             email: pendingUser.email,
@@ -112,6 +111,7 @@ const authService = {
             data: newUser
         }
     }
+
 };
 
 export default authService;
