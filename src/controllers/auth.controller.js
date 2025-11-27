@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 class AuthController {
     //  GET - /auth/login
     getSignIn(req, res, next) {
+        console.log(req.session.redirectTo);
         res.render("auth/signin");
     }
 
@@ -20,7 +21,6 @@ class AuthController {
         const { email, pendingUserId } = req.query;
         res.render("auth/otp-verify", { email, pendingUserId });
     }
-
 
     // POST - /auth/signin
     signIn(req, res, next) {
@@ -39,8 +39,8 @@ class AuthController {
 
             req.logIn(user, (err) => {
                 if (err) return next(err);
-                const redirectTo = req.session.redirectTo || '/';
-                console.log(redirectTo);
+                console.log("2", req.session.redirectTo);
+                const redirectTo = req.session.passport.redirectTo || '/';
                 delete req.session.redirectTo;
                 return res.redirect(redirectTo);
             });
