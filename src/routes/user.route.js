@@ -10,5 +10,6 @@ router.get("/reviews", userController.getReviews);
 router.get("/watch-list", userController.getWatchList);
 router.get("/activity-bids", userController.getActivityBids);
 router.patch("/profile", userController.updateProfileInformation);
+router.patch("/password", userController.changePassword);
 
 export default router;

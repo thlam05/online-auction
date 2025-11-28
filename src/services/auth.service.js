@@ -1,27 +1,28 @@
-import User from "../models/user.model.js";
+import userModel from "../models/user.model.js";
 import PendingUser from "../models/pending-user.model.js";
 import bcrypt from "bcrypt";
 import config from "../configs/config.js";
+import { sendOtpEmail } from "../utils/nodemailer.js"
+import pendingUserModel from "../models/pending-user.model.js";
 
 const authService = {
     async signInWithEmail(rawData) {
         // rawData: { signInField, password }
-        const user = await User.findByEmail(rawData.signInField);
+        const user = await userModel.findByEmail(rawData.signInField);
         if (user == undefined) {
-            const pendingUser = await PendingUser.findByEmail(rawData.signInField);
-            if (pendingUser != undefined) {
-                return {
-                    message: "Account not verified. Please check your email for the OTP to verify your account.",
-                    status: 3,
-                    data: pendingUser
-                }
-            }
             return {
                 message: "Incorrect Email or password",
                 status: 1
             }
         }
         if (bcrypt.compareSync(rawData.password, user.password)) {
+            if (user.is_verified == false) {
+                return {
+                    status: 2,
+                    message: "Verify OTP to sign in",
+                    data: user
+                }
+            }
             return {
                 message: "Success",
                 status: 0,
@@ -31,87 +32,212 @@ const authService = {
         else {
             return {
                 message: "Incorrect Email or password",
-                status: 2
-            }
-        }
-    },
-
-    async isExitingUserByEmail(email) {
-        const existingUser = await User.findByEmail(email);
-        if (existingUser != undefined) {
-            return {
-                message: "Email already in use",
                 status: 1
             }
         }
-        else {
+    },
+
+    async signUpWithEmail(data) {
+        const isExistEmail = await userModel.findByEmail(data.email);
+        if (isExistEmail) {
             return {
-                message: "Email available",
-                status: 0
+                status: 1,
+                message: "Email already exist",
+                data: isExistEmail
+            }
+        }
+
+        data.password = bcrypt.hashSync(data.password, config.saltRounds);
+        data.created_at = new Date(Date.now());
+        data.updated_at = new Date(Date.now());
+        data.is_verified = false;
+        const [userCreate] = await userModel.createOne(data);
+        const { otp, info } = await sendOtpEmail(userCreate.email);
+        const pendingData = {
+            user_id: userCreate.id,
+            email: userCreate.email,
+            otp: otp,
+            created_at: new Date(Date.now()),
+            expired_at: new Date(Date.now() + 5 * 60 * 1000),
+            message: "Verify the OTP we just sent to your email to register your account",
+            redirect_to: "/auth/signin"
+        }
+        const [pendingUser] = await pendingUserModel.createOne(pendingData);
+        return {
+            status: 0,
+            message: "Successfully",
+            data: pendingUser
+        }
+    },
+
+    async signInWithGoogle(data) {
+        const user = await userModel.findByGoogleId(data.google_id);
+        if (!user) {
+            const userByEmail = await userModel.findByEmail(data.email);
+            if (!userByEmail) {
+                // tao moi
+                const userData = {};
+                userData.email = data.email;
+                userData.google_id = data.google_id;
+                userData.username = data.username;
+                userData.created_at = new Date(Date.now());
+                userData.updated_at = new Date(Date.now());
+                userData.is_verified = true;
+                userData.permission = 0;
+                const [newUser] = await userModel.createOne(userData);
+                return {
+                    status: 0,
+                    message: "Successfully",
+                    data: newUser
+                }
+            }
+            else {
+                const { id, ...userData } = userByEmail;
+                userData.google_id = data.google_id;
+                userData.is_verified = true;
+                const [updatedUser] = await userModel.updateOne(id, userData);
+                await pendingUserModel.deleteByEmail(userData.email);
+                return {
+                    status: 0,
+                    message: "Successfully",
+                    data: updatedUser
+                }
+            }
+        }
+        return {
+            status: 0,
+            message: "Successfully",
+            data: user
+        }
+    },
+
+    async signInWithFaceBook(data) {
+        // username, facebook_id
+        const user = await userModel.findByFacebookId(data.facebook_id);
+        if (!user) {
+            const userData = {};
+            userData.username = data.username;
+            userData.facebook_id = data.facebook_id;
+            userData.created_at = new Date(Date.now());
+            userData.updated_at = new Date(Date.now());
+            userData.permission = 0;
+            const newUser = await userModel.createOne(userData);
+            return {
+                status: 0,
+                message: "Successfully",
+                data: newUser
+            }
+        }
+        return {
+            status: 0,
+            message: "Successfully",
+            data: user
+        }
+    },
+
+    async verifyUser(pendingUser) {
+        const userId = pendingUser.user_id;
+        let user = await userModel.findById(userId);
+        if (!user) {
+            return {
+                status: 1,
+                message: "User not found",
+                error: true
+            }
+        }
+        user.is_verified = true;
+        user = await userModel.updateOne(user.id, { is_verified: user.is_verified, email: pendingUser.email, updated_at: new Date(Date.now()) });
+        await pendingUserModel.deleteOne(pendingUser.id);
+        return {
+            status: 0,
+            message: "Successfully",
+            data: user
+        }
+    },
+
+    async savePendingUser(user, message) {
+        const pendingUser = await pendingUserModel.findByUserId(user.id);
+        const { otp, info } = await sendOtpEmail(user.email);
+        if (!pendingUser) {
+            const pendingData = {
+                user_id: user.id,
+                email: user.email,
+                otp: otp,
+                created_at: new Date(Date.now()),
+                expired_at: new Date(Date.now() + 5 * 60 * 1000),
+                message: message,
+                redirect_to: "/auth/signin"
+            }
+            const [newPendingUser] = await pendingUserModel.createOne(pendingData);
+            return {
+                status: 0,
+                message: "Successfully",
+                data: newPendingUser
+            }
+        }
+        else {
+            const { id, ...pendingData } = pendingUser;
+            pendingData.expired_at = new Date(Date.now() + 5 * 60 * 1000);
+            pendingData.otp = otp;
+            pendingData.message = message;
+            pendingData.redirect_to = "/auth/signin";
+            const [newPendingUser] = await pendingUserModel.updateOne(id, pendingData);
+            return {
+                status: 0,
+                message: "Successfully",
+                data: newPendingUser
             }
         }
     },
 
-    async savePendingUser(rawData) {
-        // rawData: { username, email, address, password, otp }
-        const hashedPassword = bcrypt.hashSync(rawData.password, config.saltRounds);
-        const pendingUser = await PendingUser.findByEmail(rawData.email);
-        if (pendingUser != undefined) {
-            pendingUser.otp = rawData.otp;
-            pendingUser.expired_at = new Date(Date.now() + 5 * 60 * 1000);
-            pendingUser.username = rawData.username;
-            pendingUser.address = rawData.address;
-            pendingUser.password = hashedPassword;
-            await PendingUser.updateOne(pendingUser.id, {
-                username: pendingUser.username,
-                address: pendingUser.address,
-                password: pendingUser.password,
-                otp: pendingUser.otp,
-                expired_at: pendingUser.expired_at
-            });
+    async checkExistEmail(email) {
+        const user = await userModel.findByEmail(email);
+        if (!user) {
             return {
-                message: "Success",
-                status: 0,
-                data: pendingUser
+                status: 1,
+                message: "Email is not exist"
             }
         }
-
-        const row = await PendingUser.createOne({
-            username: rawData.username,
-            email: rawData.email,
-            address: rawData.address,
-            password: hashedPassword,
-            otp: rawData.otp,
+        const { otp, info } = await sendOtpEmail(email);
+        const pendingData = {
+            user_id: user.id,
+            email: email,
+            otp: otp,
+            expired_at: new Date(Date.now() + 5 * 60 * 1000),
             created_at: new Date(Date.now()),
-            expired_at: new Date(Date.now() + 5 * 60 * 1000)
-        });
-        const newPendingUser = row[0];
+            message: "Verify OTP to recovery password",
+            redirect_to: `/auth/recovery-password?userId=${user.id}`
+        }
+        const [newPendingUser] = await pendingUserModel.createOne(pendingData);
         return {
-            message: "Success",
             status: 0,
+            message: "Email is exist",
             data: newPendingUser
         }
     },
 
-    async createUserFromPending(pendingUser) {
-        const row = await User.createOne({
-            username: pendingUser.username,
-            email: pendingUser.email,
-            address: pendingUser.address,
-            password: pendingUser.password,
-            permission: 0,
-            created_at: new Date(Date.now()),
-            updated_at: new Date(Date.now())
-        });
-        await PendingUser.deleteOne(pendingUser.id);
-        const newUser = row[0];
+    async recoveryPassword(userId, password) {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return {
+                status: 1,
+                message: "Don't find user"
+            }
+        }
+        const hashedPassword = bcrypt.hashSync(password, config.saltRounds);
+        const [updatedUser] = await userModel.updateOne(userId, { password: hashedPassword });
+        if (!updatedUser) {
+            return {
+                status: 1,
+                message: "Failed to update password"
+            }
+        }
         return {
-            message: "Success",
             status: 0,
-            data: newUser
+            message: "Successfully",
+            data: updatedUser
         }
     }
-
 };
 
 export default authService;

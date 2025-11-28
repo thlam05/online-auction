@@ -1,7 +1,7 @@
 import { create } from "express-handlebars";
 import db from "../configs/db.config.js"
 
-const PendingUser = {
+const pendingUserModel = {
     findByEmail(email) {
         return db("pending_users").where({ email: email }).first();
     },
@@ -10,17 +10,25 @@ const PendingUser = {
         return db("pending_users").where({ id: id }).first();
     },
 
+    findByUserId(id) {
+        return db("pending_users").where({ user_id: id }).first();
+    },
+
     createOne(pendingUserData) {
         return db("pending_users").insert(pendingUserData).returning("*");
     },
 
     updateOne(id, updateData) {
-        return db("pending_users").where({ id: id }).update(updateData);
+        return db("pending_users").where({ id: id }).update(updateData).returning("*");
     },
 
     deleteOne(id) {
         return db("pending_users").where({ id: id }).del();
+    },
+
+    deleteByEmail(email) {
+        return db("pending_users").where({ email: email }).del();
     }
 };
 
-export default PendingUser;
+export default pendingUserModel;

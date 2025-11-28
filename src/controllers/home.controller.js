@@ -2,7 +2,11 @@
 class HomeController {
     // GET - /
     getHomePage(req, res, next) {
-        res.render("home");
+        try {
+            res.render("home");
+        } catch (err) {
+            next(err);
+        }
     }
 }
 

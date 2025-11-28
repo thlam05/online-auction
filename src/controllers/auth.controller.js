@@ -1,100 +1,172 @@
 import passport from "../configs/passport.config.js";
 import authService from "../services/auth.service.js";
-import PendingUser from "../models/pending-user.model.js";
 import { sendOtpEmail } from "../utils/nodemailer.js";
 import bcrypt from "bcrypt";
+import pendingUserModel from "../models/pending-user.model.js";
 
 class AuthController {
     //  GET - /auth/login
     getSignIn(req, res, next) {
-        console.log(req.session.redirectTo);
-        res.render("auth/signin");
+        try {
+            res.render("auth/signin");
+        } catch (err) {
+            next(err);
+        }
     }
 
     // GET - /auth/signup
     getSignUp(req, res, next) {
-        res.render("auth/signup");
+        try {
+            res.render("auth/signup");
+        } catch (err) {
+            next(err);
+        }
     }
 
     // GET - /auth/otp-verify
-    getOtpVerify(req, res, next) {
-        const { email, pendingUserId } = req.query;
-        res.render("auth/otp-verify", { email, pendingUserId });
+    async getOtpVerify(req, res, next) {
+        try {
+            const { email, pendingUserId } = req.query;
+            const pendingUser = await pendingUserModel.findById(pendingUserId);
+            res.render("auth/otp-verify", { email, pendingUserId, message: pendingUser.message, redirectTo: pendingUser.redirect_to });
+        } catch (err) {
+            next(err);
+        }
     }
 
     // POST - /auth/signin
     signIn(req, res, next) {
-        return passport.authenticate('local', async (err, user, info) => {
-            if (err) { return next(err); }
-            if (!user) {
-                if (info && info.status === 3) {
-                    const { otp, result } = await sendOtpEmail(info.data.email);
-                    const rawData = info.data;
-                    rawData.otp = otp;
-                    const saveResult = await authService.savePendingUser(rawData);
-                    return res.redirect(`/auth/otp-verify?email=${req.body.username}&pendingUserId=${saveResult.data.id}`);
+        try {
+            return passport.authenticate('local', async (err, user, info) => {
+                if (err) { return next(err); }
+                if (info && info.status == 1) {
+                    return res.render("auth/signin", { data: req.body, message: info.message, error: true });
                 }
-                return res.render("auth/signin", { data: req.body, message: info.message, error: true });
-            }
-
-            req.logIn(user, (err) => {
-                if (err) return next(err);
-                console.log("2", req.session.redirectTo);
-                const redirectTo = req.session.passport.redirectTo || '/';
-                delete req.session.redirectTo;
-                return res.redirect(redirectTo);
-            });
-        })(req, res, next);
+                else if (info && info.status == 2) {
+                    const { status, message, data } = await authService.savePendingUser(user, "Your account has not been verified by OTP, please enter the OTP code to log in");
+                    return res.redirect(`/auth/otp-verify?email=${data.email}&pendingUserId=${data.id}`);
+                }
+                req.logIn(user, (err) => {
+                    if (err) return next(err);
+                    const redirectTo = req.session.passport.redirectTo || '/';
+                    delete req.session.redirectTo;
+                    return res.redirect(redirectTo);
+                });
+            })(req, res, next);
+        } catch (err) {
+            next(err);
+        }
     }
 
     // POST - /auth/logout
     logout(req, res, next) {
-        req.logout(function (err) {
-            if (err) { return next(err); }
-            res.redirect('/');
-        });
+        try {
+            req.logout(function (err) {
+                if (err) { return next(err); }
+                res.redirect('/');
+            });
+        } catch (err) {
+            next(err);
+        }
     }
 
     // POST - /auth/signup
     async signUp(req, res, next) {
-        const result = await authService.isExitingUserByEmail(req.body.email);
-        if (result.status === 0) {
-            const { otp, info } = await sendOtpEmail(req.body.email);
-            const rawData = req.body;
-            rawData.otp = otp;
-            const saveResult = await authService.savePendingUser(rawData);
-            res.redirect(`/auth/otp-verify?email=${req.body.email}&pendingUserId=${saveResult.data.id}`);
-        }
-        else {
-            res.render("auth/signup", { data: req.body, message: result.message, error: true });
+        try {
+            const { username, email, address, birthday, password } = req.body;
+            const data = { username, email, address, birthday, password };
+
+            const result = await authService.signUpWithEmail(data);
+            if (result.status == 1) {
+                res.render("auth/signup", { data: req.body, message: result.message, error: true });
+            }
+            else {
+                const { email, id } = result.data;
+                res.redirect(`/auth/otp-verify?email=${email}&pendingUserId=${id}`);
+            }
+        } catch (err) {
+            next(err);
         }
     }
 
     // POST - /auth/otp-verify
     async verifyOtp(req, res, next) {
-        const { otp, pendingUserId, email } = req.body;
-        const pendingUser = await PendingUser.findById(pendingUserId) || await PendingUser.findByEmail(email);
-        if (pendingUser == undefined) {
-            return res.render("/auth/otp-verify", { email: req.body.email, pendingUserId, message: "Invalid pending user. Please sign up again.", error: true });
+        try {
+            const { otp, pendingUserId, email, redirectTo } = req.body;
+            const pendingUser = await pendingUserModel.findById(pendingUserId) || await pendingUserModel.findByEmail(email);
+            if (pendingUser == undefined) {
+                return res.render("/auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "Invalid pending user. Please sign up again.", error: true, redirectTo: pendingUser.redirect_to });
+            }
+            if (pendingUser.expired_at < new Date(Date.now())) {
+                return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "OTP has expired. Please resend code again.", error: true, redirectTo: pendingUser.redirect_to });
+            }
+            if (pendingUser.otp != otp) {
+                return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "Incorrect OTP. Please try again.", error: true, redirectTo: pendingUser.redirect_to });
+            }
+            if (otp == pendingUser.otp) {
+                const result = await authService.verifyUser(pendingUser);
+                if (result.status == 0) {
+                    res.redirect(redirectTo);
+                }
+            }
+        } catch (err) {
+            next(err);
         }
-        if (pendingUser.expired_at < new Date(Date.now())) {
-            return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: "OTP has expired. Please resend code again.", error: true });
-        }
-        if (pendingUser.otp != otp) {
-            return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: "Incorrect OTP. Please try again.", error: true });
-        }
-        const createResult = await authService.createUserFromPending(pendingUser);
-        res.render("auth/signin", { message: "Account verified successfully. Please sign in." });
     }
 
     // POST - /auth/verify-password
     async verifyPassword(req, res, next) {
-        const { password } = req.body;
-        const user = req.session.passport.user;
-        if (user && bcrypt.compareSync(password, user.password)) {
-            return res.json({ valid: true });
+        try {
+            const { password } = req.body;
+            const user = req.session.passport.user;
+            if (user && bcrypt.compareSync(password, user.password)) {
+                return res.json({ valid: true });
+            }
+            return res.json({ valid: false });
+        } catch (err) {
+            next(err);
         }
-        return res.json({ valid: false });
+    }
+
+    async getEmailRecoveryPassword(req, res, next) {
+        try {
+            res.render("auth/get-email");
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async checkEmailRecoveryPassword(req, res, next) {
+        try {
+            const { email } = req.body;
+            const result = await authService.checkExistEmail(email);
+            if (result.status == 1) {
+                return res.render("auth/get-email", { errorMessage: result.message, error: true });
+            }
+            return res.redirect(`/auth/otp-verify?email=${result.data.email}&pendingUserId=${result.data.id}`);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async getRecoveryPassword(req, res, next) {
+        try {
+            const { userId } = req.query;
+            res.render("auth/recovery-password", { userId });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async recoveryPassword(req, res, next) {
+        try {
+            const { password, userId } = req.body;
+            const result = await authService.recoveryPassword(userId, password);
+            if (result.status == 0) return res.redirect("/auth/signin");
+            return res.json(result);
+        } catch (err) {
+            next(err);
+        }
     }
 }
 

@@ -6,6 +6,7 @@ import configEngine from "./configs/engine.config.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import { authenticate } from "./middlewares/authenticate.js";
+import { errorHandler, errorNotFoundHandler } from "./middlewares/error-handler.js";
 
 const app = express();
 const port = config.port;
@@ -24,6 +25,9 @@ configSession(app);
 app.use(authenticate);
 
 route(app);
+
+app.use(errorHandler);
+app.use(errorNotFoundHandler);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

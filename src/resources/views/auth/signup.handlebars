@@ -89,6 +89,12 @@
                 <input type="text" class="form-control" id="signup-address" name="address">
                 <p class=""></p>
             </div>
+
+            <div class="mb-3">
+                <label for="signup-address" class="form-label">Birthday</label>
+                <input type="date" class="form-control" id="signup-birthday" name="birthday">
+                <p class=""></p>
+            </div>
             <div class="mb-3">
                 <label for="signup-password" class="form-label">Password</label>
                 <div class="box-password d-flex justify-content-between">
@@ -115,8 +121,8 @@
             <p class="flex-1">Sign up with</p>
             <div class="d-flex justify-content-around">
                 <a href="/auth/google" class="btn btn-outline-warning">Google</a>
-                <a href="" class="btn btn-outline-primary">Facebook</a>
-                <a href="" class="btn btn-outline-secondary">Github</a>
+                <a href="/auth/facebook" class="btn btn-outline-primary">Facebook</a>
+                {{!-- <a href="" class="btn btn-outline-secondary">Github</a> --}}
             </div>
         </div>
     </div>

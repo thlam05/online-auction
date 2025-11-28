@@ -1,0 +1,22 @@
+{{#section "js"}}
+<script>
+
+</script>
+{{/section}}
+
+<div class="d-flex justify-content-center" style="margin-top: 200px; margin-bottom: 200px;">
+
+    <div class="col-5">
+        <p class="text fs-5">{{message}}</p>
+        {{#if error}}
+        <p class="text-danger">{{errorMessage}}</p>
+        {{/if}}
+        <form action="/auth/recovery-password/get-email" method="POST">
+            <div class="mb-3">
+                <label for="input-get-email" class="form-label">Input your email</label>
+                <input type="text" class="form-control" id="input-get-email" name="email">
+            </div>
+            <button type="submit" class="btn btn-primary">Get</button>
+        </form>
+    </div>
+</div>

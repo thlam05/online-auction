@@ -1,16 +1,24 @@
 import db from "../configs/db.config.js"
 
-const User = {
+const userModel = {
     findAll() {
         return db("users");
     },
 
     findById(id) {
-        return db("users").where({ id: id });
+        return db("users").where({ id: id }).first();
     },
 
     findByEmail(email) {
         return db("users").where({ email: email }).first();
+    },
+
+    findByGoogleId(google_id) {
+        return db("users").where({ google_id: google_id }).first();
+    },
+
+    findByFacebookId(facebook_id) {
+        return db("users").where({ facebook_id: facebook_id }).first();
     },
 
     createOne(user) {
@@ -18,9 +26,9 @@ const User = {
     },
 
     updateOne(id, user) {
-        return db("users").where({ id: id }).update(user);
+        return db("users").where({ id: id }).update(user).returning("*");
     }
 
 };
 
-export default User;
+export default userModel;

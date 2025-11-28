@@ -7,7 +7,10 @@ function configEngine(app) {
         layoutsDir: "src/resources/views/layouts",
         partialsDir: "src/resources/views/partials",
         helpers: {
-            section: expressHandlebarsSections()
+            section: expressHandlebarsSections(),
+            formatDate: function (date) {
+                return new Date(date).toISOString().split("T")[0];
+            }
         }
     }));
     app.set("view engine", "handlebars");

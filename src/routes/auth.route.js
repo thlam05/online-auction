@@ -8,19 +8,33 @@ const router = express.Router();
 router.get("/signin", authController.getSignIn);
 router.post("/signin", authController.signIn);
 router.get("/signup", authController.getSignUp);
-router.post('/signup', authController.signUp);
-router.post('/logout', authController.logout);
+router.post("/signup", authController.signUp);
+router.post("/logout", authController.logout);
 router.get("/otp-verify", authController.getOtpVerify);
-router.post('/otp-verify', authController.verifyOtp);
-router.post('/verify-password', authController.verifyPassword);
+router.post("/otp-verify", authController.verifyOtp);
+router.post("/verify-password", authController.verifyPassword);
+router.get("/recovery-password/get-email", authController.getEmailRecoveryPassword);
+router.post("/recovery-password/get-email", authController.checkEmailRecoveryPassword);
+router.get("/recovery-password", authController.getRecoveryPassword);
+router.post("/recovery-password", authController.recoveryPassword);
 
-router.get('/google', passport.authenticate('google', { scope: ['profile'] }));
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+router.get("/google/callback",
+    passport.authenticate("google", { failureRedirect: "/auth/signin" }),
     function (req, res) {
         // Successful authentication, redirect home.
-        res.redirect('/');
+        res.redirect("/");
+    });
+
+router.get("/facebook",
+    passport.authenticate("facebook"));
+
+router.get("/facebook/callback",
+    passport.authenticate("facebook", { failureRedirect: "/auth/signin" }),
+    function (req, res) {
+        // Successful authentication, redirect home.
+        res.redirect("/");
     });
 
 export default router;

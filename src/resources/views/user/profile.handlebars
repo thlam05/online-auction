@@ -81,18 +81,96 @@
             });
 
             const result = await response.json();
+            console.log(result);
             if (result.status === 0) {
                 const message = formEditProfile.querySelector(".message");
                 message.classList.remove("text-danger");
                 message.classList.add("text-success");
                 message.textContent = result.message;
-            } else {
+            }
+            else if (result.status == 3) {
+                if (result.redirectUrl) {
+                    window.location.href = result.redirectUrl;
+                }
+            }
+            else {
                 const message = formEditProfile.querySelector(".message");
                 message.classList.remove("text-success");
                 message.classList.add("text-danger");
                 message.textContent = result.message;
             }
         }
+    }
+
+
+    const showPasswordBtn = document.querySelectorAll(".show-password-btn");
+    showPasswordBtn.forEach((btn) => {
+        btn.addEventListener("click", function () {
+            const input = btn.closest(".box-password").querySelector("input");
+
+            if (input.type === "password") {
+                input.type = "text";
+                btn.querySelector("i").classList.replace("bi-eye", "bi-eye-slash");
+            } else {
+                input.type = "password";
+                btn.querySelector("i").classList.replace("bi-eye-slash", "bi-eye");
+            }
+        });
+    });
+
+    const formEditPassword = document.querySelector("#formEditPassword");
+    formEditPassword.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const currentPassword = formEditPassword.querySelector('.form-control[name="currentPassword"]');
+        const newPassword = formEditPassword.querySelector('.form-control[name="password"]');
+        const confirmPassword = formEditPassword.querySelector('.form-control[name="confirmPassword"]');
+
+        currentPassword.classList.remove("invalid");
+        newPassword.classList.remove("invalid");
+        confirmPassword.classList.remove("invalid");
+
+        let formIsValid = true;
+        if (currentPassword.value == "") {
+            currentPassword.classList.add("invalid");
+            formIsValid = false;
+        }
+        if (newPassword.value == "") {
+            newPassword.classList.add("invalid");
+            formIsValid = false;
+        }
+        if (confirmPassword.value == "" || confirmPassword.value != newPassword.value) {
+            confirmPassword.classList.add("invalid");
+            formIsValid = false;
+        }
+
+        if (!formIsValid) return;
+
+        const formData = new FormData(e.target);
+        const body = Object.fromEntries(formData);
+
+        const response = await fetch('/user/password', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+
+        const result = await response.json();
+
+        const message = formEditPassword.querySelector(".message");
+        if (result.error) {
+            message.innerHTML = result.message;
+            message.classList.add("text-danger");
+            message.classList.remove("text-success");
+        }
+        else {
+            message.innerHTML = result.message;
+            message.classList.remove("text-danger");
+            message.classList.add("text-success");
+        }
+
     }
 </script>
 {{/section}}
@@ -150,6 +228,12 @@
                 autocomplete="street-address" disabled>
         </div>
 
+        <div class="col">
+            <p class="mb-0">birthday</p>
+            <input type="date" class="form-control" name="birthday" value="{{formatDate authUser.birthday}}"
+                autocomplete="bday" disabled>
+        </div>
+
         <div class="col"></div>
         <div class="col d-flex align-items-center justify-content-between">
             <button class="btn btn-outline-secondary" disabled>Update</button>
@@ -157,25 +241,35 @@
         </div>
     </form>
 
-    <form action="" class="row row-cols-2 g-3 mt-2">
+    <form id="formEditPassword" class="row row-cols-2 g-3 mt-2">
         <div class="col">
             <p class="mb-0">Current password</p>
-            <input type="password" class="form-control" name="current-password" autocomplete="off" disabled>
+            <div class="d-flex box-password">
+                <input type="password" class="form-control" name="currentPassword" autocomplete="off" disabled>
+                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+            </div>
         </div>
 
         <div class="col"></div>
 
         <div class="col">
             <p class="mb-0">Password</p>
-            <input type="password" class="form-control" name="password" autocomplete="off" disabled>
+            <div class="d-flex box-password">
+                <input type="password" class="form-control" name="password" autocomplete="off" disabled>
+                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+            </div>
         </div>
 
         <div class="col">
             <p class="mb-0">Confirm password</p>
-            <input type="password" class="form-control" name="password-confirm" autocomplete="off" disabled>
+            <div class="d-flex box-password">
+                <input type="password" class="form-control" name="confirmPassword" autocomplete="off" disabled>
+                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+            </div>
         </div>
-        <div class="col">
+        <div class="col d-flex align-items-center justify-content-between">
             <button class="btn btn-outline-secondary" disabled>Change password</button>
+            <p class="text-danger mb-0 message"></p>
         </div>
     </form>
 </div>
