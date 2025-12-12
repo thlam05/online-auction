@@ -49,9 +49,17 @@ const auctionModel = {
         return db("auctions").count("id as count").where("category_id", cat_id).first();
     },
 
+    countAuctionsByQuery(tsquery) {
+        return db("auctions").count("id as count").whereRaw(`fts @@ to_tsquery('${tsquery}')`).first();
+    },
+
+    findAuctionsByQuery(tsquery, limit, offset, sortQuery) {
+        return db("auctions").whereRaw(`fts @@ to_tsquery('${tsquery}')`).orderBy(...sortQuery).limit(limit).offset(offset);
+    },
+
     createOne(auction) {
         return db("auctions").insert(auction).returning("*");
-    }
+    },
 };
 
 export default auctionModel;

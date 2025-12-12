@@ -216,8 +216,35 @@ const auctionService = {
         );
 
         return auctions;
-    }
+    },
 
+
+    async countAuctionByQuery(q) {
+        const tsquery = q.trim().split(/\s+/).join("|");
+        const { count } = await auctionModel.countAuctionsByQuery(tsquery);
+        return +count;
+    },
+
+    async getAuctionByQuery(q, limit, offset, sort) {
+        const tsquery = q.trim().split(/\s+/).join("|");
+        let sortQuery = ["end_at", "decs"];
+        if (sort) {
+            sortQuery = sort.trim().split(/-+/);
+        }
+
+
+        const auctions = await auctionModel.findAuctionsByQuery(tsquery, limit, offset, sortQuery);
+
+        await Promise.all(
+            auctions.map(async (auction) => {
+                auction.category = await categoryModel.findById(auction.category_id);
+                auction.seller = await userModel.findById(auction.seller_id);
+                auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
+            })
+        );
+
+        return auctions;
+    }
 
 };
 

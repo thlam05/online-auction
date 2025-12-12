@@ -45,6 +45,17 @@
 
     setInterval(updateRemainingTime, 1000);
 </script>
+<script>
+    const formSelect = document.querySelector(".form-select");
+    const formSort = document.querySelector("#form-sort");
+    formSelect.onchange = function (event) {
+        const type = this.options[this.selectedIndex].dataset.type;
+        const url = new URL(window.location.href);
+        url.searchParams.set("sort", type);
+
+        window.location.href = url.toString();
+    }
+</script>
 {{/section}}
 
 <div class="row .row-cols-2 g-3 pt-3 pb-3">
@@ -69,17 +80,16 @@
     </div>
 
     <div class="col col-10 pt-3">
-        {{!-- <div class="d-flex align-items-center p-3">
-            <span class="me-3">Sort by</span>
-            <select class="form-select w-auto">
-                <option selected>Ending Soonest</option>
-                <option>Starting Soonest</option>
-                <option>Lowest Priceaaaaaaaaaaaaaaaaaaaaaa</option>
-                <option>Highest Price</option>
-            </select>
-        </div> --}}
 
-        <h4 class="p-3 ms-3">All auctions</h4>
+        <div class="d-flex align-items-center p-3">
+            <h4 class="ms-3 me-5">Search result</h4>
+            <span class="me-3 ms-3">Sort by</span>
+            <select class="form-select w-auto">
+                <option selected data-type="end_at-desc">Ending time (descending)</option>
+                <option data-type="current_price-asc">Price (ascending)</option>
+                <option data-type="current_price-desc">Price (descending)</option>
+            </select>
+        </div>
 
         {{#if empty}}
         <p class="text-dark">No results found.</p>
@@ -149,6 +159,8 @@
             </nav>
         </div>
         {{/if}}
+
     </div>
+
 
 </div>

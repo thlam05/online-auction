@@ -6,10 +6,17 @@ class HomeController {
     // GET - /
     async getHomePage(req, res, next) {
         try {
-            const listCategories = await categoryModel.findCategoriesLevel1();
-            const top5EndingSoon = await auctionService.getTop5EndingSoon();
-            const top5MostBids = await auctionService.getTop5MostBids();
-            const top5HighestPrice = await auctionService.getTop5HighestPrice();
+            const [
+                listCategories,
+                top5EndingSoon,
+                top5MostBids,
+                top5HighestPrice
+            ] = await Promise.all([
+                categoryModel.findCategoriesLevel1(),
+                auctionService.getTop5EndingSoon(),
+                auctionService.getTop5MostBids(),
+                auctionService.getTop5HighestPrice()
+            ]);
 
             res.render("home", { listCategories, top5EndingSoon, top5MostBids, top5HighestPrice });
         } catch (err) {

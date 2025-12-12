@@ -87,6 +87,12 @@
                 <option>Highest Price</option>
             </select>
         </div> --}}
+
+        <h4 class="p-3 ms-3">Auctions by category: {{curCategory.name}}</h4>
+
+        {{#if empty}}
+        <p class="text-dark">No results found.</p>
+        {{else}}
         <div class="auctions">
             <div class="row row-cols-3 g-3">
                 {{#each auctions}}
@@ -130,7 +136,7 @@
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     <li class="page-item">
-                        <a class="page-link" href="/auctions/categories/{{curCategory}}?limit=6&page={{prevPage}}"
+                        <a class="page-link" href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{prevPage}}"
                             aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
@@ -138,16 +144,16 @@
                     {{#each pageNumbers}}
                     {{#if this.isCurrent}}
                     <li class="page-item"><a class="page-link bg-primary text-light"
-                            href="/auctions/categories/{{../curCategory}}?limit=6&page={{this.value}}">{{this.value}}</a>
+                            href="/auctions/categories/{{../curCategory.slug}}?limit=6&page={{this.value}}">{{this.value}}</a>
                     </li>
                     {{else}}
                     <li class="page-item"><a class="page-link"
-                            href="/auctions/categories/{{../curCategory}}?limit=6&page={{this.value}}">{{this.value}}</a>
+                            href="/auctions/categories/{{../curCategory.slug}}?limit=6&page={{this.value}}">{{this.value}}</a>
                     </li>
                     {{/if}}
                     {{/each}}
                     <li class="page-item">
-                        <a class="page-link" href="/auctions/categories/{{curCategory}}?limit=6&page={{nextPage}}"
+                        <a class="page-link" href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{nextPage}}"
                             aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
@@ -155,6 +161,7 @@
                 </ul>
             </nav>
         </div>
+        {{/if}}
     </div>
 
 </div>

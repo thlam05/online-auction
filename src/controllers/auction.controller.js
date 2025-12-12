@@ -29,8 +29,10 @@ class AuctionController {
             const nextPage = page < nPages ? page + 1 : nPages;
 
             const auctions = await auctionService.getAuctions(limit, offset);
+            const empty = auctions.length == 0;
 
-            res.render("auctions/all-auctions", { categories, auctions, pageNumbers, prevPage, nextPage });
+
+            res.render("auctions/all-auctions", { empty, categories, auctions, pageNumbers, prevPage, nextPage });
         } catch (err) {
             next(err);
         }
@@ -61,7 +63,9 @@ class AuctionController {
 
             const auctions = await auctionService.getAuctionByCatId(category.id, limit, offset);
 
-            res.render("auctions/auctions-by-category", { curCategory: category_slug, categories, auctions, pageNumbers, prevPage, nextPage });
+            const empty = auctions.length == 0;
+
+            res.render("auctions/auctions-by-category", { empty, curCategory: category, categories, auctions, pageNumbers, prevPage, nextPage });
         } catch (err) {
             next(err);
         }
@@ -91,8 +95,35 @@ class AuctionController {
     // GET - /auctions/search?
     async searchAuctions(req, res, next) {
         try {
-            console.log(req.query);
-            res.json({ message: "test" });
+            const categories = await categoryService.getAllCategory();
+            const { q, sort } = req.query;
+            if (!q) {
+                return res.render("auctions/search", { categories, empty: true });
+            }
+
+            const limit = req.query.limit || 6;
+            const page = req.query.page || 1;
+            const offset = (page - 1) * limit;
+
+            const count = await auctionService.countAuctionByQuery(q);
+            const nPages = Math.ceil(+count / limit);
+            const pageNumbers = [];
+            for (let i = 1; i <= nPages; i++) {
+                pageNumbers.push({
+                    value: i,
+                    isCurrent: i === +page,
+                });
+            }
+            const prevPage = page > 1 ? page - 1 : 1;
+            const nextPage = page < nPages ? page + 1 : nPages;
+
+            const auctions = await auctionService.getAuctionByQuery(q, limit, offset, sort);
+
+            const empty = auctions.length == 0;
+
+            const qSearch = q.trim().split(/\s+/).join("+");
+
+            res.render("auctions/search", { empty, categories, auctions, pageNumbers, prevPage, nextPage, qSearch });
         } catch (err) {
             next(err);
         }
