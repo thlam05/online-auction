@@ -46,10 +46,11 @@ class AuthController {
                     const { status, message, data } = await authService.savePendingUser(user, "Your account has not been verified by OTP, please enter the OTP code to log in");
                     return res.redirect(`/auth/otp-verify?email=${data.email}&pendingUserId=${data.id}`);
                 }
+
+                const redirectTo = req.session.redirectTo || '/';
+                delete req.session.redirectTo;
                 req.logIn(user, (err) => {
                     if (err) return next(err);
-                    const redirectTo = req.session.passport.redirectTo || '/';
-                    delete req.session.redirectTo;
                     return res.redirect(redirectTo);
                 });
             })(req, res, next);

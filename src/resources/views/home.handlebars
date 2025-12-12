@@ -1,377 +1,151 @@
 {{#section "js"}}
+<script>
+    const remaininTimes = document.querySelectorAll(".remaining-time");
+
+    function formatRemainingTime(ms) {
+        if (ms <= 0) return "It's over.";
+
+        let diff = ms;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff -= minutes * 60 * 1000;
+
+        const seconds = Math.floor(diff / 1000);
+
+        if (days > 0) {
+            let str = `${days}d: `;
+            if (hours > 0) str += ` ${hours}h: `;
+            if (minutes > 0) str += ` ${minutes}m`;
+            return str;
+        }
+
+        // <= 1 ngày -> hiển thị giây
+        let str = "";
+        if (hours > 0) str += `${hours}h: `;
+        if (minutes > 0) str += `${minutes}m: `;
+        str += `${seconds}s`;
+
+        return str.trim();
+    }
+
+    function updateRemainingTime() {
+        remaininTimes.forEach(function (element) {
+            const end = new Date(element.getAttribute("data-end-time"));
+            const now = new Date();
+            const diff = end - now;
+            element.textContent = formatRemainingTime(diff);
+        })
+    }
+
+    updateRemainingTime();
+
+    setInterval(updateRemainingTime, 1000);
+</script>
 {{/section}}
 
 <div class="category-section">
     <h5 class="mb-2">Category</h5>
     <div class="row row-cols-6 g-2 text-center">
-        <a href="/auctions/category" class="col text-decoration-none border text-secondary">Fashion</a>
-        <a href="/auctions/category" class="col text-decoration-none border text-secondary">Electronic</a>
-        <a href="/auctions/category" class="col text-decoration-none border text-secondary">Test</a>
+        {{#each listCategories}}
+        <a href="/auctions/categories/{{this.slug}}"
+            class="col text-decoration-none border text-secondary">{{this.name}}</a>
+        {{/each}}
     </div>
 </div>
 
 
-<a href="/auctions" class="nav-link text-primary mt-2">
+<a href="/auctions" class="d-inline px-4 nav-link text-primary mt-2">
     View all auctions
     <i class="bi bi-arrow-right"></i>
 </a>
 
 <div class="top-list-auction">
-    <h4 class="mb-3">Top 5 products nearing completion</h4>
+    <h4 class="mb-3">Top 5 ending soon</h4>
     <div class="row row-cols-5">
+        {{#each top5EndingSoon}}
         <div class="col">
             <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Laptop">
+                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
                 <div class="card-body card-product-info">
-                    <h5 class="card-title">Laptop Pro 15</h5>
+                    <h5 class="card-title">{{this.name}}</h5>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">1000 $</p>
+                        <p class="mb-1">{{this.start_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Current price:</p>
-                        <p class="mb-1">11000 $</p>
+                        <p class="mb-1">{{this.current_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">DD HH:MM:SS</p>
+                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
                     </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
+                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
                 </div>
             </div>
         </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"
-                    class="card-img-top card-product-img" alt="Smartphone">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Smartphone X</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">800 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">900 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">01 05:24:12</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b"
-                    class="card-img-top card-product-img" alt="Headphones">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Noise Cancelling Headphones</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">300 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 08:12:32</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-                    class="card-img-top card-product-img" alt="Watch">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Luxury Watch</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">2000 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">2500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 10:44:02</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Sneakers">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Sneaker Max</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">400 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">450 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 02:33:01</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
+        {{/each}}
     </div>
 </div>
 
 <div class="top-list-auction">
-    <h4 class="mb-3">Top 5 products nearing completion</h4>
+    <h4 class="mb-3">Top 5 products most bids</h4>
     <div class="row row-cols-5">
+        {{#each top5MostBids}}
         <div class="col">
             <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Laptop">
+                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
                 <div class="card-body card-product-info">
-                    <h5 class="card-title">Laptop Pro 15</h5>
+                    <h5 class="card-title">{{this.name}}</h5>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">1000 $</p>
+                        <p class="mb-1">{{this.start_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Current price:</p>
-                        <p class="mb-1">11000 $</p>
+                        <p class="mb-1">{{this.current_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">DD HH:MM:SS</p>
+                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
                     </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
+                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
                 </div>
             </div>
         </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"
-                    class="card-img-top card-product-img" alt="Smartphone">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Smartphone X</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">800 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">900 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">01 05:24:12</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b"
-                    class="card-img-top card-product-img" alt="Headphones">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Noise Cancelling Headphones</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">300 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 08:12:32</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-                    class="card-img-top card-product-img" alt="Watch">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Luxury Watch</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">2000 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">2500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 10:44:02</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Sneakers">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Sneaker Max</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">400 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">450 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 02:33:01</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
+        {{/each}}
     </div>
 </div>
 
 <div class="top-list-auction">
-    <h4 class="mb-3">Top 5 products nearing completion</h4>
+    <h4 class="mb-3">Top 5 highest price</h4>
     <div class="row row-cols-5">
+        {{#each top5HighestPrice}}
         <div class="col">
             <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Laptop">
+                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
                 <div class="card-body card-product-info">
-                    <h5 class="card-title">Laptop Pro 15</h5>
+                    <h5 class="card-title">{{this.name}}</h5>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">1000 $</p>
+                        <p class="mb-1">{{this.start_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-1">Current price:</p>
-                        <p class="mb-1">11000 $</p>
+                        <p class="mb-1">{{this.current_price}}</p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">DD HH:MM:SS</p>
+                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
                     </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
+                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
                 </div>
             </div>
         </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"
-                    class="card-img-top card-product-img" alt="Smartphone">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Smartphone X</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">800 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">900 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">01 05:24:12</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b"
-                    class="card-img-top card-product-img" alt="Headphones">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Noise Cancelling Headphones</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">300 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 08:12:32</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-                    class="card-img-top card-product-img" alt="Watch">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Luxury Watch</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">2000 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">2500 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 10:44:02</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card h-100">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                    class="card-img-top card-product-img" alt="Sneakers">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">Sneaker Max</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">400 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">450 $</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3">00 02:33:01</p>
-                    </div>
-                    <a href="#" class="btn btn-outline-primary w-100">View detail</a>
-                </div>
-            </div>
-        </div>
+        {{/each}}
     </div>
 </div>

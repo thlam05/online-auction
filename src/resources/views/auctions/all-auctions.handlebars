@@ -1,70 +1,75 @@
+{{#section "js"}}
+<script>
+    const remaininTimes = document.querySelectorAll(".remaining-time");
+
+    function formatRemainingTime(ms) {
+        if (ms <= 0) return "It's over.";
+
+        let diff = ms;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff -= minutes * 60 * 1000;
+
+        const seconds = Math.floor(diff / 1000);
+
+        if (days > 0) {
+            let str = `${days}d: `;
+            if (hours > 0) str += ` ${hours}h: `;
+            if (minutes > 0) str += ` ${minutes}m`;
+            return str;
+        }
+
+        // <= 1 ngày -> hiển thị giây
+        let str = "";
+        if (hours > 0) str += `${hours}h: `;
+        if (minutes > 0) str += `${minutes}m: `;
+        str += `${seconds}s`;
+
+        return str.trim();
+    }
+
+    function updateRemainingTime() {
+        remaininTimes.forEach(function (element) {
+            const end = new Date(element.getAttribute("data-end-time"));
+            const now = new Date();
+            const diff = end - now;
+            element.textContent = formatRemainingTime(diff);
+        })
+    }
+
+    updateRemainingTime();
+
+    setInterval(updateRemainingTime, 1000);
+</script>
+{{/section}}
+
 <div class="row .row-cols-2 g-3 pt-3 pb-3">
 
-    <div class="col col-2 pt-2">
+    <div class="col col-2 pt-3">
         <div class="card p-2">
-            <h5 class="border-bottom border-gray p-2">Filters</h5>
 
-            <div class="border-bottom border-gray mb-2">
-                <p class="text m-0 ms-2 me-2 border-bottom border-gray pb-1">Category</p>
+            <p class="text mb-0 pb-2">Categories</p>
 
-                <div class="">
-                    <button class="btn category-dropdown-btn" data-bs-toggle="collapse" data-bs-target="#cat1">
-                        Category
-                        <i class="bi bi-chevron-down"></i>
-                        {{!-- <i class="bi bi-chevron-up"></i> --}}
-                    </button>
-
-                    <div id="cat1" class="collapse show">
-                        <ul class="list-unstyled category-dropdown-list">
-                            <li><a href="#" class="text-secondary category-dropdown-item">All Electronics</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Laptops (86)</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Smartphones</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Cameras</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Headphones</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="">
-                    <button class="btn category-dropdown-btn" data-bs-toggle="collapse" data-bs-target="#cat2">
-                        Category
-                        <i class="bi bi-chevron-down"></i>
-                    </button>
-
-                    <div id="cat2" class="collapse show">
-                        <ul class="list-unstyled category-dropdown-list">
-                            <li><a href="#" class="text-secondary category-dropdown-item">All Electronics</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Laptops (86)</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Smartphones</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Cameras</a></li>
-                            <li><a href="#" class="text-secondary category-dropdown-item">Headphones</a></li>
-                        </ul>
-                    </div>
+            {{#each categories}}
+            <div class="p-2 border-top border-gray">
+                <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-dark">{{this.name}}</a>
+                <div class="d-flex flex-column">
+                    {{#each this.subCategories}}
+                    <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-secondary ms-2"
+                        style="font-size: 14px;">{{this.name}}</a>
+                    {{/each}}
                 </div>
             </div>
-
-            <div class="border-bottom border-gray mb-2 pb-2">
-                <p class="text m-0 ms-2">Price range</p>
-                <div class="price-range">
-                    <form action="" class="ps-3 pe-3">
-                        <div class="d-flex align-items-center justify-content-around">
-                            <label for="">Min</label>
-                            <input type="text" class="form-control p-1">
-                        </div>
-                        <div class="d-flex align-items-center justify-content-around mt-1">
-                            <label for="">Max</label>
-                            <input type="text" class="form-control p-1">
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <button class="btn btn-outline-secondary m-2">Filter</button>
+            {{/each}}
         </div>
     </div>
 
-    <div class="col col-10">
-        <div class="d-flex align-items-center p-3">
+    <div class="col col-10 pt-3">
+        {{!-- <div class="d-flex align-items-center p-3">
             <span class="me-3">Sort by</span>
             <select class="form-select w-auto">
                 <option selected>Ending Soonest</option>
@@ -72,216 +77,43 @@
                 <option>Lowest Priceaaaaaaaaaaaaaaaaaaaaaa</option>
                 <option>Highest Price</option>
             </select>
-        </div>
+        </div> --}}
         <div class="auctions">
             <div class="row row-cols-3 g-3">
+                {{#each auctions}}
                 <div class="col">
                     <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
+                        <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
                         <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
+                            <h5 class="card-title">{{this.name}}</h5>
                             <div class="d-flex justify-content-between">
                                 <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
+                                <p class="mb-1">{{this.current_price}}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
+                                <p class="mb-1">{{this.seller.username}}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
+                                <p class="mb-1">{{formatDate this.start_at}}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
+                                <p class="mb-2 remaining-time" data-end-time="{{this.end_at}}">{{calcRemainingTime
+                                    this.end_at}}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="mb-2">Total Bids:</p>
                                 <p class="mb-2">18</p>
                             </div>
                             <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
+                                <a href="/auctions/{{this.id}}" class="btn btn-primary w-100">Bib now</a>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-                            class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">Laptop Pro 15</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">11000 $</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">USER</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2">DD HH:MM:SS</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="#" class="btn btn-primary w-100">Bib now</a>
-                                <a href="#" class="btn btn-outline-primary w-100">Buy now 12.000</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{/each}}
             </div>
         </div>
 
@@ -289,15 +121,21 @@
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
+                        <a class="page-link" href="/auctions?limit=6&page={{prevPage}}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    {{#each pageNumbers}}
+                    {{#if this.isCurrent}}
+                    <li class="page-item"><a class="page-link bg-primary text-light"
+                            href="/auctions?limit=6&page={{this.value}}">{{this.value}}</a></li>
+                    {{else}}
+                    <li class="page-item"><a class="page-link"
+                            href="/auctions?limit=6&page={{this.value}}">{{this.value}}</a></li>
+                    {{/if}}
+                    {{/each}}
                     <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
+                        <a class="page-link" href="/auctions?limit=6&page={{nextPage}}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>

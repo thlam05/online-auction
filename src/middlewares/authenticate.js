@@ -12,7 +12,8 @@ export function ensureAuthenticated(req, res, next) {
         return next();
     }
     else {
-        req.session.passport.redirectTo = req.originalUrl;
+        req.session.redirectTo = req.originalUrl;
+
         return res.redirect('/auth/signin');
     }
 }

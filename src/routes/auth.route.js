@@ -23,8 +23,9 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 router.get("/google/callback",
     passport.authenticate("google", { failureRedirect: "/auth/signin" }),
     function (req, res) {
-        // Successful authentication, redirect home.
-        res.redirect("/");
+        const redirectTo = req.session.redirectTo || '/';
+        delete req.session.redirectTo;
+        return res.redirect(redirectTo);
     });
 
 router.get("/facebook",
@@ -33,8 +34,9 @@ router.get("/facebook",
 router.get("/facebook/callback",
     passport.authenticate("facebook", { failureRedirect: "/auth/signin" }),
     function (req, res) {
-        // Successful authentication, redirect home.
-        res.redirect("/");
+        const redirectTo = req.session.redirectTo || '/';
+        delete req.session.redirectTo;
+        return res.redirect(redirectTo);
     });
 
 export default router;

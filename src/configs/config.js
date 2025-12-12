@@ -19,9 +19,10 @@ const config = {
     facebookAppId: process.env.FACEBOOK_APP_ID || "",
     facebookAppSecret: process.env.FACEBOOK_APP_SECRET || "",
 
-
     googleAppEmail: process.env.GOOGLE_APP_EMAIL || "",
     googleAppPassword: process.env.GOOGLE_APP_PASSWORD || "",
+
+
 }
 
 export default config;

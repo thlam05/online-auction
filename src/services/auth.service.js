@@ -50,6 +50,7 @@ const authService = {
         data.password = bcrypt.hashSync(data.password, config.saltRounds);
         data.created_at = new Date(Date.now());
         data.updated_at = new Date(Date.now());
+        data.permission = 0;
         data.is_verified = false;
         const [userCreate] = await userModel.createOne(data);
         const { otp, info } = await sendOtpEmail(userCreate.email);

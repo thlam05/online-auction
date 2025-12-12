@@ -1,0 +1,135 @@
+{{#section "css"}}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+{{/section}}
+
+{{#section "js"}}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill('#description-editor', {
+        theme: 'snow'
+    });
+
+    const form = document.querySelector("#form-create-auction");
+
+    function removeClassInvalid(event) {
+        event.target.classList.remove("invalid");
+    }
+
+    form.onsubmit = function (event) {
+        event.preventDefault();
+
+        const htmlDes = quill.root.innerHTML;
+        const description = form.querySelector("#description-hidden");
+        description.value = htmlDes;
+
+        let isValid = true;
+
+        const inputName = form.querySelector("#name-product");
+        if (inputName.value.trim() == "") {
+            isValid = false;
+            inputName.classList.add("invalid");
+        }
+        inputName.oninput = removeClassInvalid;
+
+        const mainImage = form.querySelector("#main-image-product");
+        if (!mainImage.value) {
+            isValid = false;
+            mainImage.classList.add("invalid");
+        }
+        mainImage.onclick = removeClassInvalid;
+
+        const subImage = form.querySelector("#sub-image-product");
+        if (!subImage.value || subImage.files.length < 3 || subImage.files.length > 10) {
+            isValid = false;
+            subImage.classList.add("invalid");
+        }
+        subImage.onclick = removeClassInvalid;
+
+        const startingPrice = form.querySelector("#starting-step-product");
+        if (!startingPrice.value || Number(startingPrice.value) < 0) {
+            isValid = false;
+            startingPrice.classList.add("invalid");
+        }
+        startingPrice.oninput = removeClassInvalid;
+
+        const priceStep = form.querySelector("#price-step-product");
+        if (!priceStep.value || Number(priceStep.value) < 0) {
+            isValid = false;
+            priceStep.classList.add("invalid");
+        }
+        priceStep.oninput = removeClassInvalid;
+
+        const duration = form.querySelector("#duration");
+        if (!duration.value || Number(duration.value) < 0) {
+            isValid = false;
+            duration.classList.add("invalid");
+        }
+        duration.oninput = removeClassInvalid;
+
+        if (isValid == false) {
+            return;
+        }
+
+        form.submit();
+    }
+</script>
+{{/section}}
+
+<form id="form-create-auction" class="form p-4" action="/auctions" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-12">
+            <label for="name-product">Name product</label>
+            <input type="text" class="form-control mb-2" id="name-product" name="name">
+        </div>
+
+        <div class="col-6">
+            <label for="main-image-product">Main image</label>
+            <input type="file" class="form-control mb-2" id="main-image-product" name="mainImage">
+        </div>
+
+        <div class="col-6">
+            <label for="sub-image-product">Sub image</label>
+            <input type="file" class="form-control mb-2" id="sub-image-product" name="subImage" multiple>
+        </div>
+
+        <div class="col-4">
+            <label for="starting-step-product">Starting price</label>
+            <input type="number" class="form-control mb-2" id="starting-step-product" name="startingPrice">
+        </div>
+
+        <div class="col-4">
+            <label for="price-step-product">Price step</label>
+            <input type="number" class="form-control mb-2" id="price-step-product" name="priceStep">
+        </div>
+
+        <div class="col-4">
+            <label for="cost-buy-now-product">Buy now price</label>
+            <input type="number" class="form-control mb-2" id="cost-buy-now-product" name="costBuyNow">
+        </div>
+
+        <div class="col-3">
+            <label for="">Category</label>
+            <select class="form-select mb-2" aria-label="Default select example" name="categoryId">
+                {{#each categories}}
+                {{#each this.subCategories}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="col-3">
+            <label class="duration">Duration (hour)</label>
+            <input type="number" class="form-control mb-2" id="duration" name="duration">
+        </div>
+
+    </div>
+    <label for="">Description</label>
+    <div id="description-editor" class="mb-2">
+        <p>Description here</p>
+    </div>
+    <input type="text" hidden name="description" id="description-hidden">
+
+    <button class="btn btn-primary">Create</button>
+    <a href="" class="btn btn-outline-secondary">Back</a>
+</form>

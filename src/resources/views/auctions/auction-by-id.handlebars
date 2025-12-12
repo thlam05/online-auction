@@ -1,57 +1,96 @@
+{{#section "js"}}
+<script>
+    const remaininTimes = document.querySelector(".remaining-time");
+
+    function formatRemainingTime(ms) {
+        if (ms <= 0) return "It's over.";
+
+        let diff = ms;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff -= minutes * 60 * 1000;
+
+        const seconds = Math.floor(diff / 1000);
+
+        if (days > 0) {
+            let str = `${days}d: `;
+            if (hours > 0) str += ` ${hours}h: `;
+            if (minutes > 0) str += ` ${minutes}m`;
+            return str;
+        }
+
+        let str = "";
+        if (hours > 0) str += `${hours}h: `;
+        if (minutes > 0) str += `${minutes}m: `;
+        str += `${seconds}s`;
+
+        return str.trim();
+    }
+
+    function updateRemainingTime() {
+        const end = new Date(remaininTimes.getAttribute("data-end-time"));
+        const now = new Date();
+        const diff = end - now;
+        remaininTimes.textContent = formatRemainingTime(diff);
+    }
+
+    updateRemainingTime();
+
+    setInterval(updateRemainingTime, 1000);
+</script>
+{{/section}}
+
 <div class="row row-cols-2 py-4">
 
     <div class="col col-7">
         <div class="row mb-3">
             <div class="col">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid w-100 rounded"
-                    alt="">
+                <img src="{{auction.mainImage.url}}" class="img-fluid w-100 rounded" alt=""
+                    style="height: 500px; object-fit: contain;">
             </div>
         </div>
 
         <div class="row row-cols-3 g-2">
+            {{#each auction.subImages}}
             <div class="col">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid w-100 rounded"
-                    alt="">
+                <img src="{{this.url}}" class="img-fluid w-100 rounded" alt="" style="object-fit: contain;">
             </div>
-            <div class="col">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid w-100 rounded"
-                    alt="">
-            </div>
-            <div class="col">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid w-100 rounded"
-                    alt="">
-            </div>
+            {{/each}}
         </div>
     </div>
 
-    <div class="col col-5 ">
-        <h2 class="p-3">Name product</h2>
+    <div class="col col-5">
+        <h2 class="p-3">{{auction.name}}</h2>
         <div class="card ">
             <div class="card-body ">
                 <div class="border-left border-warning remaining-time-auction">
                     <p class="title">Auction ends in</p>
-                    <p>02d : 18h : 45m : 33s</p>
-                    <p>Ends: Oct 26, 2023, 9:00 PM PDT</p>
+                    <p class="remaining-time" data-end-time="{{auction.end_at}}">02d : 18h : 45m : 33s</p>
+                    <p>Ends: {{formatDate auction.end_at}}</p>
                 </div>
 
                 <div class="ps-2">
-                    <p>Posted: Oct 26, 2023, 9:00 PM PDT</p>
+                    <p>Posted: {{formatDate auction.start_at}}</p>
                 </div>
 
                 <div class="row row-cols-3 p-3">
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Current bid</span>
-                        <span class="fw-semibold">350.000</span>
+                        <span class="fw-semibold">{{auction.current_price}}</span>
                     </div>
 
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Price step</span>
-                        <span class="fw-semibold">10.000</span>
+                        <span class="fw-semibold">{{auction.bib_step}}</span>
                     </div>
 
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Buy now price</span>
-                        <span class="fw-semibold">500.000</span>
+                        <span class="fw-semibold">{{auction.buy_now_price}}</span>
                     </div>
                 </div>
 
@@ -60,7 +99,7 @@
                         class="d-flex justify-content-between align-items-center bg-light pt-1 pb-1 ps-3 pe-3 mt-2 border border-gray rounded">
                         <div class="d-flex flex-column">
                             <span style="font-size: 12px;">Seller</span>
-                            <span>Seller name</span>
+                            <span>{{auction.seller.username}}</span>
                         </div>
                         <span>4.9</span>
                     </div>
@@ -92,6 +131,8 @@
 </div>
 
 
+
+
 <div class="py-4">
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
@@ -105,27 +146,12 @@
         </li>
     </ul>
 
+
+
     <div class="tab-content">
 
         <div class="tab-pane fade show active" id="description">
-            <h4>Product Details</h4>
-            <p>
-                For sale is a beautifully preserved 1978 Stereo Receiver Amplifier, a true classic for any audiophile.
-                This unit has been tested and is in excellent working condition. All knobs and switches are original
-                and function smoothly. The wooden case has minor signs of wear consistent with its age but is overall
-                in fantastic shape. Delivers that warm, rich sound that only vintage analog equipment can produce.
-                Perfect for vinyl enthusiasts looking to complete their setup.
-            </p>
-
-            <ul>
-                <li>Power Output: 45 watts per channel into 8Ω (stereo)</li>
-                <li>Frequency response: 20Hz to 20kHz</li>
-                <li>Total harmonic distortion: 0.1%</li>
-                <li>Inputs: Phono, Aux, Tape</li>
-                <li>Dimensions: 480 × 149 × 375mm</li>
-            </ul>
-
-
+            {{{auction.description}}}
         </div>
 
         <div class="tab-pane fade" id="qa">
