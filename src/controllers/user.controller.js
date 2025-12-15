@@ -1,3 +1,4 @@
+import watchListModel from "../models/watch-list.model.js";
 import userService from "../services/user.service.js";
 
 class UserController {
@@ -24,10 +25,12 @@ class UserController {
     }
 
     // GET - /user/watch-list
-    getWatchList(req, res, next) {
+    async getWatchList(req, res, next) {
         try {
+            const watchlists = await watchListModel.getWatchListByUserId(req.session.passport.user.id);
             res.render("user/watch-list", {
-                layout: "user-layout"
+                layout: "user-layout",
+                watchlists: watchlists
             });
         } catch (err) {
             next(err);

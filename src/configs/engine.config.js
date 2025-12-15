@@ -51,6 +51,10 @@ function configEngine(app) {
                 parts.push(`${seconds} s`);
 
                 return parts.join(": ");
+            },
+            formatNumber: function (n) {
+                if (!n) return "0";
+                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
         }
     }));

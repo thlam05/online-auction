@@ -1,91 +1,83 @@
+{{#section "js"}}
+<script>
+    const remaininTimes = document.querySelectorAll(".remaining-time");
+
+    function formatRemainingTime(ms) {
+        if (ms <= 0) return "It's over.";
+
+        let diff = ms;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff -= minutes * 60 * 1000;
+
+        const seconds = Math.floor(diff / 1000);
+
+        if (days > 0) {
+            let str = `${days}d: `;
+            if (hours > 0) str += ` ${hours}h: `;
+            if (minutes > 0) str += ` ${minutes}m`;
+            return str;
+        }
+
+        // <= 1 ngày -> hiển thị giây
+        let str = "";
+        if (hours > 0) str += `${hours}h: `;
+        if (minutes > 0) str += `${minutes}m: `;
+        str += `${seconds}s`;
+
+        return str.trim();
+    }
+
+    function updateRemainingTime() {
+        remaininTimes.forEach(function (element) {
+            const end = new Date(element.getAttribute("data-end-time"));
+            const now = new Date();
+            const diff = end - now;
+            element.textContent = formatRemainingTime(diff);
+        })
+    }
+
+    updateRemainingTime();
+
+    setInterval(updateRemainingTime, 1000);
+</script>
+<script>
+</script>
+{{/section}}
+
 <div class="">
 
     <p class="fs-4 border-bottom border-gray">Watch list</p>
 
     <div class="" style="height: 472px; overflow-y:scroll">
+        {{#each watchlists}}
         <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
+            <a href="/auctions/{{this.id}}" class="text-decoration-none d-flex align-items-center flex-grow-1">
+                <img src="{{this.auction_img}}" class="img-fluid rounded" style="width: 100px; height: 100px;"
+                    alt="Laptop">
                 <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
+                    <p class="fs-5 text-dark mb-1">{{this.name}}</p>
+                    <div class="d-flex">
+                        <p class="me-2 mb-0">Current price:</p>
+                        <p class="text-danger fw-bold  mb-0">
+                            {{formatNumber this.current_price}} ₫
+                        </p>
+                    </div>
+
+                    <small class="text-muted">
+                        Kết thúc lúc:
+                        <strong class="remaining-time" data-end-time="{{this.end_at}}"></strong>
+                    </small>
                 </div>
             </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
+            <form action="/watch-list/del/{{this.watch_list_id}}" method="POST" class="d-flex">
+                <button class="btn"><i class="bi bi-x-lg"></i></button>
+            </form>
         </div>
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
-                </div>
-            </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
-                </div>
-            </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
-                </div>
-            </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
-                </div>
-            </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/:id" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="img-fluid rounded"
-                    style="width: 100px; height: 100px;" alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">Product Name</p>
-                    <p class="text-secondary mb-0"
-                        style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aspernatur ipsa dicta ex voluptatem.
-                    </p>
-                </div>
-            </a>
-            <button class="btn"><i class="bi bi-x-lg"></i></button>
-        </div>
+        {{/each}}
     </div>
 </div>

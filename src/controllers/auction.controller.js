@@ -2,6 +2,8 @@ import auctionService from "../services/auction.service.js";
 import categoryService from "../services/category.service.js";
 import auctionModel from "../models/auction.model.js";
 import categoryModel from "../models/category.model.js";
+import bidService from "../services/bid.service.js";
+import messageService from "../services/message.service.js";
 
 
 class AuctionController {
@@ -76,7 +78,9 @@ class AuctionController {
         try {
             const { id } = req.params;
             const auction = await auctionService.getAuctionById(id);
-            res.render("auctions/auction-by-id", { auction });
+            const messages = await messageService.getAllMessageByAuctionId(id);
+            // const relateAuctons
+            res.render("auctions/auction-by-id", { auction, messages });
         } catch (err) {
             next(err);
         }
@@ -139,6 +143,45 @@ class AuctionController {
 
             await auctionService.createOne({ sellerId, ...auction, mainImage, subImages });
             res.redirect("/");
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // POST - /auctions/:id/messages
+    async sendMessage(req, res, next) {
+        try {
+            const { id } = req.params;
+            const auction = await auctionModel.findById(id);
+            const { content } = req.body;
+
+            const message = {
+                auction_id: id,
+                sender_id: req.session.passport.user.id,
+                receiver_id: auction.seller_id,
+                content: content,
+            }
+
+            const result = await messageService.createOne(message, auction);
+
+            res.redirect(`/auctions/${id}`);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // POST - /auctions/:id/bids
+    async bidAuctions(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { max_price } = req.body;
+            const bidder_id = req.session.passport.user.id;
+
+            const data = { auction_id: id, max_price, bidder_id };
+            const bid = await bidService.createBid(data);
+            res.redirect(`/auctions/${id}`);
         } catch (err) {
             next(err);
         }

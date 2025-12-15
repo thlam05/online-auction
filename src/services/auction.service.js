@@ -1,5 +1,6 @@
 import auctionImageModel from "../models/auction-image.model.js";
 import auctionModel from "../models/auction.model.js";
+import bidModel from "../models/bid.model.js";
 import categoryModel from "../models/category.model.js";
 import userModel from "../models/user.model.js";
 
@@ -14,7 +15,7 @@ const auctionService = {
             start_price: Number(data.startingPrice),
             current_price: Number(data.startingPrice),
             buy_now_price: Number(data.costBuyNow ? data.costBuyNow : 0),
-            bib_step: Number(data.priceStep),
+            bid_step: Number(data.priceStep),
             start_at: new Date(Date.now()),
             end_at: new Date(Date.now() + data.duration * 60 * 60 * 1000),
             created_at: new Date(Date.now()),
@@ -80,6 +81,8 @@ const auctionService = {
                 auction.seller = seller;
                 const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
                 auction.mainImage = mainImage;
+                const highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.highestBidder = highestBidder;
             })
         );
 
@@ -100,6 +103,8 @@ const auctionService = {
                 auction.seller = seller;
                 const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
                 auction.mainImage = mainImage;
+                const highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.highestBidder = highestBidder;
             })
         );
 
@@ -154,6 +159,7 @@ const auctionService = {
                 auction.category = await categoryModel.findById(auction.category_id);
                 auction.seller = await userModel.findById(auction.seller_id);
                 auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
+                auction.highestBidder = await bidModel.getHighestBidder(auction.id);
             })
         );
 
@@ -169,6 +175,8 @@ const auctionService = {
         auction.subImages = subImages;
         const seller = await userModel.findById(auction.seller_id);
         auction.seller = seller;
+        const highestBidder = await bidModel.getHighestBidder(auction.id);
+        auction.highestBidder = highestBidder;
 
         return auction;
     },

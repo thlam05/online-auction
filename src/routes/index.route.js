@@ -2,6 +2,8 @@ import AuthRouter from "./auth.route.js";
 import HomeRouter from "./home.route.js";
 import AuctionRouter from "./auction.route.js";
 import UserRouter from "./user.route.js";
+import BidRouter from "./bid.route.js";
+import WatchListRouter from "./watch-list.route.js";
 import { ensureAuthenticated } from "../middlewares/authenticate.js";
 
 function route(app) {
@@ -10,6 +12,8 @@ function route(app) {
     app.use("/auth", AuthRouter);
     app.use("/auctions", AuctionRouter);
     app.use("/user", ensureAuthenticated, UserRouter);
+    app.use("/bids", BidRouter);
+    app.use("/watch-list", ensureAuthenticated, WatchListRouter);
 }
 
 export default route

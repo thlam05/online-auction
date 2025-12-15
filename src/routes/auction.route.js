@@ -10,6 +10,8 @@ router.get("/create", ensureAuthenticated, auctionController.getCreateAuction);
 router.get("/search", auctionController.searchAuctions);
 router.get("/categories/:category", auctionController.getAuctionsByCategory);
 router.get("/:id", auctionController.getAuctionsById);
+router.post("/:id/messages", ensureAuthenticated, auctionController.sendMessage);
+router.post("/:id/bids", ensureAuthenticated, auctionController.bidAuctions)
 router.post("/",
     upload.fields([
         { name: 'mainImage', maxCount: 1 },

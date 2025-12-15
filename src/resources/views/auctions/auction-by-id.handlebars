@@ -42,10 +42,83 @@
 
     setInterval(updateRemainingTime, 1000);
 </script>
+<script>
+    const auction = document.querySelector(".auction");
+    function redirect() {
+        window.location.href = "/auth/signin";
+    }
+
+    function extractNumber(str) {
+        return Number(str.replace(/\D/g, ""));
+    }
+
+    const auctionCurPriceElement = document.querySelector(".auction-current-price");
+    const auctionBidStepElement = document.querySelector(".auction-bid-step");
+
+    const auctionCurPrice = extractNumber(auctionCurPriceElement.innerText);
+    const auctionBidStep = extractNumber(auctionBidStepElement.innerText);
+
+    const formPostBid = document.querySelector("#form-post-bid");
+    formPostBid.onsubmit = function (event) {
+        event.preventDefault();
+
+        const bidPrice = formPostBid.querySelector(".form-control");
+
+        bidPrice.oninput = function () {
+            bidPrice.classList.remove("invalid");
+        }
+
+        if (+bidPrice.value < auctionCurPrice + auctionBidStep) {
+            bidPrice.classList.add("invalid");
+            return;
+        }
+
+        formPostBid.submit();
+    }
+
+    const formSendMessage = document.querySelector("#form-send-message");
+    formSendMessage.onsubmit = function (event) {
+        event.preventDefault();
+
+        const input = formSendMessage.querySelector(".form-control");
+        input.oninput = function (event) {
+            input.classList.remove("invalid");
+        }
+        if (input.value == "") {
+            input.classList.add("invalid");
+            return;
+        }
+
+        formSendMessage.submit();
+    }
+
+    const btnAddWatchlist = document.querySelector("#btn-add-watchlist");
+    btnAddWatchlist.onclick = async function () {
+        const auction_id = this.dataset.auctionId;
+
+        try {
+            const res = await fetch("/watch-list/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ auction_id })
+            });
+
+            if (!res.ok) {
+                throw new Error("Request failed");
+            }
+
+            const data = await res.json();
+        } catch (err) {
+            console.error(err);
+            alert("Không thể thêm vào watchlist");
+        }
+    }
+</script>
 {{/section}}
 
 <div class="row row-cols-2 py-4">
-
     <div class="col col-7">
         <div class="row mb-3">
             <div class="col">
@@ -63,10 +136,10 @@
         </div>
     </div>
 
-    <div class="col col-5">
+    <div class="col col-5 auction">
         <h2 class="p-3">{{auction.name}}</h2>
         <div class="card ">
-            <div class="card-body ">
+            <div class="card-body">
                 <div class="border-left border-warning remaining-time-auction">
                     <p class="title">Auction ends in</p>
                     <p class="remaining-time" data-end-time="{{auction.end_at}}">02d : 18h : 45m : 33s</p>
@@ -80,17 +153,19 @@
                 <div class="row row-cols-3 p-3">
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Current bid</span>
-                        <span class="fw-semibold">{{auction.current_price}}</span>
+                        <span class="fw-semibold auction-current-price">{{formatNumber
+                            auction.current_price}}<sup>đ</sup></span>
                     </div>
 
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Price step</span>
-                        <span class="fw-semibold">{{auction.bib_step}}</span>
+                        <span class="fw-semibold auction-bid-step">{{formatNumber
+                            auction.bid_step}}<sup>đ</sup></span>
                     </div>
 
                     <div class="col d-flex flex-column text-center">
                         <span class="text-secondary small">Buy now price</span>
-                        <span class="fw-semibold">{{auction.buy_now_price}}</span>
+                        <span class="fw-semibold">{{formatNumber auction.buy_now_price}}<sup>đ</sup></span>
                     </div>
                 </div>
 
@@ -108,20 +183,25 @@
                         class="d-flex justify-content-between align-items-center bg-light pt-1 pb-1 ps-3 pe-3 mt-2 border border-gray rounded">
                         <div class="d-flex flex-column">
                             <span style="font-size: 12px;">Highest bibber</span>
-                            <span>Highest bibber</span>
+                            <span>{{auction.highestBidder.username}}</span>
                         </div>
                         <span>4.9</span>
                     </div>
                 </div>
 
                 <div class="pt-2 mt-4 border-top border-gray">
-                    <form action="" class="form">
-                        <input type="text" class="form-control mb-2" placeholder="Enter your bib">
-                        <button class="btn btn-primary w-100">Place bid</button>
+                    <form action="/auctions/{{auction.id}}/bids" method="POST" class="form" id="form-post-bid">
+                        <input type="number" class="form-control mb-2" placeholder="Enter your bib" name="max_price">
+                        <button class="btn btn-primary w-100">
+                            Place bid
+                        </button>
                     </form>
                     <div class="d-flex">
-                        <button class="btn btn-outline-primary w-100 mt-2 me-2">Buy now</button>
-                        <button class="btn btn-outline-secondary w-100 mt-2 ms-2">Add to Watch List</button>
+                        <button class="btn btn-outline-primary w-100 mt-2 me-2" {{#unless
+                            isAuthenticated}}onclick="redirect()" {{/unless}}>Buy now</button>
+                        <button id="btn-add-watchlist" class="btn btn-outline-secondary w-100 mt-2 ms-2" {{#unless
+                            isAuthenticated}}onclick="redirect()" {{/unless}} data-auction-id="{{auction.id}}">Add to
+                            Watch List</button>
                     </div>
                 </div>
             </div>
@@ -158,12 +238,61 @@
             <h4>Q&A</h4>
 
             <div class="card my-3 ">
-                <form action="" class="form p-3">
-                    <textarea class="form-control" placeholder="Leave questions here" id="floatingTextarea"></textarea>
+                <form id="form-send-message" action="/auctions/{{auction.id}}/messages" method="POST" class="form p-3">
+                    <textarea class="form-control" placeholder="Leave questions here" id="floatingTextarea"
+                        name="content"></textarea>
                     <button class="btn btn-outline-secondary mt-2">Send to seller</button>
                 </form>
             </div>
-            <p>No questions yet.</p>
+
+            {{#each messages}}
+            <div class="card mb-2">
+                <div class="card-body">
+
+                    <!-- Header -->
+                    <div class="d-flex align-items-center">
+                        <div class="ms-2 d-flex">
+                            <div class="fw-semibold">
+                                {{this.sender_name}}
+                            </div>
+                            <p class="text-muted ms-5">
+                                {{formatDate this.created_at}}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <p class="card-text ms-5 mb-2">
+                        {{this.content}}
+                    </p>
+
+                    <!-- Replies -->
+                    {{#if this.replyMessages.length}}
+                    <div class="ms-5 mt-3">
+                        {{#each this.replyMessages}}
+                        <div class="border-start border-3 border-primary ps-3 mb-3">
+
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="badge bg-primary me-2">
+                                    Seller
+                                </span>
+                                <strong>{{this.sender_name}}</strong>
+                                <small class="text-muted ms-2">
+                                    {{this.created_at}}
+                                </small>
+                            </div>
+
+                            <p class="mb-1">
+                                {{this.content}}
+                            </p>
+                        </div>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+
+                </div>
+            </div>
+            {{/each}}
         </div>
 
         <div class="tab-pane fade" id="related">
