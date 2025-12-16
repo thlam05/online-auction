@@ -1,0 +1,92 @@
+{{#section "js"}}
+<script>
+    const remaininTimes = document.querySelectorAll(".remaining-time");
+
+    function formatRemainingTime(ms) {
+        if (ms <= 0) return "It's over.";
+
+        let diff = ms;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff -= days * 24 * 60 * 60 * 1000;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        diff -= hours * 60 * 60 * 1000;
+        const minutes = Math.floor(diff / (1000 * 60));
+        diff -= minutes * 60 * 1000;
+
+        const seconds = Math.floor(diff / 1000);
+
+        if (days > 0) {
+            let str = `${days}d: `;
+            if (hours > 0) str += ` ${hours}h: `;
+            if (minutes > 0) str += ` ${minutes}m`;
+            return str;
+        }
+
+        // <= 1 ngày -> hiển thị giây
+        let str = "";
+        if (hours > 0) str += `${hours}h: `;
+        if (minutes > 0) str += `${minutes}m: `;
+        str += `${seconds}s`;
+
+        return str.trim();
+    }
+
+    function updateRemainingTime() {
+        remaininTimes.forEach(function (element) {
+            const end = new Date(element.getAttribute("data-end-time"));
+            const now = new Date();
+            const diff = end - now;
+            element.textContent = formatRemainingTime(diff);
+        })
+    }
+
+    updateRemainingTime();
+
+    setInterval(updateRemainingTime, 1000);
+</script>
+{{/section}}
+
+<div class="">
+    <p class="fs-4 border-bottom border-gray">Activity bids</p>
+
+    <div class="row mx-4 py-2 border-bottom border-gray">
+        <div class="col d-flex flex-column text-center">
+            <span class="text-secondary fs-5">Number of auctions in progress</span>
+            <span class="fw-semibold fs-4">{{auctions.length}}</span>
+        </div>
+    </div>
+
+
+    <div class="row row-cols-3 g-3 mt-2" style="max-height: 400px; overflow-y:scroll;">
+
+        {{#each auctions}}
+        <div class="col">
+            <div class="card h-100">
+                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop"
+                    style="height: 200px; object-fit: contain;">
+                <div class="card-body card-product-info">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-1">Current price:</p>
+                        <p class="mb-1">{{formatNumber this.current_price}} <sup>đ</sup></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-1">Your max price:</p>
+                        <p class="mb-1">{{formatNumber this.max_price}}</p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p class="mb-1">Remaining:</p>
+                        <p class="mb-1 remaining-time" data-end-time="{{this.end_at}}"></p>
+                    </div>
+                    <div class="">
+                        <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View auction</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+
+    </div>
+
+</div>

@@ -111,6 +111,28 @@ const auctionService = {
         return auctions;
     },
 
+    async getAuctionBySellerId(seller_id) {
+        const auctions = await auctionModel.findBySellerId(seller_id);
+        if (!auctions) {
+            return [];
+        }
+
+        await Promise.all(
+            auctions.map(async function (auction) {
+                const category = await categoryModel.findById(auction.category_id);
+                auction.category = category;
+                const seller = await userModel.findById(auction.seller_id);
+                auction.seller = seller;
+                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
+                auction.mainImage = mainImage;
+                const highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.highestBidder = highestBidder;
+            })
+        );
+
+        return auctions;
+    },
+
     async countAuctionsByCatId(cat_id) {
         const category = await categoryModel.findById(cat_id);
         if (category.parent_category_id != null) {
@@ -252,8 +274,48 @@ const auctionService = {
         );
 
         return auctions;
-    }
+    },
 
+
+    async appendDesAuction(auction, des) {
+        const now = new Date();
+
+        const date = now.toLocaleString("vi-VN", {
+            hour12: false
+        });
+
+        const appendText = `
+                <div><i class="bi bi-pencil-square pe-2"></i> [${date}]</div>
+                ${des}
+            `;
+
+        auction.description = (auction.description || "") + appendText;
+
+        const updatedAuction = await auctionModel.update(auction);
+        return updatedAuction;
+    },
+
+    async getAuctionsWon(user_id) {
+        const auctions = await auctionModel.findAuctionsWon(user_id);
+        if (!auctions) {
+            return [];
+        }
+
+        await Promise.all(
+            auctions.map(async function (auction) {
+                const category = await categoryModel.findById(auction.category_id);
+                auction.category = category;
+                const seller = await userModel.findById(auction.seller_id);
+                auction.seller = seller;
+                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
+                auction.mainImage = mainImage;
+                const highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.highestBidder = highestBidder;
+            })
+        );
+
+        return auctions;
+    }
 };
 
 export default auctionService;

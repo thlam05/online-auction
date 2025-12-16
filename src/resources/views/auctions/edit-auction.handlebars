@@ -1,0 +1,54 @@
+{{#section "css"}}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+{{/section}}
+
+{{#section "js"}}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill('#description-editor', {
+        theme: 'snow',
+        readOnly: true
+    });
+
+    const newQuill = new Quill('#new-description-editor', {
+        theme: 'snow',
+    });
+
+    const form = document.querySelector("#form-create-auction");
+
+    function removeClassInvalid(event) {
+        event.target.classList.remove("invalid");
+    }
+
+    form.onsubmit = function (event) {
+        event.preventDefault();
+
+        const htmlDes = newQuill.root.innerHTML;
+        const description = form.querySelector("#description-hidden");
+        description.value = htmlDes;
+
+        if (description.value == "" || description.value == "<p>Add description here</p>") {
+            return;
+        }
+
+        form.submit();
+    }
+</script>
+{{/section}}
+
+<form id="form-create-auction" class="form p-4" action="/auctions/edit" method="post">
+    <label for="">Current Description</label>
+    <div id="description-editor" class="mb-2">
+        {{{auction.description}}}
+    </div>
+
+    <input type="hidden" name="auction_id" value="{{auction.id}}">
+
+    <label for="">Add description</label>
+    <div id="new-description-editor" class="mb-2">
+        <p>Add description here</p>
+    </div>
+    <input type="text" hidden name="description" id="description-hidden">
+
+    <button class="btn btn-primary">Update</button>
+</form>

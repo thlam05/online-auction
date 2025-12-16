@@ -17,3 +17,12 @@ export function ensureAuthenticated(req, res, next) {
         return res.redirect('/auth/signin');
     }
 }
+
+export function isSeller(req, res, next) {
+    req.session.passport.user
+    if (!req.session.passport.user || req.session.passport.user.permission != 1) {
+        req.session.redirectTo = req.originalUrl;
+        return res.redirect('/');
+    }
+    next();
+}

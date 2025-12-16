@@ -18,6 +18,8 @@
     form.onsubmit = function (event) {
         event.preventDefault();
 
+
+
         const htmlDes = quill.root.innerHTML;
         const description = form.querySelector("#description-hidden");
         description.value = htmlDes;
@@ -130,6 +132,12 @@
     </div>
     <input type="text" hidden name="description" id="description-hidden">
 
+    <div class="mb-3">
+        <input class="form-check-input" type="checkbox" id="autoRenew" name="auto_renew">
+        <label class="form-check-label" for="autoRenew">
+            Auto renew
+        </label>
+    </div>
+
     <button class="btn btn-primary">Create</button>
-    <a href="" class="btn btn-outline-secondary">Back</a>
 </form>

@@ -9,6 +9,23 @@ const auctionModel = {
         return db("auctions").where({ id: id }).first();
     },
 
+    findBySellerId(seller_id) {
+        return db("auctions").where({ seller_id: seller_id });
+    },
+
+    findAuctionsWon(user_id) {
+        return db("auctions as a")
+            .join("bids as b", "a.id", "b.auction_id")
+            .where("a.end_at", "<=", new Date())
+            .where("b.bidder_id", user_id)
+            .where("b.amount", "=", function () {
+                this.select(db.raw("MAX(b2.amount)"))
+                    .from("bids as b2")
+                    .whereRaw("b2.auction_id = a.id");
+            })
+            .select("a.*");
+    },
+
     findTop5EndingSoon() {
         return db("auctions").where("end_at", ">", new Date()).orderBy("end_at", "asc").limit(5);
     },
@@ -41,6 +58,21 @@ const auctionModel = {
         return db("auctions").whereIn("category_id", listCatId).limit(limit).offset(offset);
     },
 
+    findRelateAuctions(category_id) {
+        return db("auctions as a")
+            .leftJoin("auction_images as ai", function () {
+                this.on("ai.auction_id", "=", "a.id")
+                    .andOn("ai.is_main", "=", db.raw("true"));
+            })
+            .where("a.category_id", category_id)
+            .select(
+                "a.*",
+                "ai.url as auction_img"
+            )
+            .orderBy("a.created_at", "desc")
+            .limit(5);
+    },
+
     countAllAuctions() {
         return db("auctions").count("id as count").first();
     },
@@ -60,6 +92,14 @@ const auctionModel = {
     createOne(auction) {
         return db("auctions").insert(auction).returning("*");
     },
+
+    update(auction) {
+        const { id, fts, ...auction_data } = auction;
+        return db('auctions')
+            .where({ id: id })
+            .update(auction_data)
+            .returning("*");
+    }
 };
 
 export default auctionModel;

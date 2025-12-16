@@ -1,5 +1,5 @@
 <div class="card profile-sidebar">
-    <a class="profile-sidebar-item active" href="/user/profile">
+    <a class="profile-sidebar-item" href="/user/profile">
         <i class="bi bi-person"></i> Profile
     </a>
 
@@ -11,15 +11,26 @@
         <i class="bi bi-heart"></i> Watchlist
     </a>
 
-    <a class="profile-sidebar-item" href="/user/activity-bids">
-        <i class="bi bi-hammer"></i> Activity bids
+    <a class="profile-sidebar-item" href="/user/bids">
+        <i class="bi bi-coin"></i> My bids
     </a>
-
-    <a class="profile-sidebar-item" href="/user/profile">
-        <i class="bi bi-trash"></i> My Listings
+    <a class="profile-sidebar-item" href="/user/auctions-won">
+        <i class="bi bi-trophy"></i> Auctions won
     </a>
-
-    <a class="profile-sidebar-item" href="/user/profile">
-        <i class="bi bi-trophy"></i> Winning Bids
+    {{#if (isBidder authUser.permission)}}
+    <a class="profile-sidebar-item" href="/user/upgrade-seller">
+        <i class="bi bi-shop"></i>
+        Upgrade to seller
     </a>
+    {{/if}}
+    {{#if (isSeller authUser.permission)}}
+    <a class="profile-sidebar-item" href="/auctions/create">
+        <i class="bi bi-plus-square"></i>
+        Post auction
+    </a>
+    <a class="profile-sidebar-item" href="/user/auctions">
+        <i class="bi bi-collection"></i>
+        My auctions
+    </a>
+    {{/if}}
 </div>

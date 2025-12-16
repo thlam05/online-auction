@@ -7,7 +7,7 @@
                     <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/auctions">Auctions</a>
+                    <a class="nav-link" href="/auctions">Auctions</a>
                 </li>
             </ul>
 
@@ -27,20 +27,45 @@
                     </a>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li class="nav-item"><a class="dropdown-item" href="/user/watch-list">
+                        <li class="nav-item">
+                            <a class="dropdown-item" href="/user/watch-list">
                                 <i class="bi bi-cart pe-2"></i>
                                 Watch list
-                            </a></li>
-                        <li><a class="dropdown-item" href="/user/profile">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/user/profile">
                                 <i class="bi bi-person pe-2"></i>
                                 Profile
-                            </a></li>
+                            </a>
+                        </li>
+                        {{#if (isBidder authUser.permission)}}
+                        <li>
+                            <a class="dropdown-item" href="/user/upgrade-seller">
+                                <i class="bi bi-shop pe-2"></i>
+                                Upgrade to seller
+                            </a>
+                        </li>
+                        {{/if}}
+                        {{#if (isSeller authUser.permission)}}
+                        <li>
+                            <a class="dropdown-item" href="/auctions/create">
+                                <i class="bi bi-plus-square pe-2"></i>
+                                Post auction
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/user/auctions">
+                                <i class="bi bi-collection pe-2"></i>
+                                My auctions
+                            </a>
+                        </li>
+                        {{/if}}
                         <li>
                             <form action="/auth/logout" method="POST" class="">
                                 <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right pe-2"></i>
                                     Log out</button>
                             </form>
-
                         </li>
                     </ul>
                 </li>

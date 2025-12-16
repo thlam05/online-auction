@@ -55,7 +55,33 @@ function configEngine(app) {
             formatNumber: function (n) {
                 if (!n) return "0";
                 return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            }
+            },
+            maskName: function (name) {
+                if (!name) return "";
+
+                const parts = name.trim().split(" ");
+                const lastName = parts[parts.length - 1];
+
+                return "****" + lastName;
+            },
+            isBidder: function (permission) {
+                if (permission == 0) return true;
+                return false;
+            },
+            isSeller: function (permission) {
+                if (permission == 1) return true;
+                return false;
+            },
+            isSellerOfAuction(user, auction) {
+                if (user.permission != 1) return false;
+                if (auction.seller_id != user.id) return false;
+                return true;
+            },
+            isOver(end_date) {
+                const date = new Date(end_date);
+                if (date <= new Date()) return true;
+                return false;
+            },
         }
     }));
     app.set("view engine", "handlebars");

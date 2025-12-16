@@ -29,6 +29,7 @@ const messageModel = {
             .leftJoin("users as s", "s.id", "m.sender_id")
             .leftJoin("users as r", "r.id", "m.receiver_id")
             .where("m.auction_id", auction_id)
+            .whereNull("m.reply_id")
             .select(
                 "m.*",
                 "s.username as sender_name",

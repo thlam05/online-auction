@@ -92,6 +92,26 @@
         formSendMessage.submit();
     }
 
+    const formReplyMessage = document.querySelectorAll(".form-reply-message");
+    if (formReplyMessage) {
+        formReplyMessage.forEach(function (form) {
+            form.onsubmit = function (event) {
+                event.preventDefault();
+
+                const input = form.querySelector(".form-control");
+                input.oninput = function () {
+                    input.classList.remove("invalid");
+                }
+                if (input.value == "") {
+                    input.classList.add("invalid");
+                    return;
+                }
+
+                form.submit();
+            }
+        })
+    }
+
     const btnAddWatchlist = document.querySelector("#btn-add-watchlist");
     btnAddWatchlist.onclick = async function () {
         const auction_id = this.dataset.auctionId;
@@ -224,6 +244,10 @@
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="tab" href="#related">Related Items</a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#history">Bids history</a>
+        </li>
     </ul>
 
 
@@ -255,22 +279,29 @@
                             <div class="fw-semibold">
                                 {{this.sender_name}}
                             </div>
-                            <p class="text-muted ms-5">
+                            <p class="text-muted ms-2 mb-0">
                                 {{formatDate this.created_at}}
                             </p>
                         </div>
                     </div>
 
                     <!-- Content -->
-                    <p class="card-text ms-5 mb-2">
+                    <p class="card-text ms-2 mb-3">
                         {{this.content}}
                     </p>
 
-                    <!-- Replies -->
+                    {{#if (isSellerOfAuction ../authUser ../auction)}}
+                    <form action="/auctions/{{../auction.id}}/messages" method="POST" class="form-reply-message d-flex">
+                        <button class="btn btn-outline-secondary me-3">Reply</button>
+                        <input type="text" name="content" class="form-control" placeholder="Reply question here">
+                        <input type="hidden" name="reply_id" value="{{this.id}}">
+                    </form>
+                    {{/if}}
+
                     {{#if this.replyMessages.length}}
                     <div class="ms-5 mt-3">
                         {{#each this.replyMessages}}
-                        <div class="border-start border-3 border-primary ps-3 mb-3">
+                        <div class="ps-3 mb-3">
 
                             <div class="d-flex align-items-center mb-1">
                                 <span class="badge bg-primary me-2">
@@ -278,7 +309,7 @@
                                 </span>
                                 <strong>{{this.sender_name}}</strong>
                                 <small class="text-muted ms-2">
-                                    {{this.created_at}}
+                                    {{formatDate this.created_at}}
                                 </small>
                             </div>
 
@@ -290,6 +321,7 @@
                     </div>
                     {{/if}}
 
+
                 </div>
             </div>
             {{/each}}
@@ -297,49 +329,59 @@
 
         <div class="tab-pane fade" id="related">
             <h4 class="mt-4">Related Items</h4>
-            <div class="row g-3">
+            <div class="row row-cols-5 g-3">
 
-                <div class="col-md-3">
+                {{#each relateAuctons}}
+                <a class="text-decoration-none" href="/auctions/{{this.id}}">
                     <div class="card h-100">
-                        {{!-- <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Turntable"> --}}
+                        <img src="{{this.auction_img}}" class="card-img-top" alt="Turntable">
                         <div class="card-body">
-                            <h6 class="card-title">Vintage Turntable</h6>
-                            <p class="text-primary fw-bold">$225.50</p>
+                            <h6 class="card-title">{{this.name}}</h6>
+                            <p class="text-primary fw-bold">{{formatNumber this.current_price}} <sup>đ</sup></p>
                         </div>
                     </div>
-                </div>
+                </a>
+                {{/each}}
 
-                <div class="col-md-3">
-                    <div class="card h-100">
-                        {{!-- <img src="https://via.placeholder.com/300x200" class="card-img-top"
-                            alt="Bookshelf Speakers"> --}}
-                        <div class="card-body">
-                            <h6 class="card-title">Bookshelf Speakers</h6>
-                            <p class="text-primary fw-bold">$150.00</p>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </div>
 
-                <div class="col-md-3">
-                    <div class="card h-100">
-                        {{!-- <img src="https://via.placeholder.com/300x200" class="card-img-top"
-                            alt="Reel-to-Reel Deck"> --}}
-                        <div class="card-body">
-                            <h6 class="card-title">Reel-to-Reel Deck</h6>
-                            <p class="text-primary fw-bold">$480.00</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="tab-pane fade" id="history">
+            <div class="mt-4">
 
-                <div class="col-md-3">
-                    <div class="card h-100">
-                        {{!-- <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Cassette Deck">
-                        --}}
-                        <div class="card-body">
-                            <h6 class="card-title">Cassette Deck</h6>
-                            <p class="text-primary fw-bold">$95.00</p>
-                        </div>
-                    </div>
+                <h5 class="mb-3 fw-semibold">
+                    Bids history
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Bidders</th>
+                                <th class="text-end">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each bidHistories}}
+                            <tr>
+                                <td>{{formatDate this.created_at}}</td>
+                                <td>{{maskName this.bidder_name}}</td>
+                                <td class="text-end text-danger fw-bold">
+                                    {{formatNumber this.amount}} ₫
+                                </td>
+                            </tr>
+                            {{/each}}
+
+                            {{#unless bidHistories.length}}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">
+                                    No value
+                                </td>
+                            </tr>
+                            {{/unless}}
+                        </tbody>
+                    </table>
                 </div>
 
             </div>

@@ -4,6 +4,7 @@ import auctionModel from "../models/auction.model.js";
 import categoryModel from "../models/category.model.js";
 import bidService from "../services/bid.service.js";
 import messageService from "../services/message.service.js";
+import bidModel from "../models/bid.model.js";
 
 
 class AuctionController {
@@ -79,8 +80,9 @@ class AuctionController {
             const { id } = req.params;
             const auction = await auctionService.getAuctionById(id);
             const messages = await messageService.getAllMessageByAuctionId(id);
-            // const relateAuctons
-            res.render("auctions/auction-by-id", { auction, messages });
+            const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
+            const bidHistories = await bidModel.getBidHistory(id);
+            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories });
         } catch (err) {
             next(err);
         }
@@ -154,13 +156,14 @@ class AuctionController {
         try {
             const { id } = req.params;
             const auction = await auctionModel.findById(id);
-            const { content } = req.body;
+            const { content, reply_id } = req.body;
 
             const message = {
                 auction_id: id,
                 sender_id: req.session.passport.user.id,
                 receiver_id: auction.seller_id,
                 content: content,
+                reply_id: reply_id || null
             }
 
             const result = await messageService.createOne(message, auction);
@@ -187,6 +190,30 @@ class AuctionController {
         }
     }
 
+
+    // GET - /auctions/edit/:id
+    async getEditAuctions(req, res, next) {
+        try {
+            const { id } = req.params;
+            const auction = await auctionModel.findById(id);
+            res.render("auctions/edit-auction", { auction });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // POST - /auctions/edit
+    async updateDesAuction(req, res, next) {
+        try {
+            const { auction_id, description } = req.body;
+            const auction = await auctionModel.findById(auction_id);
+
+            const updateAuction = await auctionService.appendDesAuction(auction, description);
+            res.redirect("/user/auctions");
+        } catch (err) {
+            next(err);
+        }
+    }
 
 }
 

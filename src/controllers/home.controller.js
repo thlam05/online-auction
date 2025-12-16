@@ -1,6 +1,5 @@
 import categoryModel from "../models/category.model.js";
 import auctionService from "../services/auction.service.js";
-import categoryService from "../services/category.service.js";
 
 class HomeController {
     // GET - /

@@ -1,0 +1,63 @@
+<div class="h-100" style="overflow-y: scroll;">
+
+    <div class="mb-4">
+        <h3 class="fw-bold">
+            <i class="bi bi-shop text-primary me-2"></i>
+            Request Auction Selling Permission
+        </h3>
+        <p class="text-muted">
+            Submit a request to upgrade your account to list auction products for <b>7 days</b>.
+        </p>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">
+                <i class="bi bi-envelope-paper me-2"></i>
+                Submit Request to Administrators
+            </h5>
+
+            <form method="POST" action="/seller-request">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        Reason for Becoming a Seller
+                    </label>
+                    <textarea class="form-control" rows="4" name="reason"
+                        placeholder="Example: I have legitimate products and would like to participate in auctions..."
+                        required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send me-1"></i>
+                    Submit Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    {{!-- <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-x-circle-fill fs-4 me-3"></i>
+        <div>
+            <b>Request Rejected</b><br>
+            Please contact support for more details.
+        </div>
+    </div>
+
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+        <div>
+            <b>Request Approved</b><br>
+            You can now list products for auction for 7 days.
+        </div>
+    </div>
+
+    <div class="alert alert-warning d-flex align-items-center">
+        <i class="bi bi-hourglass-split fs-4 me-3"></i>
+        <div>
+            <b>Request Under Review</b><br>
+            The administrators will respond as soon as possible.
+        </div>
+    </div> --}}
+
+</div>

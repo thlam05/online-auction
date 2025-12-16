@@ -1,4 +1,7 @@
 import watchListModel from "../models/watch-list.model.js";
+import auctionService from "../services/auction.service.js";
+import bidService from "../services/bid.service.js";
+import userRatingService from "../services/user-rating.service.js";
 import userService from "../services/user.service.js";
 
 class UserController {
@@ -16,6 +19,7 @@ class UserController {
     // GET - /user/reviews
     getReviews(req, res, next) {
         try {
+
             res.render("user/reviews", {
                 layout: "user-layout"
             });
@@ -37,11 +41,15 @@ class UserController {
         }
     }
 
-    // GET - /user/activity-bids
-    getActivityBids(req, res, next) {
+    // GET - /user/bids
+    async getBids(req, res, next) {
         try {
-            res.render("user/activity-bids", {
-                layout: "user-layout"
+            const id = req.session.passport.user.id;
+            const auctions = await bidService.getBidsByUserId(id);
+
+            res.render("user/bids", {
+                layout: "user-layout",
+                auctions
             });
         } catch (err) {
             next(err);
@@ -79,6 +87,67 @@ class UserController {
             res.json(result);
         }
         catch (err) {
+            next(err);
+        }
+    }
+
+
+    // GET - /user/upgrade-seller
+    async showUpgrageSeller(req, res, next) {
+        try {
+            res.render("user/upgradeSeller", {
+                layout: "user-layout"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // GET - /user/auctions
+    async getMyAuctions(req, res, next) {
+        try {
+            const id = req.session.passport.user.id;
+            const auctions = await auctionService.getAuctionBySellerId(id);
+
+            res.render("user/auctions-of-seller", {
+                layout: "user-layout",
+                auctions
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async getWinAutions(req, res, next) {
+        try {
+            const id = req.session.passport.user.id;
+            const auctions = await auctionService.getAuctionsWon(id);
+
+            res.render("user/win-auctions", {
+                layout: "user-layout",
+                auctions
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // POST - user/ratings/:id
+    async addRating(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { rating, auction_id } = req.body;
+            const rater_id = req.session.passport.user.id;
+            const user_rating = {
+                rated_id: id,
+                rater_id: rater_id,
+                rating: rating,
+                auction_id: auction_id
+            }
+            const newRating = await userRatingService.createOne(user_rating);
+            res.json(newRating);
+        } catch (err) {
             next(err);
         }
     }
