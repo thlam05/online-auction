@@ -82,6 +82,10 @@ function configEngine(app) {
                 if (date <= new Date()) return true;
                 return false;
             },
+            include(list, item) {
+                if (!Array.isArray(list)) return false;
+                return list.includes(item);
+            }
         }
     }));
     app.set("view engine", "handlebars");

@@ -1,5 +1,6 @@
 import userModel from "../models/user.model.js";
 import pendingUserModel from "../models/pending-user.model.js";
+import userRatingService from "./user-rating.service.js"
 import { sendOtpEmail } from "../utils/nodemailer.js";
 import bcrypt from "bcrypt";
 import config from "../configs/config.js";
@@ -94,6 +95,16 @@ const userService = {
             message: "Successfully",
             data: user
         }
+    },
+
+    async getUserById(id) {
+        const user = await userModel.findById(id);
+
+        const { rating } = await userRatingService.getRatings(id);
+
+        user.rating = rating;
+
+        return user;
     }
 };
 

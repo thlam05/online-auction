@@ -119,11 +119,13 @@
                     </div>
                     <div class="d-flex">
                         <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100 me-3">View auction</a>
+                        {{#unless (include ../listRated this.id)}}
                         <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal"
                             data-bs-target="#assessSellerModal" data-auction-id="{{this.id}}"
                             data-seller-id="{{this.seller.id}}" data-seller-name="{{this.seller.username}}">
                             Assess seller
                         </button>
+                        {{/unless}}
                     </div>
                 </div>
             </div>

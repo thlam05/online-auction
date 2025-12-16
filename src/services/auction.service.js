@@ -3,6 +3,7 @@ import auctionModel from "../models/auction.model.js";
 import bidModel from "../models/bid.model.js";
 import categoryModel from "../models/category.model.js";
 import userModel from "../models/user.model.js";
+import userService from "./user.service.js";
 
 const auctionService = {
     async createOne(data) {
@@ -195,9 +196,10 @@ const auctionService = {
         auction.mainImage = mainImage;
         const subImages = await auctionImageModel.findSubImageByAuctionId(id);
         auction.subImages = subImages;
-        const seller = await userModel.findById(auction.seller_id);
+        const seller = await userService.getUserById(auction.seller_id);
         auction.seller = seller;
-        const highestBidder = await bidModel.getHighestBidder(auction.id);
+        const tempHighestBidder = await bidModel.getHighestBidder(auction.id);
+        const highestBidder = await userService.getUserById(tempHighestBidder.id);
         auction.highestBidder = highestBidder;
 
         return auction;

@@ -51,6 +51,7 @@
 
     const modal = document.getElementById("assessSellerModal");
     const text = document.getElementById("assessSellerText");
+    const contentRating = document.querySelector("#content-rating");
 
     modal.addEventListener("show.bs.modal", (event) => {
         const button = event.relatedTarget;
@@ -65,6 +66,11 @@
 
     document.querySelectorAll(".rate-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
+            if (contentRating.value == "") {
+                e.preventDefault();
+                return;
+            }
+
             e.currentTarget.blur();
             const rating = btn.dataset.rating == "good" ? 1 : -1;
 
@@ -122,12 +128,14 @@
                         <a href="/auctions/edit/{{this.id}}" class="btn btn-outline-secondary w-100">Edit</a>
                         {{#if (isOver this.end_at)}}
                         {{#if this.highestBidder}}
+                        {{#unless (include ../listRated this.id)}}
                         <button type="button" class="btn btn-outline-secondary w-100 ms-2" data-bs-toggle="modal"
                             data-bs-target="#assessSellerModal" data-auction-id="{{this.id}}"
                             data-highest-bidder-id="{{this.highestBidder.id}}"
                             data-highest-bidder-name="{{this.highestBidder.username}}">
                             Rating
                         </button>
+                        {{/unless}}
                         {{/if}}
                         {{/if}}
                     </div>
@@ -150,6 +158,9 @@
 
                     <div class="modal-body text-center">
                         <p class="mb-4" id="assessSellerText"></p>
+
+                        <input type="text" class="form-control w-100 mb-2" name="content" id="content-rating"
+                            placeholder="Leave a comment here">
 
                         <div class="d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-success px-4 rate-btn" data-rating="good">

@@ -1,3 +1,4 @@
+import userRatingModel from "../models/user-rating.model.js";
 import watchListModel from "../models/watch-list.model.js";
 import auctionService from "../services/auction.service.js";
 import bidService from "../services/bid.service.js";
@@ -17,11 +18,17 @@ class UserController {
     }
 
     // GET - /user/reviews
-    getReviews(req, res, next) {
+    async getReviews(req, res, next) {
         try {
+            const id = req.session.passport.user.id
+            const { listReviews, rating } = await userRatingService.getRatings(id);
+
+
 
             res.render("user/reviews", {
-                layout: "user-layout"
+                layout: "user-layout",
+                listReviews,
+                rating
             });
         } catch (err) {
             next(err);
@@ -109,24 +116,30 @@ class UserController {
         try {
             const id = req.session.passport.user.id;
             const auctions = await auctionService.getAuctionBySellerId(id);
+            const listRated = await userRatingService.getListRatedAuction(id);
 
             res.render("user/auctions-of-seller", {
                 layout: "user-layout",
-                auctions
+                auctions,
+                listRated
             });
         } catch (err) {
             next(err);
         }
     }
 
+    // GET - /user/auctions-won
     async getWinAutions(req, res, next) {
         try {
             const id = req.session.passport.user.id;
             const auctions = await auctionService.getAuctionsWon(id);
 
+            const listRated = await userRatingService.getListRatedAuction(id);
+
             res.render("user/win-auctions", {
                 layout: "user-layout",
-                auctions
+                auctions,
+                listRated
             });
         } catch (err) {
             next(err);
