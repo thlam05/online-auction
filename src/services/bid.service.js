@@ -7,8 +7,26 @@ const bidService = {
         // check bidder
         const auction = await auctionModel.findById(bid.auction_id);
 
-        bid.created_at = new Date();
-        bid.amount = auction.current_price + auction.bid_step;
+        if (bid.amount < auction.current_price + auction.bid_step) {
+            return null;
+        }
+
+        const highestBid = await bidModel.getHighestBid(auction.id);
+
+        if (!highestBid) {
+            bid.created_at = new Date();
+            bid.amount = auction.current_price + auction.bid_step;
+
+            auction.current_price = bid.amount;
+        }
+        else {
+            while(true) {
+                // if(bid)
+            }
+        }
+
+
+        await auctionModel.update(auction);
 
         return bidModel.createOne(bid);
     },

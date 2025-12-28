@@ -14,6 +14,13 @@ const bidModel = {
             .first();
     },
 
+    getHighestBid(auction_id) {
+        return db("bids")
+            .where("auction_id", auction_id)
+            .orderBy("amount", "desc")
+            .first();
+    },
+
     getBidHistory(auction_id) {
         return db("bids as b")
             .join("users AS u", "u.id", "b.bidder_id")

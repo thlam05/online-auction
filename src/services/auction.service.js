@@ -199,8 +199,12 @@ const auctionService = {
         const seller = await userService.getUserById(auction.seller_id);
         auction.seller = seller;
         const tempHighestBidder = await bidModel.getHighestBidder(auction.id);
-        const highestBidder = await userService.getUserById(tempHighestBidder.id);
-        auction.highestBidder = highestBidder;
+        if (tempHighestBidder != undefined) {
+            const highestBidder = await userService.getUserById(tempHighestBidder.id);
+            auction.highestBidder = highestBidder;
+        } else {
+            auction.highestBidder = undefined;
+        }
 
         return auction;
     },
