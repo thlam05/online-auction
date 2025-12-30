@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelectorAll(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,16 +17,14 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
+            let str = `${days}d ${hours}h ${minutes}m`;
             return str;
         }
 
         // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
+        if (hours > 0) str += `${hours}h `;
+        if (minutes > 0) str += `${minutes}m `;
         str += `${seconds}s`;
 
         return str.trim();
@@ -38,114 +36,259 @@
             const now = new Date();
             const diff = end - now;
             element.textContent = formatRemainingTime(diff);
+
+            // Add urgent class when less than 1 hour
+            if (diff > 0 && diff < 3600000) {
+                element.classList.add('text-primary-500', 'animate-pulse', 'font-bold');
+            }
         })
     }
 
     updateRemainingTime();
-
     setInterval(updateRemainingTime, 1000);
 </script>
 {{/section}}
 
-<div class="category-section">
-    <h5 class="mb-2">Category</h5>
-    <div class="row row-cols-6 g-2 text-center">
+<!-- Hero Banner -->
+<section class="relative bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl overflow-hidden mb-8">
+    <div class="absolute inset-0 bg-black/10"></div>
+    <div class="relative px-8 py-12 md:py-16">
+        <div class="max-w-2xl">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Chào mừng đến với AuctionHub
+            </h1>
+            <p class="text-lg text-white/90 mb-6">
+                Sàn đấu giá trực tuyến uy tín - Hàng ngàn sản phẩm chất lượng đang chờ bạn khám phá!
+            </p>
+            <a href="/auctions"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-500 font-semibold rounded-full hover:bg-gray-100 transition-all">
+                Khám phá ngay
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="section-title">Danh mục sản phẩm</h2>
+        <a href="/auctions"
+            class="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1 transition-colors">
+            Xem tất cả
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {{#each listCategories}}
         <a href="/auctions/categories/{{this.slug}}"
-            class="col text-decoration-none border text-secondary">{{this.name}}</a>
+            class="group flex flex-col items-center p-4 bg-white rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-lg hover:-translate-y-1 transition-all">
+            <div
+                class="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-primary-100 transition-colors">
+                <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+            </div>
+            <span
+                class="text-sm font-medium text-gray-700 group-hover:text-primary-500 transition-colors text-center">{{this.name}}</span>
+        </a>
         {{/each}}
     </div>
-</div>
+</section>
 
-
-<a href="/auctions" class="d-inline px-4 nav-link text-primary mt-2">
-    View all auctions
-    <i class="bi bi-arrow-right"></i>
-</a>
-
-<div class="top-list-auction">
-    <h4 class="mb-3">Top 5 ending soon</h4>
-    <div class="row row-cols-5">
+<!-- Top 5 Ending Soon -->
+<section class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="section-title">
+            <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Sắp kết thúc
+        </h2>
+        <a href="/auctions"
+            class="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1 transition-colors">
+            Xem tất cả
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5EndingSoon}}
-        <div class="col">
-            <div class="card h-100">
-                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">{{this.name}}</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">{{formatNumber this.start_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">{{formatNumber this.current_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
-                    </div>
-                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
+        <a href="/auctions/{{this.id}}" class="product-card group">
+            <div class="relative overflow-hidden">
+                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <div class="absolute top-2 left-2">
+                    <span class="badge badge-danger flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Sắp kết thúc
+                    </span>
                 </div>
             </div>
-        </div>
+            <div class="product-card-body">
+                <h3 class="product-card-title">{{this.name}}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Giá hiện tại:</span>
+                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
+                                class="text-xs">đ</sup></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Còn lại:</span>
+                        <span class="remaining-time font-semibold text-gray-900"
+                            data-end-time="{{this.end_at}}">--:--:--</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span
+                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
+                        Đấu giá ngay
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </a>
         {{/each}}
     </div>
-</div>
+</section>
 
-<div class="top-list-auction">
-    <h4 class="mb-3">Top 5 products most bids</h4>
-    <div class="row row-cols-5">
+<!-- Top 5 Most Bids -->
+<section class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="section-title">
+            <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+            </svg>
+            Hot nhất
+        </h2>
+        <a href="/auctions"
+            class="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1 transition-colors">
+            Xem tất cả
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5MostBids}}
-        <div class="col">
-            <div class="card h-100">
-                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">{{this.name}}</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">{{formatNumber this.start_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">{{formatNumber this.current_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
-                    </div>
-                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
+        <a href="/auctions/{{this.id}}" class="product-card group">
+            <div class="relative overflow-hidden">
+                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <div class="absolute top-2 left-2">
+                    <span class="badge badge-warning flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                        </svg>
+                        Hot
+                    </span>
                 </div>
             </div>
-        </div>
+            <div class="product-card-body">
+                <h3 class="product-card-title">{{this.name}}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Giá hiện tại:</span>
+                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
+                                class="text-xs">đ</sup></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Còn lại:</span>
+                        <span class="remaining-time font-semibold text-gray-900"
+                            data-end-time="{{this.end_at}}">--:--:--</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span
+                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
+                        Đấu giá ngay
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </a>
         {{/each}}
     </div>
-</div>
+</section>
 
-<div class="top-list-auction">
-    <h4 class="mb-3">Top 5 highest price</h4>
-    <div class="row row-cols-5">
+<!-- Top 5 Highest Price -->
+<section class="mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="section-title">
+            <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Giá cao nhất
+        </h2>
+        <a href="/auctions"
+            class="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1 transition-colors">
+            Xem tất cả
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5HighestPrice}}
-        <div class="col">
-            <div class="card h-100">
-                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">{{this.name}}</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Starting price:</p>
-                        <p class="mb-1">{{formatNumber this.start_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">{{formatNumber this.current_price}}<sup>đ</sup></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-3">Remaining time:</p>
-                        <p class="mb-3 remaining-time" data-end-time="{{this.end_at}}">DD HH:MM:SS</p>
-                    </div>
-                    <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100">View detail</a>
+        <a href="/auctions/{{this.id}}" class="product-card group">
+            <div class="relative overflow-hidden">
+                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <div class="absolute top-2 left-2">
+                    <span class="badge badge-success flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" />
+                        </svg>
+                        Premium
+                    </span>
                 </div>
             </div>
-        </div>
+            <div class="product-card-body">
+                <h3 class="product-card-title">{{this.name}}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Giá hiện tại:</span>
+                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
+                                class="text-xs">đ</sup></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500">Còn lại:</span>
+                        <span class="remaining-time font-semibold text-gray-900"
+                            data-end-time="{{this.end_at}}">--:--:--</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span
+                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
+                        Đấu giá ngay
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </a>
         {{/each}}
     </div>
-</div>
+</section>

@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online auction</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/app.css">
+    <title>Tài khoản - Online Auction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline@3/dist/preline.min.css">
+    <link rel="stylesheet" href="/css/output.css">
 </head>
 
-<body>
+<body class="bg-gray-50 font-sans">
     {{> header}}
 
-    <div id="content">
-        <div class="container">
-            <div class="row row-cols-2 py-4 g-5">
-                <div class="col col-3" style="min-height: 600px;">
+    <div id="content" class="min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 py-8">
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
                     {{> user-sidebar}}
                 </div>
 
-                <div class="col col-9" style="height: 600px;">
-                    <div class="card p-4 h-100">
+                <!-- Main Content -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 min-h-[600px]">
                         {{{body}}}
                     </div>
                 </div>
@@ -31,10 +35,7 @@
 
     {{> footer}}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/preline@3/dist/preline.min.js"></script>
     {{{_sections.js}}}
 </body>
 

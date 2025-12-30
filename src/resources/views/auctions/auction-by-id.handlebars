@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelector(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,16 +17,16 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
+            let str = `${days} ngày `;
+            if (hours > 0) str += ` ${hours} giờ `;
+            if (minutes > 0) str += ` ${minutes} phút`;
             return str;
         }
 
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
-        str += `${seconds}s`;
+        if (hours > 0) str += `${hours} giờ `;
+        if (minutes > 0) str += `${minutes} phút `;
+        str += `${seconds} giây`;
 
         return str.trim();
     }
@@ -62,14 +62,14 @@
     formPostBid.onsubmit = function (event) {
         event.preventDefault();
 
-        const bidPrice = formPostBid.querySelector(".form-control");
+        const bidPrice = formPostBid.querySelector(".bid-input");
 
         bidPrice.oninput = function () {
-            bidPrice.classList.remove("invalid");
+            bidPrice.classList.remove("border-red-500");
         }
 
         if (+bidPrice.value < auctionCurPrice + auctionBidStep) {
-            bidPrice.classList.add("invalid");
+            bidPrice.classList.add("border-red-500");
             return;
         }
 
@@ -80,12 +80,12 @@
     formSendMessage.onsubmit = function (event) {
         event.preventDefault();
 
-        const input = formSendMessage.querySelector(".form-control");
+        const input = formSendMessage.querySelector(".message-input");
         input.oninput = function (event) {
-            input.classList.remove("invalid");
+            input.classList.remove("border-red-500");
         }
         if (input.value == "") {
-            input.classList.add("invalid");
+            input.classList.add("border-red-500");
             return;
         }
 
@@ -98,12 +98,12 @@
             form.onsubmit = function (event) {
                 event.preventDefault();
 
-                const input = form.querySelector(".form-control");
+                const input = form.querySelector(".reply-input");
                 input.oninput = function () {
-                    input.classList.remove("invalid");
+                    input.classList.remove("border-red-500");
                 }
                 if (input.value == "") {
-                    input.classList.add("invalid");
+                    input.classList.add("border-red-500");
                     return;
                 }
 
@@ -130,269 +130,409 @@
             }
 
             const data = await res.json();
+            // Show success feedback
+            this.innerHTML = `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
+            this.classList.add("bg-green-50", "text-green-600", "border-green-300");
         } catch (err) {
             console.error(err);
-            alert("Không thể thêm vào watchlist");
+            alert("Không thể thêm vào danh sách theo dõi");
         }
     }
+
+    // Tab functionality
+    document.querySelectorAll('[data-tab-target]').forEach(button => {
+        button.addEventListener('click', () => {
+            const target = button.dataset.tabTarget;
+
+            // Update buttons
+            document.querySelectorAll('[data-tab-target]').forEach(btn => {
+                btn.classList.remove('border-primary-500', 'text-primary-500');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            button.classList.remove('border-transparent', 'text-gray-500');
+            button.classList.add('border-primary-500', 'text-primary-500');
+
+            // Update panels
+            document.querySelectorAll('[data-tab-panel]').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            document.querySelector(`[data-tab-panel="${target}"]`).classList.remove('hidden');
+        });
+    });
 </script>
 {{/section}}
 
-<div class="row row-cols-2 py-4">
-    <div class="col col-7">
-        <div class="row mb-3">
-            <div class="col">
-                <img src="{{auction.mainImage.url}}" class="img-fluid w-100 rounded" alt=""
-                    style="height: 500px; object-fit: contain;">
-            </div>
+<!-- Breadcrumb -->
+<nav class="py-4">
+    <ol class="flex items-center text-sm text-gray-500">
+        <li><a href="/" class="hover:text-primary-500">Trang chủ</a></li>
+        <li class="mx-2">/</li>
+        <li><a href="/auctions" class="hover:text-primary-500">Đấu giá</a></li>
+        <li class="mx-2">/</li>
+        <li class="text-gray-900 font-medium truncate max-w-xs">{{auction.name}}</li>
+    </ol>
+</nav>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8">
+    <!-- Product Images -->
+    <div class="lg:col-span-7">
+        <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
+            <img src="{{auction.mainImage.url}}" class="w-full h-96 object-contain rounded-xl" alt="{{auction.name}}">
         </div>
 
-        <div class="row row-cols-3 g-2">
+        <div class="grid grid-cols-4 gap-3">
             {{#each auction.subImages}}
-            <div class="col">
-                <img src="{{this.url}}" class="img-fluid w-100 rounded" alt="" style="object-fit: contain;">
+            <div
+                class="bg-white rounded-xl border border-gray-200 p-2 cursor-pointer hover:border-primary-500 transition">
+                <img src="{{this.url}}" class="w-full h-20 object-contain rounded-lg" alt="">
             </div>
             {{/each}}
         </div>
     </div>
 
-    <div class="col col-5 auction">
-        <h2 class="p-3">{{auction.name}}</h2>
-        <div class="card ">
-            <div class="card-body">
-                <div class="border-left border-warning remaining-time-auction">
-                    <p class="title">Auction ends in</p>
-                    <p class="remaining-time" data-end-time="{{auction.end_at}}">02d : 18h : 45m : 33s</p>
-                    <p>Ends: {{formatDate auction.end_at}}</p>
-                </div>
+    <!-- Product Info -->
+    <div class="lg:col-span-5 auction">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">{{auction.name}}</h1>
 
-                <div class="ps-2">
-                    <p>Posted: {{formatDate auction.start_at}}</p>
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <!-- Countdown Timer -->
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 p-4 text-white">
+                <div class="flex items-center gap-2 mb-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Thời gian còn lại</span>
                 </div>
+                <p class="remaining-time text-2xl font-bold" data-end-time="{{auction.end_at}}">00:00:00</p>
+                <p class="text-sm text-white/80 mt-1">Kết thúc: {{formatDate auction.end_at}}</p>
+            </div>
 
-                <div class="row row-cols-3 p-3">
-                    <div class="col d-flex flex-column text-center">
-                        <span class="text-secondary small">Current bid</span>
-                        <span class="fw-semibold auction-current-price">{{formatNumber
-                            auction.current_price}}<sup>đ</sup></span>
+            <div class="p-5">
+                <!-- Posted date -->
+                <p class="text-sm text-gray-500 mb-4">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Đăng ngày: {{formatDate auction.start_at}}
+                </p>
+
+                <!-- Price Grid -->
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <div class="bg-gray-50 rounded-xl p-3 text-center">
+                        <span class="block text-xs text-gray-500 mb-1">Giá hiện tại</span>
+                        <span class="block text-lg font-bold text-primary-500 auction-current-price">{{formatNumber
+                            auction.current_price}}<sup class="text-xs">đ</sup></span>
                     </div>
 
-                    <div class="col d-flex flex-column text-center">
-                        <span class="text-secondary small">Price step</span>
-                        <span class="fw-semibold auction-bid-step">{{formatNumber
-                            auction.bid_step}}<sup>đ</sup></span>
+                    <div class="bg-gray-50 rounded-xl p-3 text-center">
+                        <span class="block text-xs text-gray-500 mb-1">Bước giá</span>
+                        <span class="block text-lg font-bold text-gray-900 auction-bid-step">{{formatNumber
+                            auction.bid_step}}<sup class="text-xs">đ</sup></span>
                     </div>
 
-                    <div class="col d-flex flex-column text-center">
-                        <span class="text-secondary small">Buy now price</span>
-                        <span class="fw-semibold">{{formatNumber auction.buy_now_price}}<sup>đ</sup></span>
+                    <div class="bg-gray-50 rounded-xl p-3 text-center">
+                        <span class="block text-xs text-gray-500 mb-1">Mua ngay</span>
+                        <span class="block text-lg font-bold text-green-600">{{formatNumber auction.buy_now_price}}<sup
+                                class="text-xs">đ</sup></span>
                     </div>
                 </div>
 
-                <div class="">
-                    <div
-                        class="d-flex justify-content-between align-items-center bg-light pt-1 pb-1 ps-3 pe-3 mt-2 border border-gray rounded">
-                        <div class="d-flex flex-column">
-                            <span style="font-size: 12px;">Seller</span>
-                            <span>{{auction.seller.username}}</span>
+                <!-- Seller & Bidder Info -->
+                <div class="space-y-3 mb-5">
+                    <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="block text-xs text-gray-500">Người bán</span>
+                                <span class="block font-medium text-gray-900">{{auction.seller.username}}</span>
+                            </div>
                         </div>
                         {{#if auction.seller.rating}}
-                        <span>{{auction.seller.rating}} %</span>
+                        <span
+                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                </path>
+                            </svg>
+                            {{auction.seller.rating}}%
+                        </span>
                         {{else}}
-                        <span>Empty</span>
+                        <span class="text-xs text-gray-400">Chưa có đánh giá</span>
                         {{/if}}
                     </div>
 
-                    <div
-                        class="d-flex justify-content-between align-items-center bg-light pt-1 pb-1 ps-3 pe-3 mt-2 border border-gray rounded">
-                        <div class="d-flex flex-column">
-                            <span style="font-size: 12px;">Highest bibber</span>
-                            <span>{{auction.highestBidder.username}}</span>
+                    <div class="flex items-center justify-between bg-blue-50 rounded-xl px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="block text-xs text-gray-500">Người đấu giá cao nhất</span>
+                                <span class="block font-medium text-gray-900">{{auction.highestBidder.username}}</span>
+                            </div>
                         </div>
                         {{#if auction.highestBidder.rating}}
-                        <span>{{auction.highestBidder.rating}} %</span>
+                        <span
+                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                </path>
+                            </svg>
+                            {{auction.highestBidder.rating}}%
+                        </span>
                         {{else}}
-                        <span>Empty</span>
+                        <span class="text-xs text-gray-400">Chưa có đánh giá</span>
                         {{/if}}
                     </div>
                 </div>
 
-                <div class="pt-2 mt-4 border-top border-gray">
-                    <form action="/auctions/{{auction.id}}/bids" method="POST" class="form" id="form-post-bid">
-                        <input type="number" class="form-control mb-2" placeholder="Enter your bib" name="max_price">
-                        <button class="btn btn-primary w-100">
-                            Place bid
+                <!-- Bid Form -->
+                <div class="border-t border-gray-200 pt-5">
+                    <form action="/auctions/{{auction.id}}/bids" method="POST" id="form-post-bid">
+                        <div class="mb-3">
+                            <input type="number"
+                                class="bid-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                                placeholder="Nhập số tiền đấu giá" name="max_price">
+                        </div>
+                        <button type="submit"
+                            class="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                            Đặt giá
                         </button>
                     </form>
-                    <div class="d-flex">
-                        <button class="btn btn-outline-primary w-100 mt-2 me-2" {{#unless
-                            isAuthenticated}}onclick="redirect()" {{/unless}}>Buy now</button>
-                        <button id="btn-add-watchlist" class="btn btn-outline-secondary w-100 mt-2 ms-2" {{#unless
-                            isAuthenticated}}onclick="redirect()" {{/unless}} data-auction-id="{{auction.id}}">Add to
-                            Watch List</button>
+
+                    <div class="grid grid-cols-2 gap-3 mt-3">
+                        <button
+                            class="py-3 px-4 border-2 border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2"
+                            {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                            Mua ngay
+                        </button>
+                        <button id="btn-add-watchlist"
+                            class="py-3 px-4 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition flex items-center justify-center gap-2"
+                            {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}
+                            data-auction-id="{{auction.id}}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                </path>
+                            </svg>
+                            Theo dõi
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
+<!-- Tabs -->
+<div class="pb-12">
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="flex gap-6 -mb-px">
+            <button data-tab-target="description"
+                class="py-4 px-1 border-b-2 border-primary-500 text-primary-500 font-medium text-sm transition">
+                Mô tả sản phẩm
+            </button>
+            <button data-tab-target="qa"
+                class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
+                Hỏi đáp
+            </button>
+            <button data-tab-target="related"
+                class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
+                Sản phẩm liên quan
+            </button>
+            <button data-tab-target="history"
+                class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
+                Lịch sử đấu giá
+            </button>
+        </nav>
+    </div>
 
-
-
-<div class="py-4">
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#description">Description</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#qa">Q&A</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#related">Related Items</a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#history">Bids history</a>
-        </li>
-    </ul>
-
-
-
-    <div class="tab-content">
-
-        <div class="tab-pane fade show active" id="description">
-            {{{auction.description}}}
+    <!-- Tab Content -->
+    <div>
+        <!-- Description -->
+        <div data-tab-panel="description" class="bg-white rounded-2xl border border-gray-200 p-6">
+            <div class="prose max-w-none">
+                {{{auction.description}}}
+            </div>
         </div>
 
-        <div class="tab-pane fade" id="qa">
-            <h4>Q&A</h4>
-
-            <div class="card my-3 ">
-                <form id="form-send-message" action="/auctions/{{auction.id}}/messages" method="POST" class="form p-3">
-                    <textarea class="form-control" placeholder="Leave questions here" id="floatingTextarea"
-                        name="content"></textarea>
-                    <button class="btn btn-outline-secondary mt-2">Send to seller</button>
+        <!-- Q&A -->
+        <div data-tab-panel="qa" class="hidden">
+            <div class="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Đặt câu hỏi cho người bán</h3>
+                <form id="form-send-message" action="/auctions/{{auction.id}}/messages" method="POST">
+                    <textarea
+                        class="message-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
+                        rows="3" placeholder="Nhập câu hỏi của bạn..." name="content"></textarea>
+                    <button type="submit"
+                        class="mt-3 py-2.5 px-5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        Gửi câu hỏi
+                    </button>
                 </form>
             </div>
 
-            {{#each messages}}
-            <div class="card mb-2">
-                <div class="card-body">
-
-                    <!-- Header -->
-                    <div class="d-flex align-items-center">
-                        <div class="ms-2 d-flex">
-                            <div class="fw-semibold">
-                                {{this.sender_name}}
-                            </div>
-                            <p class="text-muted ms-2 mb-0">
-                                {{formatDate this.created_at}}
-                            </p>
+            <!-- Messages List -->
+            <div class="space-y-4">
+                {{#each messages}}
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <!-- Question Header -->
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-900">{{this.sender_name}}</span>
+                            <span class="text-sm text-gray-500 ml-2">{{formatDate this.created_at}}</span>
                         </div>
                     </div>
 
-                    <!-- Content -->
-                    <p class="card-text ms-2 mb-3">
-                        {{this.content}}
-                    </p>
+                    <!-- Question Content -->
+                    <p class="text-gray-700 mb-4 pl-12">{{this.content}}</p>
+
                     {{#if ../authUser}}
                     {{#if (isSellerOfAuction ../authUser ../auction)}}
-                    <form action="/auctions/{{../auction.id}}/messages" method="POST" class="form-reply-message d-flex">
-                        <button class="btn btn-outline-secondary me-3">Reply</button>
-                        <input type="text" name="content" class="form-control" placeholder="Reply question here">
+                    <!-- Reply Form (for seller) -->
+                    <form action="/auctions/{{../auction.id}}/messages" method="POST"
+                        class="form-reply-message flex gap-3 pl-12">
+                        <input type="text" name="content"
+                            class="reply-input flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="Trả lời câu hỏi...">
                         <input type="hidden" name="reply_id" value="{{this.id}}">
+                        <button type="submit"
+                            class="py-2.5 px-5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-xl transition">
+                            Trả lời
+                        </button>
                     </form>
                     {{/if}}
                     {{/if}}
 
+                    <!-- Replies -->
                     {{#if this.replyMessages.length}}
-                    <div class="ms-5 mt-3">
+                    <div class="mt-4 pl-12 space-y-3">
                         {{#each this.replyMessages}}
-                        <div class="ps-3 mb-3">
-
-                            <div class="d-flex align-items-center mb-1">
-                                <span class="badge bg-primary me-2">
-                                    Seller
+                        <div class="bg-primary-50 rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-500 text-white">
+                                    Người bán
                                 </span>
-                                <strong>{{this.sender_name}}</strong>
-                                <small class="text-muted ms-2">
-                                    {{formatDate this.created_at}}
-                                </small>
+                                <span class="font-medium text-gray-900">{{this.sender_name}}</span>
+                                <span class="text-sm text-gray-500">{{formatDate this.created_at}}</span>
                             </div>
-
-                            <p class="mb-1">
-                                {{this.content}}
-                            </p>
+                            <p class="text-gray-700">{{this.content}}</p>
                         </div>
                         {{/each}}
                     </div>
                     {{/if}}
-
-
                 </div>
+                {{/each}}
             </div>
-            {{/each}}
         </div>
 
-        <div class="tab-pane fade" id="related">
-            <h4 class="mt-4">Related Items</h4>
-            <div class="row row-cols-5 g-3">
-
+        <!-- Related Products -->
+        <div data-tab-panel="related" class="hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {{#each relateAuctons}}
-                <a class="text-decoration-none" href="/auctions/{{this.id}}">
-                    <div class="card h-100">
-                        <img src="{{this.auction_img}}" class="card-img-top" alt="Turntable">
-                        <div class="card-body">
-                            <h6 class="card-title">{{this.name}}</h6>
-                            <p class="text-primary fw-bold">{{formatNumber this.current_price}} <sup>đ</sup></p>
-                        </div>
+                <a href="/auctions/{{this.id}}"
+                    class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all">
+                    <div class="aspect-square overflow-hidden">
+                        <img src="{{this.auction_img}}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            alt="{{this.name}}">
+                    </div>
+                    <div class="p-4">
+                        <h3
+                            class="font-medium text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-primary-500 transition">
+                            {{this.name}}</h3>
+                        <p class="text-primary-500 font-bold">{{formatNumber this.current_price}} <sup
+                                class="text-xs">đ</sup></p>
                     </div>
                 </a>
                 {{/each}}
-
             </div>
         </div>
 
-        <div class="tab-pane fade" id="history">
-            <div class="mt-4">
-
-                <h5 class="mb-3 fw-semibold">
-                    Bids history
-                </h5>
-
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle">
-                        <thead class="table-light">
+        <!-- Bid History -->
+        <div data-tab-panel="history" class="hidden">
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="p-5 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Lịch sử đấu giá</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th>Time</th>
-                                <th>Bidders</th>
-                                <th class="text-end">Cost</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Thời gian</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Người đấu giá</th>
+                                <th
+                                    class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Số tiền</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200">
                             {{#each bidHistories}}
-                            <tr>
-                                <td>{{formatDate this.created_at}}</td>
-                                <td>{{maskName this.bidder_name}}</td>
-                                <td class="text-end text-danger fw-bold">
-                                    {{formatNumber this.amount}} ₫
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm text-gray-600">{{formatDate this.created_at}}</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{maskName this.bidder_name}}
                                 </td>
+                                <td class="px-6 py-4 text-sm font-bold text-primary-500 text-right">{{formatNumber
+                                    this.amount}} ₫</td>
                             </tr>
                             {{/each}}
 
                             {{#unless bidHistories.length}}
                             <tr>
-                                <td colspan="3" class="text-center text-muted">
-                                    No value
+                                <td colspan="3" class="px-6 py-12 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                                        </path>
+                                    </svg>
+                                    Chưa có lượt đấu giá nào
                                 </td>
                             </tr>
                             {{/unless}}
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>

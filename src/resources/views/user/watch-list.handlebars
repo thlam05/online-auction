@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelectorAll(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,17 +17,16 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
+            let str = `${days} ngày `;
+            if (hours > 0) str += ` ${hours} giờ `;
+            if (minutes > 0) str += ` ${minutes} phút`;
             return str;
         }
 
-        // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
-        str += `${seconds}s`;
+        if (hours > 0) str += `${hours} giờ `;
+        if (minutes > 0) str += `${minutes} phút `;
+        str += `${seconds} giây`;
 
         return str.trim();
     }
@@ -45,38 +44,72 @@
 
     setInterval(updateRemainingTime, 1000);
 </script>
-<script>
-</script>
 {{/section}}
 
-<div class="">
+<div>
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+        <h1 class="text-xl font-semibold text-gray-900">Danh sách theo dõi</h1>
+        <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-700">
+            {{watchlists.length}} sản phẩm
+        </span>
+    </div>
 
-    <p class="fs-4 border-bottom border-gray">Watch list</p>
-
-    <div class="" style="height: 472px; overflow-y:scroll">
+    <!-- Watch List -->
+    <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
         {{#each watchlists}}
-        <div class="card p-4 d-flex flex-row mb-2">
-            <a href="/auctions/{{this.id}}" class="text-decoration-none d-flex align-items-center flex-grow-1">
-                <img src="{{this.auction_img}}" class="img-fluid rounded" style="width: 100px; height: 100px;"
-                    alt="Laptop">
-                <div class="ms-3">
-                    <p class="fs-5 text-dark mb-1">{{this.name}}</p>
-                    <div class="d-flex">
-                        <p class="me-2 text-muted mb-0">Current price:</p>
-                        <p class="text-danger fw-bold  mb-0">
-                            {{formatNumber this.current_price}} ₫
-                        </p>
+        <div
+            class="group bg-gray-50 hover:bg-white rounded-xl border border-gray-200 hover:border-primary-200 p-4 transition-all">
+            <div class="flex items-center gap-4">
+                <a href="/auctions/{{this.id}}" class="shrink-0">
+                    <img src="{{this.auction_img}}" class="w-24 h-24 object-cover rounded-xl" alt="{{this.name}}">
+                </a>
+                <div class="flex-1 min-w-0">
+                    <a href="/auctions/{{this.id}}" class="block">
+                        <h3 class="font-medium text-gray-900 group-hover:text-primary-500 transition line-clamp-1">
+                            {{this.name}}</h3>
+                    </a>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-sm text-gray-500">Giá hiện tại:</span>
+                        <span class="text-primary-500 font-bold">{{formatNumber this.current_price}} ₫</span>
                     </div>
-
-                    <small class="text-muted">
-                        End at:
-                        <strong class="remaining-time" data-end-time="{{this.end_at}}"></strong>
-                    </small>
+                    <div class="flex items-center gap-2 mt-1">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-sm text-gray-600">Còn: <strong class="remaining-time text-orange-500"
+                                data-end-time="{{this.end_at}}"></strong></span>
+                    </div>
                 </div>
+                <form action="/watch-list/del/{{this.watch_list_id}}" method="POST">
+                    <button type="submit"
+                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                        title="Xóa khỏi danh sách">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {{else}}
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                </path>
+            </svg>
+            <p class="text-gray-500">Chưa có sản phẩm theo dõi</p>
+            <a href="/auctions"
+                class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
+                Khám phá đấu giá
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
             </a>
-            <form action="/watch-list/del/{{this.watch_list_id}}" method="POST" class="d-flex">
-                <button class="btn"><i class="bi bi-x-lg"></i></button>
-            </form>
         </div>
         {{/each}}
     </div>

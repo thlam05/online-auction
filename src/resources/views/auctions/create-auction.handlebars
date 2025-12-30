@@ -1,5 +1,21 @@
 {{#section "css"}}
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<style>
+    .ql-toolbar {
+        border-radius: 12px 12px 0 0;
+        border-color: #e5e7eb !important;
+    }
+
+    .ql-container {
+        border-radius: 0 0 12px 12px;
+        border-color: #e5e7eb !important;
+        min-height: 150px;
+    }
+
+    .ql-editor {
+        min-height: 150px;
+    }
+</style>
 {{/section}}
 
 {{#section "js"}}
@@ -12,13 +28,11 @@
     const form = document.querySelector("#form-create-auction");
 
     function removeClassInvalid(event) {
-        event.target.classList.remove("invalid");
+        event.target.classList.remove("border-red-500");
     }
 
     form.onsubmit = function (event) {
         event.preventDefault();
-
-
 
         const htmlDes = quill.root.innerHTML;
         const description = form.querySelector("#description-hidden");
@@ -29,42 +43,42 @@
         const inputName = form.querySelector("#name-product");
         if (inputName.value.trim() == "") {
             isValid = false;
-            inputName.classList.add("invalid");
+            inputName.classList.add("border-red-500");
         }
         inputName.oninput = removeClassInvalid;
 
         const mainImage = form.querySelector("#main-image-product");
         if (!mainImage.value) {
             isValid = false;
-            mainImage.classList.add("invalid");
+            mainImage.classList.add("border-red-500");
         }
         mainImage.onclick = removeClassInvalid;
 
         const subImage = form.querySelector("#sub-image-product");
         if (!subImage.value || subImage.files.length < 3 || subImage.files.length > 10) {
             isValid = false;
-            subImage.classList.add("invalid");
+            subImage.classList.add("border-red-500");
         }
         subImage.onclick = removeClassInvalid;
 
         const startingPrice = form.querySelector("#starting-step-product");
         if (!startingPrice.value || Number(startingPrice.value) < 0) {
             isValid = false;
-            startingPrice.classList.add("invalid");
+            startingPrice.classList.add("border-red-500");
         }
         startingPrice.oninput = removeClassInvalid;
 
         const priceStep = form.querySelector("#price-step-product");
         if (!priceStep.value || Number(priceStep.value) < 0) {
             isValid = false;
-            priceStep.classList.add("invalid");
+            priceStep.classList.add("border-red-500");
         }
         priceStep.oninput = removeClassInvalid;
 
         const duration = form.querySelector("#duration");
         if (!duration.value || Number(duration.value) < 0) {
             isValid = false;
-            duration.classList.add("invalid");
+            duration.classList.add("border-red-500");
         }
         duration.oninput = removeClassInvalid;
 
@@ -77,67 +91,139 @@
 </script>
 {{/section}}
 
-<form id="form-create-auction" class="form p-4" action="/auctions" method="post" enctype="multipart/form-data">
-    <div class="row">
-        <div class="col-12">
-            <label for="name-product">Name product</label>
-            <input type="text" class="form-control mb-2" id="name-product" name="name">
+<!-- Breadcrumb -->
+<nav class="py-4">
+    <ol class="flex items-center text-sm text-gray-500">
+        <li><a href="/" class="hover:text-primary-500">Trang chủ</a></li>
+        <li class="mx-2">/</li>
+        <li><a href="/user/auctions" class="hover:text-primary-500">Đấu giá của tôi</a></li>
+        <li class="mx-2">/</li>
+        <li class="text-gray-900 font-medium">Tạo đấu giá mới</li>
+    </ol>
+</nav>
+
+<div class="max-w-4xl mx-auto pb-12">
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-5">
+            <h1 class="text-xl font-semibold text-white flex items-center gap-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Tạo đấu giá mới
+            </h1>
+            <p class="text-white/80 text-sm mt-1">Điền thông tin sản phẩm để bắt đầu đấu giá</p>
         </div>
 
-        <div class="col-6">
-            <label for="main-image-product">Main image</label>
-            <input type="file" class="form-control mb-2" id="main-image-product" name="mainImage">
-        </div>
+        <!-- Form -->
+        <form id="form-create-auction" class="p-6" action="/auctions" method="post" enctype="multipart/form-data">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Product Name -->
+                <div class="md:col-span-2">
+                    <label for="name-product" class="block text-sm font-medium text-gray-700 mb-2">Tên sản phẩm</label>
+                    <input type="text"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        id="name-product" name="name" placeholder="Nhập tên sản phẩm...">
+                </div>
 
-        <div class="col-6">
-            <label for="sub-image-product">Sub image</label>
-            <input type="file" class="form-control mb-2" id="sub-image-product" name="subImage" multiple>
-        </div>
+                <!-- Main Image -->
+                <div>
+                    <label for="main-image-product" class="block text-sm font-medium text-gray-700 mb-2">Ảnh
+                        chính</label>
+                    <input type="file"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-600 hover:file:bg-primary-100"
+                        id="main-image-product" name="mainImage">
+                </div>
 
-        <div class="col-4">
-            <label for="starting-step-product">Starting price</label>
-            <input type="number" class="form-control mb-2" id="starting-step-product" name="startingPrice">
-        </div>
+                <!-- Sub Images -->
+                <div>
+                    <label for="sub-image-product" class="block text-sm font-medium text-gray-700 mb-2">Ảnh phụ (3-10
+                        ảnh)</label>
+                    <input type="file"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-600 hover:file:bg-primary-100"
+                        id="sub-image-product" name="subImage" multiple>
+                </div>
 
-        <div class="col-4">
-            <label for="price-step-product">Price step</label>
-            <input type="number" class="form-control mb-2" id="price-step-product" name="priceStep">
-        </div>
+                <!-- Starting Price -->
+                <div>
+                    <label for="starting-step-product" class="block text-sm font-medium text-gray-700 mb-2">Giá khởi
+                        điểm (VNĐ)</label>
+                    <input type="number"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        id="starting-step-product" name="startingPrice" placeholder="0">
+                </div>
 
-        <div class="col-4">
-            <label for="cost-buy-now-product">Buy now price</label>
-            <input type="number" class="form-control mb-2" id="cost-buy-now-product" name="costBuyNow">
-        </div>
+                <!-- Price Step -->
+                <div>
+                    <label for="price-step-product" class="block text-sm font-medium text-gray-700 mb-2">Bước giá
+                        (VNĐ)</label>
+                    <input type="number"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        id="price-step-product" name="priceStep" placeholder="0">
+                </div>
 
-        <div class="col-3">
-            <label for="">Category</label>
-            <select class="form-select mb-2" aria-label="Default select example" name="categoryId">
-                {{#each categories}}
-                {{#each this.subCategories}}
-                <option value="{{this.id}}">{{this.name}}</option>
-                {{/each}}
-                {{/each}}
-            </select>
-        </div>
+                <!-- Buy Now Price -->
+                <div>
+                    <label for="cost-buy-now-product" class="block text-sm font-medium text-gray-700 mb-2">Giá mua ngay
+                        (VNĐ)</label>
+                    <input type="number"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        id="cost-buy-now-product" name="costBuyNow" placeholder="Để trống nếu không cho phép">
+                </div>
 
-        <div class="col-3">
-            <label class="duration">Duration (hour)</label>
-            <input type="number" class="form-control mb-2" id="duration" name="duration">
-        </div>
+                <!-- Category -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
+                    <select
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white"
+                        name="categoryId">
+                        {{#each categories}}
+                        {{#each this.subCategories}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                        {{/each}}
+                    </select>
+                </div>
 
+                <!-- Duration -->
+                <div>
+                    <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Thời gian (giờ)</label>
+                    <input type="number"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        id="duration" name="duration" placeholder="24">
+                </div>
+
+                <!-- Description -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả sản phẩm</label>
+                    <div id="description-editor">
+                        <p>Nhập mô tả chi tiết về sản phẩm...</p>
+                    </div>
+                    <input type="text" hidden name="description" id="description-hidden">
+                </div>
+
+                <!-- Auto Renew -->
+                <div class="md:col-span-2">
+                    <label class="inline-flex items-center gap-3 cursor-pointer">
+                        <input class="w-5 h-5 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+                            type="checkbox" id="autoRenew" name="auto_renew">
+                        <span class="text-gray-700">Tự động gia hạn khi có người đấu giá trong 5 phút cuối</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-8 flex justify-end">
+                <button type="submit"
+                    class="inline-flex items-center gap-2 py-3 px-8 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Tạo đấu giá
+                </button>
+            </div>
+        </form>
     </div>
-    <label for="">Description</label>
-    <div id="description-editor" class="mb-2">
-        <p>Description here</p>
-    </div>
-    <input type="text" hidden name="description" id="description-hidden">
-
-    <div class="mb-3">
-        <input class="form-check-input" type="checkbox" id="autoRenew" name="auto_renew">
-        <label class="form-check-label" for="autoRenew">
-            Auto renew
-        </label>
-    </div>
-
-    <button class="btn btn-primary">Create</button>
-</form>
+</div>

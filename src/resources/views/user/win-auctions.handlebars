@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelectorAll(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,17 +17,16 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
+            let str = `${days} ngày `;
+            if (hours > 0) str += ` ${hours} giờ `;
+            if (minutes > 0) str += ` ${minutes} phút`;
             return str;
         }
 
-        // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
-        str += `${seconds}s`;
+        if (hours > 0) str += `${hours} giờ `;
+        if (minutes > 0) str += `${minutes} phút `;
+        str += `${seconds} giây`;
 
         return str.trim();
     }
@@ -50,22 +49,36 @@
     let sellerId = null;
 
     const modal = document.getElementById("assessSellerModal");
+    const modalOverlay = document.getElementById("modalOverlay");
     const text = document.getElementById("assessSellerText");
+    const closeModalBtns = document.querySelectorAll(".close-modal");
 
-    modal.addEventListener("show.bs.modal", (event) => {
-        const button = event.relatedTarget;
-
+    function openModal(button) {
         selectedAuctionId = button.dataset.auctionId;
         sellerId = button.dataset.sellerId;
-
         const sellerName = button.dataset.sellerName;
+        text.textContent = `Bạn đánh giá như thế nào về người bán ${sellerName}?`;
 
-        text.textContent = `How would you rate your experience with seller ${sellerName}?`;
+        modal.classList.remove("hidden");
+        modalOverlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+        modal.classList.add("hidden");
+        modalOverlay.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll(".open-assess-modal").forEach(btn => {
+        btn.addEventListener("click", () => openModal(btn));
     });
+
+    modalOverlay.addEventListener("click", closeModal);
+    closeModalBtns.forEach(btn => btn.addEventListener("click", closeModal));
 
     document.querySelectorAll(".rate-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-            e.currentTarget.blur();
             const rating = btn.dataset.rating == "good" ? 1 : -1;
 
             const res = await fetch(`http://localhost:3000/user/ratings/${sellerId}`, {
@@ -77,100 +90,152 @@
                     auction_id: selectedAuctionId,
                     rating
                 })
-            })
+            });
 
-            bootstrap.Modal.getInstance(modal).hide();
+            closeModal();
+            // Show success feedback
+            btn.closest(".rate-btn-container").innerHTML = `
+                <div class="flex items-center gap-2 text-green-600">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Đã đánh giá
+                </div>
+            `;
         });
     });
 </script>
 {{/section}}
 
-<div class="">
-    <p class="fs-4 border-bottom border-gray">Auctions won</p>
+<div>
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+        <h1 class="text-xl font-semibold text-gray-900">Đấu giá đã thắng</h1>
+    </div>
 
-    <div class="row mx-4 py-2 border-bottom border-gray">
-        <div class="col d-flex flex-column text-center">
-            <span class="text-secondary fs-5">Number of auctions</span>
-            <span class="fw-semibold fs-4">{{auctions.length}}</span>
+    <!-- Stats -->
+    <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-5 mb-6">
+        <div class="flex items-center justify-center gap-3">
+            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                    </path>
+                </svg>
+            </div>
+            <div>
+                <span class="text-gray-600">Số đấu giá đã thắng</span>
+                <p class="text-3xl font-bold text-green-600">{{auctions.length}}</p>
+            </div>
         </div>
     </div>
 
-
-    <div class="row row-cols-3 g-3 mt-2" style="max-height: 400px; overflow-y:scroll;">
-
+    <!-- Auctions Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2">
         {{#each auctions}}
-        <div class="col">
-            <div class="card h-100">
-                <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop"
-                    style="height: 200px; object-fit: contain;">
-                <div class="card-body card-product-info">
-                    <h5 class="card-title">{{this.name}}</h5>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Current price:</p>
-                        <p class="mb-1">{{formatNumber this.current_price}} <sup>đ</sup></p>
+        <div
+            class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-green-200 transition-all">
+            <div class="relative aspect-[4/3] overflow-hidden">
+                <img src="{{this.mainImage.url}}"
+                    class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    alt="{{this.name}}">
+                <span
+                    class="absolute top-3 left-3 inline-flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Thắng
+                </span>
+            </div>
+            <div class="p-4">
+                <h3 class="font-medium text-gray-900 line-clamp-1 mb-3">{{this.name}}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Giá cuối cùng:</span>
+                        <span class="font-semibold text-green-600">{{formatNumber this.current_price}}
+                            <sup>đ</sup></span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Your bid:</p>
-                        <p class="mb-1">{{formatNumber this.highestBidder.bid_amount}}</p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-1">Remaining:</p>
-                        <p class="mb-1 remaining-time" data-end-time="{{this.end_at}}"></p>
-                    </div>
-                    <div class="d-flex">
-                        <a href="/auctions/{{this.id}}" class="btn btn-outline-primary w-100 me-3">View auction</a>
-                        {{#unless (include ../listRated this.id)}}
-                        <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal"
-                            data-bs-target="#assessSellerModal" data-auction-id="{{this.id}}"
-                            data-seller-id="{{this.seller.id}}" data-seller-name="{{this.seller.username}}">
-                            Assess seller
-                        </button>
-                        {{/unless}}
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Giá bạn đặt:</span>
+                        <span class="font-medium text-gray-900">{{formatNumber this.highestBidder.bid_amount}}</span>
                     </div>
                 </div>
+                <div class="flex gap-2 mt-4">
+                    <a href="/auctions/{{this.id}}"
+                        class="flex-1 py-2.5 px-3 text-center border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl font-medium transition text-sm">
+                        Chi tiết
+                    </a>
+                    {{#unless (include ../listRated this.id)}}
+                    <button type="button"
+                        class="open-assess-modal flex-1 py-2.5 px-3 text-center bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-medium transition text-sm"
+                        data-auction-id="{{this.id}}" data-seller-id="{{this.seller.id}}"
+                        data-seller-name="{{this.seller.username}}">
+                        Đánh giá
+                    </button>
+                    {{/unless}}
+                </div>
             </div>
+        </div>
+        {{else}}
+        <div class="col-span-full text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                </path>
+            </svg>
+            <p class="text-gray-500">Bạn chưa thắng đấu giá nào</p>
+            <a href="/auctions"
+                class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
+                Tham gia đấu giá ngay
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
         </div>
         {{/each}}
+    </div>
+</div>
 
-        <div class="modal fade" id="assessSellerModal" tabindex="-1" aria-labelledby="assessSellerModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+<!-- Assess Modal -->
+<div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-50"></div>
+<div id="assessSellerModal"
+    class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl z-50 w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Đánh giá người bán</h3>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+    <p class="text-gray-600 mb-6 text-center" id="assessSellerText"></p>
 
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="assessSellerModalLabel">
-                            Assess Seller
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body text-center">
-                        <p class="mb-4" id="assessSellerText"></p>
-
-                        <div class="d-flex justify-content-center gap-3">
-                            <button type="button" class="btn btn-success px-4 rate-btn" data-rating="good">
-                                <i class="bi bi-hand-thumbs-up me-1"></i>
-                                Good
-                            </button>
-
-                            <button type="button" class="btn btn-danger px-4 rate-btn" data-rating="bad">
-                                <i class="bi bi-hand-thumbs-down me-1"></i>
-                                Bad
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer justify-content-center">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Cancel
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-
+    <div class="rate-btn-container flex justify-center gap-4">
+        <button type="button"
+            class="rate-btn flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition"
+            data-rating="good">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5">
+                </path>
+            </svg>
+            Tốt
+        </button>
+        <button type="button"
+            class="rate-btn flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition"
+            data-rating="bad">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5">
+                </path>
+            </svg>
+            Không tốt
+        </button>
     </div>
 
+    <div class="mt-6 text-center">
+        <button type="button" class="close-modal text-gray-500 hover:text-gray-700 font-medium">Hủy</button>
+    </div>
 </div>

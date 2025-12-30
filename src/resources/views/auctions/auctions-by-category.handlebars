@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelectorAll(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,16 +17,12 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
-            return str;
+            return `${days}d ${hours}h ${minutes}m`;
         }
 
-        // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
+        if (hours > 0) str += `${hours}h `;
+        if (minutes > 0) str += `${minutes}m `;
         str += `${seconds}s`;
 
         return str.trim();
@@ -38,130 +34,250 @@
             const now = new Date();
             const diff = end - now;
             element.textContent = formatRemainingTime(diff);
+
+            if (diff > 0 && diff < 3600000) {
+                element.classList.add('text-primary-500', 'animate-pulse', 'font-bold');
+            }
         })
     }
 
     updateRemainingTime();
-
     setInterval(updateRemainingTime, 1000);
 </script>
 {{/section}}
 
-<div class="row .row-cols-2 g-3 pt-3 pb-3">
+<div class="flex gap-6">
+    <!-- Sidebar Categories -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-20">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+                Danh mục
+            </h3>
 
-    <div class="col col-2 pt-3">
-        <div class="card p-2">
-
-            <p class="text mb-0 pb-2">Categories</p>
-
-            {{#each categories}}
-            <div class="p-2 border-top border-gray">
-                {{#if (equal this.slug ../curCategory)}}
-                <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-primary">{{this.name}}</a>
-                {{else}}
-                <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-dark">{{this.name}}</a>
-                {{/if}}
-                <div class="d-flex flex-column">
-                    {{#each this.subCategories}}
-                    {{#if (equal this.slug ../../curCategory)}}
-                    <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-primary ms-2"
-                        style="font-size: 14px;">{{this.name}}</a>
+            <nav class="space-y-1">
+                {{#each categories}}
+                <div class="border-t border-gray-100 pt-3 first:border-0 first:pt-0">
+                    {{#if (equal this.slug ../curCategory.slug)}}
+                    <a href="/auctions/categories/{{this.slug}}"
+                        class="flex items-center justify-between px-3 py-2 bg-primary-50 text-primary-500 rounded-lg transition-colors font-medium">
+                        {{this.name}}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                     {{else}}
-                    <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-secondary ms-2"
-                        style="font-size: 14px;">{{this.name}}</a>
+                    <a href="/auctions/categories/{{this.slug}}"
+                        class="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-500 rounded-lg transition-colors font-medium">
+                        {{this.name}}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                     {{/if}}
-                    {{/each}}
-                </div>
-            </div>
-            {{/each}}
-        </div>
-    </div>
-
-    <div class="col col-10 pt-3">
-        {{!-- <div class="d-flex align-items-center p-3">
-            <span class="me-3">Sort by</span>
-            <select class="form-select w-auto">
-                <option selected>Ending Soonest</option>
-                <option>Starting Soonest</option>
-                <option>Lowest Priceaaaaaaaaaaaaaaaaaaaaaa</option>
-                <option>Highest Price</option>
-            </select>
-        </div> --}}
-
-        <h4 class="p-3 ms-3">Auctions by category: {{curCategory.name}}</h4>
-
-        {{#if empty}}
-        <p class="text-dark">No results found.</p>
-        {{else}}
-        <div class="auctions">
-            <div class="row row-cols-3 g-3">
-                {{#each auctions}}
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">{{this.name}}</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">{{formatNumber this.current_price}}<sup>đ</sup></p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">{{this.highestBidder.username}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">{{formatDate this.start_at}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2 remaining-time" data-end-time="{{this.end_at}}">{{calcRemainingTime
-                                    this.end_at}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="/auctions/{{this.id}}" class="btn btn-primary w-100">Bib now</a>
-                            </div>
-                        </div>
+                    {{#if this.subCategories}}
+                    <div class="ml-3 mt-1 space-y-1">
+                        {{#each this.subCategories}}
+                        {{#if (equal this.slug ../../curCategory.slug)}}
+                        <a href="/auctions/categories/{{this.slug}}"
+                            class="block px-3 py-1.5 text-sm text-primary-500 bg-primary-50 rounded-lg">
+                            {{this.name}}
+                        </a>
+                        {{else}}
+                        <a href="/auctions/categories/{{this.slug}}"
+                            class="block px-3 py-1.5 text-sm text-gray-500 hover:text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                            {{this.name}}
+                        </a>
+                        {{/if}}
+                        {{/each}}
                     </div>
+                    {{/if}}
                 </div>
                 {{/each}}
-            </div>
-        </div>
-
-        <div class="paging">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item">
-                        <a class="page-link" href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{prevPage}}"
-                            aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {{#each pageNumbers}}
-                    {{#if this.isCurrent}}
-                    <li class="page-item"><a class="page-link bg-primary text-light"
-                            href="/auctions/categories/{{../curCategory.slug}}?limit=6&page={{this.value}}">{{this.value}}</a>
-                    </li>
-                    {{else}}
-                    <li class="page-item"><a class="page-link"
-                            href="/auctions/categories/{{../curCategory.slug}}?limit=6&page={{this.value}}">{{this.value}}</a>
-                    </li>
-                    {{/if}}
-                    {{/each}}
-                    <li class="page-item">
-                        <a class="page-link" href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{nextPage}}"
-                            aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
         </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 min-w-0">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <a href="/" class="hover:text-primary-500 transition-colors">Trang chủ</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <a href="/auctions" class="hover:text-primary-500 transition-colors">Đấu giá</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            <span class="text-gray-900 font-medium">{{curCategory.name}}</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{curCategory.name}}</h1>
+                <p class="text-gray-500 mt-1">Danh sách sản phẩm đấu giá theo danh mục</p>
+            </div>
+
+            <!-- Mobile Category Button -->
+            <button type="button"
+                class="lg:hidden inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                data-hs-overlay="#category-sidebar-cat">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+                Danh mục
+            </button>
+        </div>
+
+        {{#if empty}}
+        <!-- Empty State -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Không có sản phẩm nào</h3>
+            <p class="text-gray-500">Danh mục này hiện chưa có sản phẩm đấu giá.</p>
+            <a href="/auctions"
+                class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Xem tất cả sản phẩm
+            </a>
+        </div>
+        {{else}}
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {{#each auctions}}
+            <a href="/auctions/{{this.id}}" class="product-card group">
+                <div class="relative overflow-hidden">
+                    <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                    {{#if this.isNew}}
+                    <div class="absolute top-2 left-2">
+                        <span class="badge badge-primary">Mới</span>
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="product-card-body">
+                    <h3 class="product-card-title">{{this.name}}</h3>
+
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Giá hiện tại:</span>
+                            <span class="product-card-price">{{formatNumber this.current_price}}<sup
+                                    class="text-xs">đ</sup></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Người đặt:</span>
+                            <span class="text-gray-700 font-medium">{{this.highestBidder.username}}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Ngày đăng:</span>
+                            <span class="text-gray-700">{{formatDate this.start_at}}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-500">Còn lại:</span>
+                            <span class="remaining-time font-semibold text-gray-900"
+                                data-end-time="{{this.end_at}}">--:--:--</span>
+                        </div>
+                    </div>
+
+                    <span
+                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
+                        Đấu giá ngay
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </span>
+                </div>
+            </a>
+            {{/each}}
+        </div>
+
+        <!-- Pagination -->
+        <nav class="flex items-center justify-center gap-1">
+            <a href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{prevPage}}"
+                class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+
+            {{#each pageNumbers}}
+            {{#if this.isCurrent}}
+            <span class="w-10 h-10 flex items-center justify-center bg-primary-500 text-white font-medium rounded-lg">
+                {{this.value}}
+            </span>
+            {{else}}
+            <a href="/auctions/categories/{{../curCategory.slug}}?limit=6&page={{this.value}}"
+                class="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium">
+                {{this.value}}
+            </a>
+            {{/if}}
+            {{/each}}
+
+            <a href="/auctions/categories/{{curCategory.slug}}?limit=6&page={{nextPage}}"
+                class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </nav>
         {{/if}}
     </div>
+</div>
 
+<!-- Mobile Category Sidebar -->
+<div id="category-sidebar-cat"
+    class="hs-overlay hidden fixed inset-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none lg:hidden">
+    <div
+        class="hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform fixed top-0 start-0 bottom-0 z-[80] w-72 bg-white border-e pointer-events-auto">
+        <div class="flex justify-between items-center py-3 px-4 border-b">
+            <h3 class="font-bold text-gray-800">Danh mục</h3>
+            <button type="button"
+                class="flex items-center justify-center w-8 h-8 text-gray-400 hover:bg-gray-100 rounded-lg"
+                data-hs-overlay="#category-sidebar-cat">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <nav class="p-4 space-y-1">
+            {{#each categories}}
+            <div class="border-t border-gray-100 pt-3 first:border-0 first:pt-0">
+                {{#if (equal this.slug ../curCategory.slug)}}
+                <a href="/auctions/categories/{{this.slug}}"
+                    class="block px-3 py-2 bg-primary-50 text-primary-500 rounded-lg font-medium">
+                    {{this.name}}
+                </a>
+                {{else}}
+                <a href="/auctions/categories/{{this.slug}}"
+                    class="block px-3 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-500 rounded-lg font-medium">
+                    {{this.name}}
+                </a>
+                {{/if}}
+                {{#each this.subCategories}}
+                {{#if (equal this.slug ../../curCategory.slug)}}
+                <a href="/auctions/categories/{{this.slug}}" class="block px-3 py-1.5 ml-3 text-sm text-primary-500">
+                    {{this.name}}
+                </a>
+                {{else}}
+                <a href="/auctions/categories/{{this.slug}}"
+                    class="block px-3 py-1.5 ml-3 text-sm text-gray-500 hover:text-primary-500">
+                    {{this.name}}
+                </a>
+                {{/if}}
+                {{/each}}
+            </div>
+            {{/each}}
+        </nav>
+    </div>
 </div>

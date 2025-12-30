@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "sass": "sass src/resources/scss:src/public/css --watch"
+    "sass": "sass src/resources/scss:src/public/css --watch",
+    "css": "npx @tailwindcss/cli -i ./src/public/css/input.css -o ./src/public/css/output.css --watch",
+    "build:css": "npx @tailwindcss/cli -i ./src/public/css/input.css -o ./src/public/css/output.css --minify"
   },
   "repository": {
     "type": "git",
@@ -35,10 +37,13 @@
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "preline": "^3.2.3"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
     "nodemon": "^3.1.10",
-    "sass": "^1.93.3"
+    "sass": "^1.93.3",
+    "tailwindcss": "^4.0.0"
   }
 }

@@ -3,39 +3,72 @@
     const resendCodeBtn = document.querySelector("#resend-code-btn");
     resendCodeBtn.onclick = function (event) {
         resendCodeBtn.disabled = true;
-        resendCodeBtn.innerText = "Resend code 120s";
+        resendCodeBtn.classList.add("opacity-50", "cursor-not-allowed");
+        resendCodeBtn.innerText = "Gửi lại mã 120s";
         setTimeout(() => {
             resendCodeBtn.disabled = false;
+            resendCodeBtn.classList.remove("opacity-50", "cursor-not-allowed");
         }, 120 * 1000);
         setInterval(() => {
-            let timeLeft = parseInt(resendCodeBtn.innerText.split(" ")[2]) - 1;
+            let timeLeft = parseInt(resendCodeBtn.innerText.match(/\d+/)) - 1;
             if (timeLeft > 0) {
-                resendCodeBtn.innerText = `Resend code ${timeLeft}s`;
+                resendCodeBtn.innerText = `Gửi lại mã ${timeLeft}s`;
             } else {
-                resendCodeBtn.innerText = "Resend code";
+                resendCodeBtn.innerText = "Gửi lại mã";
             }
         }, 1000);
     }
 </script>
 {{/section}}
 
-<div class="d-flex justify-content-center" style="margin-top: 200px; margin-bottom: 200px;">
-
-    <div class="col-5">
-        <p class="text fs-5">{{message}}</p>
-        {{#if error}}
-        <p class="text-danger">{{errorMessage}}</p>
-        {{/if}}
-        <form action="/auth/otp-verify" method="POST">
-            <div class="mb-3">
-                <label for="input-otp-verify" class="form-label">OTP Verify</label>
-                <input type="text" class="form-control" id="input-otp-verify" name="otp">
-                <input type="hidden" name="pendingUserId" value="{{pendingUserId}}">
-                <input type="hidden" name="email" value="{{email}}">
-                <input type="hidden" name="redirectTo" value="{{redirectTo}}">
+<div class="min-h-[60vh] flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Xác thực OTP</h2>
+                <p class="text-gray-500 mt-2">{{message}}</p>
             </div>
-            <button type="submit" class="btn btn-primary">Verify</button>
-        </form>
-        <button class="btn btn-outline-secondary mt-2" id="resend-code-btn">Resend code</button>
+
+            {{#if error}}
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6">
+                {{errorMessage}}
+            </div>
+            {{/if}}
+
+            <form action="/auth/otp-verify" method="POST">
+                <div class="mb-6">
+                    <label for="input-otp-verify" class="block text-sm font-medium text-gray-700 mb-2">Nhập mã
+                        OTP</label>
+                    <input type="text"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-center text-2xl tracking-widest font-mono"
+                        id="input-otp-verify" name="otp" maxlength="6" placeholder="000000">
+                    <input type="hidden" name="pendingUserId" value="{{pendingUserId}}">
+                    <input type="hidden" name="email" value="{{email}}">
+                    <input type="hidden" name="redirectTo" value="{{redirectTo}}">
+                </div>
+                <button type="submit"
+                    class="w-full py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition mb-3">
+                    Xác thực
+                </button>
+            </form>
+            <button
+                class="w-full py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition"
+                id="resend-code-btn">
+                Gửi lại mã
+            </button>
+
+            <div class="text-center mt-6">
+                <a href="/auth/signin" class="text-primary-500 hover:text-primary-600 font-medium">
+                    ← Quay lại đăng nhập
+                </a>
+            </div>
+        </div>
     </div>
 </div>

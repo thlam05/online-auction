@@ -3,7 +3,7 @@
     const remaininTimes = document.querySelectorAll(".remaining-time");
 
     function formatRemainingTime(ms) {
-        if (ms <= 0) return "It's over.";
+        if (ms <= 0) return "Đã kết thúc";
 
         let diff = ms;
 
@@ -17,17 +17,16 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d: `;
-            if (hours > 0) str += ` ${hours}h: `;
-            if (minutes > 0) str += ` ${minutes}m`;
+            let str = `${days} ngày `;
+            if (hours > 0) str += ` ${hours} giờ `;
+            if (minutes > 0) str += ` ${minutes} phút`;
             return str;
         }
 
-        // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h: `;
-        if (minutes > 0) str += `${minutes}m: `;
-        str += `${seconds}s`;
+        if (hours > 0) str += `${hours} giờ `;
+        if (minutes > 0) str += `${minutes} phút `;
+        str += `${seconds} giây`;
 
         return str.trim();
     }
@@ -46,121 +45,135 @@
     setInterval(updateRemainingTime, 1000);
 </script>
 <script>
-    const formSelect = document.querySelector(".form-select");
-    const formSort = document.querySelector("#form-sort");
-    formSelect.onchange = function (event) {
+    const sortSelect = document.querySelector("#sort-select");
+    sortSelect.onchange = function (event) {
         const type = this.options[this.selectedIndex].dataset.type;
         const url = new URL(window.location.href);
         url.searchParams.set("sort", type);
-
         window.location.href = url.toString();
     }
 </script>
 {{/section}}
 
-<div class="row .row-cols-2 g-3 pt-3 pb-3">
-
-    <div class="col col-2 pt-3">
-        <div class="card p-2">
-
-            <p class="text mb-0 pb-2">Categories</p>
-
-            {{#each categories}}
-            <div class="p-2 border-top border-gray">
-                <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-dark">{{this.name}}</a>
-                <div class="d-flex flex-column">
-                    {{#each this.subCategories}}
-                    <a href="/auctions/categories/{{this.slug}}" class="text-decoration-none text-secondary ms-2"
-                        style="font-size: 14px;">{{this.name}}</a>
-                    {{/each}}
-                </div>
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6 py-6">
+    <!-- Sidebar Categories -->
+    <aside class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden sticky top-24">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h3 class="font-semibold text-gray-900">Danh mục</h3>
             </div>
-            {{/each}}
-        </div>
-    </div>
-
-    <div class="col col-10 pt-3">
-
-        <div class="d-flex align-items-center p-3">
-            <h4 class="ms-3 me-5">Search result</h4>
-            <span class="me-3 ms-3">Sort by</span>
-            <select class="form-select w-auto">
-                <option selected data-type="end_at-desc">Ending time (descending)</option>
-                <option data-type="current_price-asc">Price (ascending)</option>
-                <option data-type="current_price-desc">Price (descending)</option>
-            </select>
-        </div>
-
-        {{#if empty}}
-        <p class="text-dark">No results found.</p>
-        {{else}}
-        <div class="auctions">
-            <div class="row row-cols-3 g-3">
-                {{#each auctions}}
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="{{this.mainImage.url}}" class="card-img-top card-product-img" alt="Laptop">
-                        <div class="card-body card-product-info">
-                            <h5 class="card-title">{{this.name}}</h5>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Current price:</p>
-                                <p class="mb-1">{{formatNumber this.current_price}}<sup>đ</sup></p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">By bidder:</p>
-                                <p class="mb-1">{{this.highestBidder.username}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-1">Posted Date:</p>
-                                <p class="mb-1">{{formatDate this.start_at}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Remaining time:</p>
-                                <p class="mb-2 remaining-time" data-end-time="{{this.end_at}}">{{calcRemainingTime
-                                    this.end_at}}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p class="mb-2">Total Bids:</p>
-                                <p class="mb-2">18</p>
-                            </div>
-                            <div class="">
-                                <a href="/auctions/{{this.id}}" class="btn btn-primary w-100">Bib now</a>
-                            </div>
-                        </div>
+            <div class="p-3">
+                {{#each categories}}
+                <div class="mb-3">
+                    <a href="/auctions/categories/{{this.slug}}"
+                        class="font-medium text-gray-900 hover:text-primary-500 transition">{{this.name}}</a>
+                    <div class="mt-1 ml-3 space-y-1">
+                        {{#each this.subCategories}}
+                        <a href="/auctions/categories/{{this.slug}}"
+                            class="block text-sm text-gray-500 hover:text-primary-500 transition">{{this.name}}</a>
+                        {{/each}}
                     </div>
                 </div>
                 {{/each}}
             </div>
         </div>
+    </aside>
 
-        <div class="paging">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item">
-                        <a class="page-link" href="/auctions?limit=6&page={{prevPage}}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    {{#each pageNumbers}}
-                    {{#if this.isCurrent}}
-                    <li class="page-item"><a class="page-link bg-primary text-light"
-                            href="/auctions?limit=6&page={{this.value}}">{{this.value}}</a></li>
-                    {{else}}
-                    <li class="page-item"><a class="page-link"
-                            href="/auctions?limit=6&page={{this.value}}">{{this.value}}</a></li>
-                    {{/if}}
-                    {{/each}}
-                    <li class="page-item">
-                        <a class="page-link" href="/auctions?limit=6&page={{nextPage}}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+    <!-- Main Content -->
+    <main class="lg:col-span-4">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Kết quả tìm kiếm</h1>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500">Sắp xếp theo:</span>
+                <select id="sort-select"
+                    class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white text-sm">
+                    <option selected data-type="end_at-desc">Thời gian kết thúc (giảm dần)</option>
+                    <option data-type="current_price-asc">Giá (tăng dần)</option>
+                    <option data-type="current_price-desc">Giá (giảm dần)</option>
+                </select>
+            </div>
         </div>
+
+        {{#if empty}}
+        <div class="text-center py-16">
+            <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <p class="text-xl font-medium text-gray-700 mb-2">Không tìm thấy kết quả</p>
+            <p class="text-gray-500">Hãy thử tìm kiếm với từ khóa khác</p>
+        </div>
+        {{else}}
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {{#each auctions}}
+            <a href="/auctions/{{this.id}}"
+                class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all">
+                <div class="aspect-square overflow-hidden bg-gray-50">
+                    <img src="{{this.mainImage.url}}"
+                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        alt="{{this.name}}">
+                </div>
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 line-clamp-2 mb-3 group-hover:text-primary-500 transition">
+                        {{this.name}}</h3>
+                    <div class="space-y-1.5 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Giá hiện tại:</span>
+                            <span class="font-bold text-primary-500">{{formatNumber
+                                this.current_price}}<sup>đ</sup></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Người đấu cao nhất:</span>
+                            <span class="text-gray-700">{{this.highestBidder.username}}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Ngày đăng:</span>
+                            <span class="text-gray-700">{{formatDate this.start_at}}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Còn lại:</span>
+                            <span class="font-medium text-orange-500 remaining-time"
+                                data-end-time="{{this.end_at}}">{{calcRemainingTime this.end_at}}</span>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full mt-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-xl transition">
+                        Đấu giá ngay
+                    </button>
+                </div>
+            </a>
+            {{/each}}
+        </div>
+
+        <!-- Pagination -->
+        <nav class="flex justify-center">
+            <div class="inline-flex items-center gap-1">
+                <a href="/auctions?limit=6&page={{prevPage}}"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </a>
+                {{#each pageNumbers}}
+                {{#if this.isCurrent}}
+                <a href="/auctions?limit=6&page={{this.value}}"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-500 text-white font-medium">{{this.value}}</a>
+                {{else}}
+                <a href="/auctions?limit=6&page={{this.value}}"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition text-gray-700">{{this.value}}</a>
+                {{/if}}
+                {{/each}}
+                <a href="/auctions?limit=6&page={{nextPage}}"
+                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+        </nav>
         {{/if}}
-
-    </div>
-
-
+    </main>
 </div>

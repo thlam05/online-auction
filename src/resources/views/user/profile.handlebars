@@ -1,10 +1,26 @@
 {{#section "js"}}
 <script>
+    // Verify modal functionality
     const modalVerify = document.querySelector("#modalVerify");
-    modalVerify.addEventListener("hide.bs.modal", () => {
-        const active = document.activeElement;
-        if (modalVerify.contains(active)) active.blur();
-    });
+    const modalOverlay = document.querySelector("#modalOverlay");
+    const openModalBtn = document.querySelector("#openVerifyModal");
+    const closeModalBtns = document.querySelectorAll(".close-modal");
+
+    function openModal() {
+        modalVerify.classList.remove("hidden");
+        modalOverlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+        modalVerify.classList.add("hidden");
+        modalOverlay.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    openModalBtn.addEventListener("click", openModal);
+    modalOverlay.addEventListener("click", closeModal);
+    closeModalBtns.forEach(btn => btn.addEventListener("click", closeModal));
 
     const formVerify = document.querySelector("#verifyForm");
     formVerify.onsubmit = async (e) => {
@@ -22,18 +38,16 @@
         const result = await response.json();
 
         if (result.valid) {
-            document.getElementById("passwordError").style.display = 'none';
+            document.getElementById("passwordError").classList.add("hidden");
 
             const inputField = document.querySelectorAll("[disabled]");
             inputField.forEach((input) => {
                 input.removeAttribute('disabled');
             });
 
-            const modal = bootstrap.Modal.getInstance(modalVerify);
-            modal.hide();
+            closeModal();
         } else {
-            const message = document.querySelector("#passwordError");
-            message.style.display = 'block';
+            document.querySelector("#passwordError").classList.remove("hidden");
         }
     };
 
@@ -49,21 +63,21 @@
     formEditProfile.onsubmit = async (e) => {
         e.preventDefault();
 
-        const formControl = formEditProfile.querySelectorAll(".form-control");
+        const formControl = formEditProfile.querySelectorAll(".form-input");
         let formIsValid = true;
         formControl.forEach((input) => {
             if ((input.getAttribute("name") == "username" || input.getAttribute("name") == "address") && input.value.trim() === "") {
-                input.classList.add("invalid");
+                input.classList.add("border-red-500");
                 formIsValid = false;
                 return;
             }
             else if (input.getAttribute("name") == "email" && !validateEmail(input.value)) {
-                input.classList.add("invalid");
+                input.classList.add("border-red-500");
                 formIsValid = false
                 return;
             }
             else {
-                input.classList.remove("invalid");
+                input.classList.remove("border-red-500");
             }
         });
 
@@ -84,8 +98,8 @@
             console.log(result);
             if (result.status === 0) {
                 const message = formEditProfile.querySelector(".message");
-                message.classList.remove("text-danger");
-                message.classList.add("text-success");
+                message.classList.remove("text-red-500");
+                message.classList.add("text-green-500");
                 message.textContent = result.message;
             }
             else if (result.status == 3) {
@@ -95,8 +109,8 @@
             }
             else {
                 const message = formEditProfile.querySelector(".message");
-                message.classList.remove("text-success");
-                message.classList.add("text-danger");
+                message.classList.remove("text-green-500");
+                message.classList.add("text-red-500");
                 message.textContent = result.message;
             }
         }
@@ -105,15 +119,20 @@
 
     const showPasswordBtn = document.querySelectorAll(".show-password-btn");
     showPasswordBtn.forEach((btn) => {
-        btn.addEventListener("click", function () {
-            const input = btn.closest(".box-password").querySelector("input");
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            const input = btn.closest(".password-wrapper").querySelector("input");
+            const showIcon = btn.querySelector(".icon-show");
+            const hideIcon = btn.querySelector(".icon-hide");
 
             if (input.type === "password") {
                 input.type = "text";
-                btn.querySelector("i").classList.replace("bi-eye", "bi-eye-slash");
+                showIcon.classList.add("hidden");
+                hideIcon.classList.remove("hidden");
             } else {
                 input.type = "password";
-                btn.querySelector("i").classList.replace("bi-eye-slash", "bi-eye");
+                showIcon.classList.remove("hidden");
+                hideIcon.classList.add("hidden");
             }
         });
     });
@@ -122,25 +141,25 @@
     formEditPassword.onsubmit = async (e) => {
         e.preventDefault();
 
-        const currentPassword = formEditPassword.querySelector('.form-control[name="currentPassword"]');
-        const newPassword = formEditPassword.querySelector('.form-control[name="password"]');
-        const confirmPassword = formEditPassword.querySelector('.form-control[name="confirmPassword"]');
+        const currentPassword = formEditPassword.querySelector('.form-input[name="currentPassword"]');
+        const newPassword = formEditPassword.querySelector('.form-input[name="password"]');
+        const confirmPassword = formEditPassword.querySelector('.form-input[name="confirmPassword"]');
 
-        currentPassword.classList.remove("invalid");
-        newPassword.classList.remove("invalid");
-        confirmPassword.classList.remove("invalid");
+        currentPassword.classList.remove("border-red-500");
+        newPassword.classList.remove("border-red-500");
+        confirmPassword.classList.remove("border-red-500");
 
         let formIsValid = true;
         if (currentPassword.value == "") {
-            currentPassword.classList.add("invalid");
+            currentPassword.classList.add("border-red-500");
             formIsValid = false;
         }
         if (newPassword.value == "") {
-            newPassword.classList.add("invalid");
+            newPassword.classList.add("border-red-500");
             formIsValid = false;
         }
         if (confirmPassword.value == "" || confirmPassword.value != newPassword.value) {
-            confirmPassword.classList.add("invalid");
+            confirmPassword.classList.add("border-red-500");
             formIsValid = false;
         }
 
@@ -162,114 +181,185 @@
         const message = formEditPassword.querySelector(".message");
         if (result.error) {
             message.innerHTML = result.message;
-            message.classList.add("text-danger");
-            message.classList.remove("text-success");
+            message.classList.add("text-red-500");
+            message.classList.remove("text-green-500");
         }
         else {
             message.innerHTML = result.message;
-            message.classList.remove("text-danger");
-            message.classList.add("text-success");
+            message.classList.remove("text-red-500");
+            message.classList.add("text-green-500");
         }
 
     }
 </script>
 {{/section}}
 
-<div class="">
-    <p class="fs-4 border-bottom border-gray">Profile information</p>
-    <button type="button" class="btn btn-outline-primary mb-4" data-bs-toggle="modal" data-bs-target="#modalVerify">
-        <i class="bi bi-pencil-square me-2"></i>
-        Edit profile
-    </button>
-
-    <div class="modal fade" id="modalVerify" tabindex="-1" aria-labelledby="modalVerifyTitle" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalVerifyTitle">Verify Password</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body">
-                    <p>Please enter your password to edit your profile:</p>
-                    <form action="/auth/verify-password" method="POST" id="verifyForm">
-                        <input type="password" id="verifyPassword" class="form-control" placeholder="Enter password">
-                    </form>
-                    <div id="passwordError" class="text-danger mt-2" style="display: none;">
-                        Incorrect password. Please try again.
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" form="verifyForm" id="verifyBtn">Verify</button>
-                </div>
-            </div>
-        </div>
+<div>
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+        <h1 class="text-xl font-semibold text-gray-900">Thông tin cá nhân</h1>
+        <button type="button" id="openVerifyModal"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-primary-500 text-primary-500 hover:bg-primary-50 rounded-xl font-medium transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                </path>
+            </svg>
+            Chỉnh sửa
+        </button>
     </div>
 
-    <form class="form row row-cols-2 g-3" id="formEditProfile">
-        <div class="col">
-            <p class="mb-0">Full name</p>
-            <input type="text" class="form-control" name="username" value="{{authUser.username}}" autocomplete="name"
-                disabled>
+    <!-- Verify Modal -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/50 z-50"></div>
+    <div id="modalVerify"
+        class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl z-50 w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Xác nhận mật khẩu</h3>
+            <button class="close-modal text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <p class="text-gray-600 mb-4">Vui lòng nhập mật khẩu để chỉnh sửa hồ sơ:</p>
+        <form id="verifyForm">
+            <input type="password" id="verifyPassword"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                placeholder="Nhập mật khẩu">
+            <div id="passwordError" class="hidden text-red-500 text-sm mt-2">
+                Mật khẩu không đúng. Vui lòng thử lại.
+            </div>
+            <div class="flex gap-3 mt-4">
+                <button type="button"
+                    class="close-modal flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium">Hủy</button>
+                <button type="submit"
+                    class="flex-1 py-2.5 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition font-medium">Xác
+                    nhận</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Profile Form -->
+    <form class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8" id="formEditProfile">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
+            <input type="text"
+                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                name="username" value="{{authUser.username}}" autocomplete="name" disabled>
         </div>
 
-        <div class="col">
-            <p class="mb-0">Email</p>
-            <input type="text" class="form-control" name="email" value="{{authUser.email}}" autocomplete="email"
-                disabled>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input type="text"
+                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                name="email" value="{{authUser.email}}" autocomplete="email" disabled>
         </div>
 
-        <div class="col">
-            <p class="mb-0">Address</p>
-            <input type="text" class="form-control" name="address" value="{{authUser.address}}"
-                autocomplete="street-address" disabled>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
+            <input type="text"
+                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                name="address" value="{{authUser.address}}" autocomplete="street-address" disabled>
         </div>
 
-        <div class="col">
-            <p class="mb-0">birthday</p>
-            <input type="date" class="form-control" name="birthday" value="{{formatDate authUser.birthday}}"
-                autocomplete="bday" disabled>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+            <input type="date"
+                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                name="birthday" value="{{formatDate authUser.birthday}}" autocomplete="bday" disabled>
         </div>
 
-        <div class="col"></div>
-        <div class="col d-flex align-items-center justify-content-between">
-            <button class="btn btn-outline-secondary" disabled>Update</button>
-            <p class="text-danger mb-0 message"></p>
+        <div class="md:col-span-2 flex items-center justify-between">
+            <button type="submit"
+                class="py-2.5 px-6 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>Cập nhật</button>
+            <p class="text-sm message"></p>
         </div>
     </form>
 
-    <form id="formEditPassword" class="row row-cols-2 g-3 mt-2">
-        <div class="col">
-            <p class="mb-0">Current password</p>
-            <div class="d-flex box-password">
-                <input type="password" class="form-control" name="currentPassword" autocomplete="off" disabled>
-                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+    <!-- Password Section -->
+    <div class="border-t border-gray-200 pt-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-5">Đổi mật khẩu</h2>
+        <form id="formEditPassword" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
+                <div class="password-wrapper relative">
+                    <input type="password"
+                        class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        name="currentPassword" autocomplete="off" disabled>
+                    <button type="button"
+                        class="show-password-btn absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5 icon-show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <svg class="w-5 h-5 icon-hide hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="col"></div>
-
-        <div class="col">
-            <p class="mb-0">Password</p>
-            <div class="d-flex box-password">
-                <input type="password" class="form-control" name="password" autocomplete="off" disabled>
-                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
+                <div class="password-wrapper relative">
+                    <input type="password"
+                        class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        name="password" autocomplete="off" disabled>
+                    <button type="button"
+                        class="show-password-btn absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5 icon-show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <svg class="w-5 h-5 icon-hide hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="col">
-            <p class="mb-0">Confirm password</p>
-            <div class="d-flex box-password">
-                <input type="password" class="form-control" name="confirmPassword" autocomplete="off" disabled>
-                <button class="show-password-btn btn btn-bg-primary"><i class="bi bi-eye"></i></button>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu</label>
+                <div class="password-wrapper relative">
+                    <input type="password"
+                        class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        name="confirmPassword" autocomplete="off" disabled>
+                    <button type="button"
+                        class="show-password-btn absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5 icon-show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <svg class="w-5 h-5 icon-hide hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="col d-flex align-items-center justify-content-between">
-            <button class="btn btn-outline-secondary" disabled>Change password</button>
-            <p class="text-danger mb-0 message"></p>
-        </div>
-    </form>
+
+            <div class="md:col-span-2 flex items-center justify-between">
+                <button type="submit"
+                    class="py-2.5 px-6 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>Đổi mật khẩu</button>
+                <p class="text-sm message"></p>
+            </div>
+        </form>
+    </div>
 </div>

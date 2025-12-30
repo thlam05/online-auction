@@ -1,39 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f2f2f2;
+    <title>Lỗi - Online Auction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff1f0',
+                            100: '#ffe1df',
+                            200: '#ffc8c4',
+                            300: '#ffa39c',
+                            400: '#ff6f64',
+                            500: '#ff4c39',
+                            600: '#ed2f1a',
+                            700: '#c82312',
+                            800: '#a52113',
+                            900: '#882217',
+                        }
+                    }
+                }
+            }
         }
-
-        h1 {
-            font-size: 72px;
-            margin-bottom: 0;
-        }
-
-        p {
-            font-size: 24px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    </script>
 </head>
 
-<body>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6">
     {{{body}}}
 </body>
 
