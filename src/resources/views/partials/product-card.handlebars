@@ -36,6 +36,21 @@
     </div>
     <div class="product-card-body">
         <h3 class="product-card-title">{{this.name}}</h3>
+        {{#if this.showTags}}
+        {{#if this.badgeType}}
+        <div class="flex flex-wrap gap-2 mb-3">
+            {{#if (equal this.badgeType "danger")}}
+            <span class="badge badge-danger text-xs">{{this.badgeText}}</span>
+            {{else if (equal this.badgeType "warning")}}
+            <span class="badge badge-warning text-xs">{{this.badgeText}}</span>
+            {{else if (equal this.badgeType "success")}}
+            <span class="badge badge-success text-xs">{{this.badgeText}}</span>
+            {{else if (equal this.badgeType "primary")}}
+            <span class="badge badge-primary text-xs">{{this.badgeText}}</span>
+            {{/if}}
+        </div>
+        {{/if}}
+        {{/if}}
         <div class="space-y-2 text-sm {{#if this.showBidder}}mb-4{{else}}mb-4{{/if}}">
             <div class="flex justify-between items-center">
                 <span class="text-gray-500">Giá hiện tại:</span>

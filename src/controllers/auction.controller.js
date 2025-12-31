@@ -38,6 +38,7 @@ class AuctionController {
             auctions.forEach(auction => {
                 auction.showBidder = true;
                 auction.showDate = true;
+                auction.showTags = true;
             });
 
             res.render("auctions/all-auctions", { empty, categories, auctions, pageNumbers, prevPage, nextPage });
