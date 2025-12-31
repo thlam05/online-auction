@@ -130,46 +130,7 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5EndingSoon}}
-        <a href="/auctions/{{this.id}}" class="product-card group">
-            <div class="relative overflow-hidden">
-                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
-                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
-                <div class="absolute top-2 left-2">
-                    <span class="badge badge-danger flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Sắp kết thúc
-                    </span>
-                </div>
-            </div>
-            <div class="product-card-body">
-                <h3 class="product-card-title">{{this.name}}</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Giá hiện tại:</span>
-                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
-                                class="text-xs">đ</sup></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Còn lại:</span>
-                        <span class="remaining-time font-semibold text-gray-900"
-                            data-end-time="{{this.end_at}}">--:--:--</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span
-                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
-                        Đấu giá ngay
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </span>
-                </div>
-            </div>
-        </a>
+        {{> product-card}}
         {{/each}}
     </div>
 </section>
@@ -196,46 +157,7 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5MostBids}}
-        <a href="/auctions/{{this.id}}" class="product-card group">
-            <div class="relative overflow-hidden">
-                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
-                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
-                <div class="absolute top-2 left-2">
-                    <span class="badge badge-warning flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                        </svg>
-                        Hot
-                    </span>
-                </div>
-            </div>
-            <div class="product-card-body">
-                <h3 class="product-card-title">{{this.name}}</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Giá hiện tại:</span>
-                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
-                                class="text-xs">đ</sup></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Còn lại:</span>
-                        <span class="remaining-time font-semibold text-gray-900"
-                            data-end-time="{{this.end_at}}">--:--:--</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span
-                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
-                        Đấu giá ngay
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </span>
-                </div>
-            </div>
-        </a>
+        {{> product-card}}
         {{/each}}
     </div>
 </section>
@@ -260,46 +182,7 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {{#each top5HighestPrice}}
-        <a href="/auctions/{{this.id}}" class="product-card group">
-            <div class="relative overflow-hidden">
-                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
-                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
-                <div class="absolute top-2 left-2">
-                    <span class="badge badge-success flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" />
-                        </svg>
-                        Premium
-                    </span>
-                </div>
-            </div>
-            <div class="product-card-body">
-                <h3 class="product-card-title">{{this.name}}</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Giá hiện tại:</span>
-                        <span class="product-card-price">{{formatNumber this.current_price}}<sup
-                                class="text-xs">đ</sup></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500">Còn lại:</span>
-                        <span class="remaining-time font-semibold text-gray-900"
-                            data-end-time="{{this.end_at}}">--:--:--</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span
-                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
-                        Đấu giá ngay
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </span>
-                </div>
-            </div>
-        </a>
+        {{> product-card}}
         {{/each}}
     </div>
 </section>

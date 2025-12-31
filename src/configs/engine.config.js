@@ -8,6 +8,10 @@ function configEngine(app) {
         partialsDir: "src/resources/views/partials",
         helpers: {
             section: expressHandlebarsSections(),
+            set: function (obj, key, value) {
+                obj[key] = value;
+                return '';
+            },
             formatDate: function (date) {
                 const d = new Date(date);
 

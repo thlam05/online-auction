@@ -34,6 +34,11 @@ class AuctionController {
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
 
+            // Add display flags for product card
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+            });
 
             res.render("auctions/all-auctions", { empty, categories, auctions, pageNumbers, prevPage, nextPage });
         } catch (err) {
