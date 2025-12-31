@@ -1,82 +1,96 @@
 @import "tailwindcss";
 
-/* Custom theme configuration */
+/* shadcn/ui Theme Configuration */
 @theme {
-    /* Primary color - #ff4c39 */
-    --color-primary-50: #fff1f0;
-    --color-primary-100: #ffe1de;
-    --color-primary-200: #ffc9c3;
-    --color-primary-300: #ffa39a;
-    --color-primary-400: #ff6f61;
-    --color-primary-500: #ff4c39;
-    --color-primary-600: #ed2f1b;
-    --color-primary-700: #c82312;
-    --color-primary-800: #a52113;
-    --color-primary-900: #882217;
-    --color-primary-950: #4b0c06;
+    /* Primary color - Red theme #e7000b */
+    --color-primary-50: hsl(0 100% 97%);
+    --color-primary-100: hsl(0 100% 93%);
+    --color-primary-200: hsl(0 100% 87%);
+    --color-primary-300: hsl(0 100% 80%);
+    --color-primary-400: hsl(0 100% 68%);
+    --color-primary-500: hsl(358 100% 45%);
+    --color-primary-600: hsl(358 100% 40%);
+    --color-primary-700: hsl(358 100% 33%);
+    --color-primary-800: hsl(358 100% 27%);
+    --color-primary-900: hsl(358 100% 22%);
+    --color-primary-950: hsl(358 100% 12%);
 
-    /* Secondary colors */
-    --color-secondary-50: #f8fafc;
-    --color-secondary-100: #f1f5f9;
-    --color-secondary-200: #e2e8f0;
-    --color-secondary-300: #cbd5e1;
-    --color-secondary-400: #94a3b8;
-    --color-secondary-500: #64748b;
-    --color-secondary-600: #475569;
-    --color-secondary-700: #334155;
-    --color-secondary-800: #1e293b;
-    --color-secondary-900: #0f172a;
-    --color-secondary-950: #020617;
+    /* Neutral/Gray scale for shadcn style */
+    --color-background: hsl(0 0% 100%);
+    --color-foreground: hsl(0 0% 3.9%);
+    --color-muted: hsl(0 0% 96.1%);
+    --color-muted-foreground: hsl(0 0% 45.1%);
+    --color-border: hsl(0 0% 89.8%);
+    --color-input: hsl(0 0% 89.8%);
+    --color-ring: hsl(358 100% 45%);
+    --color-destructive: hsl(0 84.2% 60.2%);
 
-    /* Accent color */
-    --color-accent: #fbbf24;
+    /* Fonts - System font stack */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
-    /* Fonts */
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    /* Border radius */
+    --radius: 0.5rem;
 }
 
-/* Base styles */
+/* Base styles - GitHub inspired fast animations */
 @layer base {
+    * {
+        border-color: var(--color-border);
+    }
+
     html {
         scroll-behavior: smooth;
     }
 
     body {
-        background-color: var(--color-gray-50);
-        color: var(--color-gray-900);
+        background-color: var(--color-background);
+        color: var(--color-foreground);
         font-family: var(--font-sans);
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
-    a {
-        transition: color 0.2s;
+    /* Fast transitions like GitHub - 150ms is the sweet spot */
+    a,
+    button,
+    input,
+    select,
+    textarea {
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
-/* Component styles */
+/* Component styles - shadcn/ui inspired */
 @layer components {
 
-    /* Button styles */
+    /* Button styles - shadcn style with fast animations */
     .btn-primary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
+        height: 2.5rem;
         background-color: var(--color-primary-500);
         color: white;
+        font-size: 0.875rem;
         font-weight: 500;
-        border-radius: 0.5rem;
-        transition: all 0.2s;
+        border-radius: var(--radius);
+        transition: all 0.15s ease;
+        cursor: pointer;
     }
 
     .btn-primary:hover {
         background-color: var(--color-primary-600);
     }
 
-    .btn-primary:focus {
+    .btn-primary:focus-visible {
         outline: none;
-        box-shadow: 0 0 0 2px var(--color-primary-500), 0 0 0 4px white;
+        box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
     }
 
     .btn-secondary {
@@ -85,16 +99,22 @@
         justify-content: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
-        background-color: white;
-        color: var(--color-gray-700);
+        height: 2.5rem;
+        background-color: var(--color-muted);
+        color: var(--color-foreground);
+        font-size: 0.875rem;
         font-weight: 500;
-        border-radius: 0.5rem;
-        border: 1px solid var(--color-gray-300);
-        transition: all 0.2s;
+        border-radius: var(--radius);
+        transition: all 0.15s ease;
+        cursor: pointer;
     }
 
     .btn-secondary:hover {
-        background-color: var(--color-gray-50);
+        background-color: hsl(0 0% 91%);
+    }
+
+    .btn-secondary:active {
+        transform: scale(0.98);
     }
 
     .btn-outline {
@@ -103,61 +123,120 @@
         justify-content: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
+        height: 2.5rem;
         background-color: transparent;
-        color: var(--color-primary-500);
+        color: var(--color-foreground);
+        font-size: 0.875rem;
         font-weight: 500;
-        border-radius: 0.5rem;
-        border: 2px solid var(--color-primary-500);
-        transition: all 0.2s;
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
+        transition: all 0.15s ease;
+        cursor: pointer;
     }
 
     .btn-outline:hover {
-        background-color: var(--color-primary-500);
-        color: white;
+        background-color: var(--color-muted);
     }
 
-    /* Card styles */
+    .btn-outline:active {
+        transform: scale(0.98);
+    }
+
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        height: 2.5rem;
+        background-color: transparent;
+        color: var(--color-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: var(--radius);
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+        background-color: var(--color-muted);
+    }
+
+    /* Card styles - shadcn style */
     .card {
-        background-color: white;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        border: 1px solid var(--color-gray-200);
+        background-color: var(--color-background);
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
         overflow: hidden;
-        transition: box-shadow 0.3s;
+        transition: all 0.15s ease;
     }
 
     .card:hover {
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     }
 
     .card-body {
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
-    /* Form styles */
+    /* Form styles - shadcn input style */
     .form-input {
+        display: flex;
         width: 100%;
-        padding: 0.625rem 1rem;
-        border: 1px solid var(--color-gray-300);
-        border-radius: 0.5rem;
-        transition: all 0.2s;
+        height: 2.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        background-color: transparent;
+        border: 1px solid var(--color-input);
+        border-radius: var(--radius);
+        transition: all 0.15s ease;
         outline: none;
     }
 
+    .form-input::placeholder {
+        color: var(--color-muted-foreground);
+    }
+
     .form-input:focus {
-        border-color: var(--color-primary-500);
-        box-shadow: 0 0 0 2px rgba(255, 76, 57, 0.2);
+        border-color: var(--color-ring);
+        box-shadow: 0 0 0 2px hsl(0 72.2% 50.6% / 0.2);
+    }
+
+    .form-input:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
 
     .form-label {
         display: block;
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--color-gray-700);
-        margin-bottom: 0.375rem;
+        color: var(--color-foreground);
+        margin-bottom: 0.5rem;
     }
 
-    /* Badge styles */
+    /* Checkbox - shadcn style */
+    .form-checkbox {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--color-primary-500);
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .form-checkbox:checked {
+        background-color: var(--color-primary-500);
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+
+    .form-checkbox:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring);
+    }
+
+    /* Badge styles - shadcn style */
     .badge {
         display: inline-flex;
         align-items: center;
@@ -165,54 +244,76 @@
         border-radius: 9999px;
         font-size: 0.75rem;
         font-weight: 500;
+        transition: all 0.15s ease;
     }
 
     .badge-primary {
-        background-color: var(--color-primary-100);
-        color: var(--color-primary-700);
+        background-color: var(--color-primary-500);
+        color: white;
     }
 
-    .badge-success {
-        background-color: var(--color-green-100);
-        color: var(--color-green-700);
+    .badge-secondary {
+        background-color: var(--color-muted);
+        color: var(--color-foreground);
     }
 
-    .badge-warning {
-        background-color: var(--color-amber-100);
-        color: var(--color-amber-700);
+    .badge-outline {
+        background-color: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-foreground);
     }
 
-    .badge-danger {
-        background-color: var(--color-red-100);
-        color: var(--color-red-700);
+    .badge-destructive {
+        background-color: var(--color-destructive);
+        color: white;
     }
 
-    /* Product card */
+    /* Alert/Error message - shadcn style */
+    .alert {
+        position: relative;
+        padding: 1rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
+    }
+
+    .alert-destructive {
+        border-color: var(--color-destructive);
+        background-color: hsl(0 84.2% 60.2% / 0.1);
+        color: var(--color-destructive);
+    }
+
+    /* Separator - shadcn style */
+    .separator {
+        height: 1px;
+        width: 100%;
+        background-color: var(--color-border);
+    }
+
+    /* Product card - shadcn inspired with subtle animations */
     .product-card {
-        background-color: white;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        border: 1px solid var(--color-gray-100);
+        background-color: var(--color-background);
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
         overflow: hidden;
-        transition: all 0.3s;
+        transition: all 0.15s ease;
     }
 
     .product-card:hover {
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-        transform: translateY(-4px);
+        border-color: hsl(0 0% 80%);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
 
     .product-card-img {
         width: 100%;
         height: 12rem;
         object-fit: contain;
-        background-color: var(--color-gray-50);
+        background-color: var(--color-muted);
         padding: 1rem;
-        transition: transform 0.3s;
+        transition: transform 0.15s ease;
     }
 
     .product-card:hover .product-card-img {
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     .product-card-body {
@@ -220,14 +321,14 @@
     }
 
     .product-card-title {
-        font-weight: 600;
-        color: var(--color-gray-900);
+        font-weight: 500;
+        color: var(--color-foreground);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         margin-bottom: 0.5rem;
-        transition: color 0.2s;
+        transition: color 0.15s ease;
     }
 
     .product-card:hover .product-card-title {
@@ -236,15 +337,15 @@
 
     .product-card-price {
         font-size: 1.125rem;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--color-primary-500);
     }
 
-    /* Section title */
+    /* Section title - cleaner style */
     .section-title {
         font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--color-gray-900);
+        font-weight: 600;
+        color: var(--color-foreground);
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -252,10 +353,127 @@
 
     .section-title::before {
         content: '';
-        width: 0.25rem;
-        height: 1.5rem;
+        width: 3px;
+        height: 1.25rem;
         background-color: var(--color-primary-500);
         border-radius: 9999px;
+    }
+
+    /* Avatar - shadcn style */
+    .avatar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 9999px;
+        background-color: var(--color-muted);
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Dropdown/Select - shadcn style */
+    .select {
+        display: flex;
+        height: 2.5rem;
+        width: 100%;
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        background-color: transparent;
+        border: 1px solid var(--color-input);
+        border-radius: var(--radius);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .select:focus {
+        outline: none;
+        border-color: var(--color-ring);
+        box-shadow: 0 0 0 2px hsl(0 72.2% 50.6% / 0.2);
+    }
+
+    /* Skeleton loader */
+    .skeleton {
+        background: linear-gradient(90deg, var(--color-muted) 25%, hsl(0 0% 92%) 50%, var(--color-muted) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+        border-radius: var(--radius);
+    }
+
+    @keyframes skeleton-loading {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* Tooltip */
+    .tooltip {
+        position: relative;
+    }
+
+    .tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-0.25rem);
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background-color: var(--color-foreground);
+        color: var(--color-background);
+        border-radius: var(--radius);
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+    }
+
+    .tooltip:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(-0.5rem);
+    }
+
+    /* Tab - shadcn style */
+    .tabs {
+        display: inline-flex;
+        padding: 0.25rem;
+        background-color: var(--color-muted);
+        border-radius: var(--radius);
+    }
+
+    .tab {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--color-muted-foreground);
+        border-radius: calc(var(--radius) - 0.125rem);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .tab:hover {
+        color: var(--color-foreground);
+    }
+
+    .tab.active {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
 }
 
