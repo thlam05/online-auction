@@ -34,7 +34,6 @@ class AuctionController {
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
 
-
             res.render("auctions/all-auctions", { empty, categories, auctions, pageNumbers, prevPage, nextPage });
         } catch (err) {
             next(err);

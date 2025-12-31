@@ -84,33 +84,14 @@ const auctionService = {
                 auction.mainImage = mainImage;
                 const highestBidder = await bidModel.getHighestBidder(auction.id);
                 auction.highestBidder = highestBidder;
+                const totalBid = await bidModel.countBib(auction.id);
+                auction.totalBid = totalBid;
             })
         );
 
         return auctions;
     },
 
-    async getAuctionByCatId(cat_id, limit, offset) {
-        const auctions = await auctionModel.findAuctionsByCat(cat_id, limit, offset);
-        if (!auctions) {
-            return [];
-        }
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const seller = await userModel.findById(auction.seller_id);
-                auction.seller = seller;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-                const highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.highestBidder = highestBidder;
-            })
-        );
-
-        return auctions;
-    },
 
     async getAuctionBySellerId(seller_id) {
         const auctions = await auctionModel.findBySellerId(seller_id);
@@ -128,6 +109,8 @@ const auctionService = {
                 auction.mainImage = mainImage;
                 const highestBidder = await bidModel.getHighestBidder(auction.id);
                 auction.highestBidder = highestBidder;
+                const totalBid = await bidModel.countBib(auction.id);
+                auction.totalBid = totalBid;
             })
         );
 
@@ -183,6 +166,7 @@ const auctionService = {
                 auction.seller = await userModel.findById(auction.seller_id);
                 auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
                 auction.highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.totalBid = await bidModel.countBib(auction.id);
             })
         );
 
@@ -276,6 +260,8 @@ const auctionService = {
                 auction.category = await categoryModel.findById(auction.category_id);
                 auction.seller = await userModel.findById(auction.seller_id);
                 auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
+                auction.highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.totalBid = await bidModel.countBib(auction.id);
             })
         );
 

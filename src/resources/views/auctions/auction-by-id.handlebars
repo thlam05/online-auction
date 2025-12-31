@@ -52,6 +52,12 @@
         return Number(str.replace(/\D/g, ""));
     }
 
+    function isAuctionOver() {
+        const end = new Date(remaininTimes.getAttribute("data-end-time"));
+        const now = new Date();
+        return end <= now;
+    }
+
     const auctionCurPriceElement = document.querySelector(".auction-current-price");
     const auctionBidStepElement = document.querySelector(".auction-bid-step");
 
@@ -59,6 +65,21 @@
     const auctionBidStep = extractNumber(auctionBidStepElement.innerText);
 
     const formPostBid = document.querySelector("#form-post-bid");
+    const placeBidButton = formPostBid.querySelector("button");
+
+    function updateBidButtonState() {
+        if (isAuctionOver()) {
+            placeBidButton.disabled = true;
+            placeBidButton.textContent = "Auction is over";
+        } else {
+            placeBidButton.disabled = false;
+            placeBidButton.textContent = "Place bid";
+        }
+    }
+
+    updateBidButtonState();
+    setInterval(updateBidButtonState, 1000);
+
     formPostBid.onsubmit = function (event) {
         event.preventDefault();
 

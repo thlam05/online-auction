@@ -81,10 +81,12 @@
                 },
                 body: JSON.stringify({
                     auction_id: selectedAuctionId,
-                    rating
+                    rating,
+                    content: contentRating.value
                 })
             })
 
+            contentRating.value = "";
             bootstrap.Modal.getInstance(modal).hide();
         });
     });

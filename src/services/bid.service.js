@@ -20,11 +20,31 @@ const bidService = {
             auction.current_price = bid.amount;
         }
         else {
-            while(true) {
-                // if(bid)
+            while (bid.max_price >= auction.current_price && highestBid.max_price >= auction.current_price) {
+                if (bid.max_price >= auction.current_price + auction.bid_step) {
+                    bid.amount = auction.current_price + auction.bid_step;
+                    bid.created_at = new Date();
+                    await bidModel.createOne(bid);
+                    auction.current_price += auction.bid_step;
+                }
+                if (highestBid.max_price >= auction.current_price + auction.bid_step) {
+                    highestBid.amount = auction.current_price + auction.bid_step;
+                    highestBid.created_at = new Date();
+                    await bidModel.createOne(highestBid);
+                    auction.current_price += auction.bid_step;
+                }
             }
         }
 
+        const time = new Date(auction.end_at);
+        const now = new Date();
+
+        const diffMs = now - time;
+        const diffMinutes = diffMs / (1000 * 60);
+
+        if (diffMinutes <= 5 && diffMinutes >= 0) {
+            auction.end_at = new Date(time.getTime() + 10 * 60 * 1000);
+        }
 
         await auctionModel.update(auction);
 
