@@ -108,42 +108,11 @@
         <!-- Products Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {{#each auctions}}
-            <a href="/auctions/{{this.id}}"
-                class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all">
-                <div class="aspect-square overflow-hidden bg-gray-50">
-                    <img src="{{imageOrPlaceholder this.mainImage.url}}"
-                        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                        alt="{{this.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
-                </div>
-                <div class="p-4">
-                    <h3 class="font-medium text-gray-900 line-clamp-2 mb-3 group-hover:text-primary-500 transition">
-                        {{this.name}}</h3>
-                    <div class="space-y-1.5 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Giá hiện tại:</span>
-                            <span class="font-bold text-primary-500">{{formatNumber
-                                this.current_price}}<sup>đ</sup></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Người đấu cao nhất:</span>
-                            <span class="text-gray-700">{{this.highestBidder.username}}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Ngày đăng:</span>
-                            <span class="text-gray-700">{{formatDate this.start_at}}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Còn lại:</span>
-                            <span class="font-medium text-orange-500 remaining-time"
-                                data-end-time="{{this.end_at}}">{{calcRemainingTime this.end_at}}</span>
-                        </div>
-                    </div>
-                    <button
-                        class="w-full mt-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-xl transition">
-                        Đấu giá ngay
-                    </button>
-                </div>
-            </a>
+            {{#if this.isNew}}
+            {{set this "badgeType" "primary"}}
+            {{set this "badgeText" "Mới"}}
+            {{/if}}
+            {{> product-card}}
             {{/each}}
         </div>
 

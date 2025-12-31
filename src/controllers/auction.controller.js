@@ -73,6 +73,12 @@ class AuctionController {
 
             const empty = auctions.length == 0;
 
+            // Add display flags for product card
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+            });
+
             res.render("auctions/auctions-by-category", { empty, curCategory: category, categories, auctions, pageNumbers, prevPage, nextPage });
         } catch (err) {
             next(err);
@@ -131,6 +137,12 @@ class AuctionController {
             const auctions = await auctionService.getAuctionByQuery(q, limit, offset, sort);
 
             const empty = auctions.length == 0;
+
+            // Add display flags for product card
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+            });
 
             const qSearch = q.trim().split(/\s+/).join("+");
 

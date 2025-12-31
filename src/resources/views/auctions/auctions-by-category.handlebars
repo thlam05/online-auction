@@ -156,50 +156,11 @@
         <!-- Products Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {{#each auctions}}
-            <a href="/auctions/{{this.id}}" class="product-card group">
-                <div class="relative overflow-hidden">
-                    <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
-                        onerror="this.onerror=null; this.src='/images/placeholder.webp';">
-                    {{#if this.isNew}}
-                    <div class="absolute top-2 left-2">
-                        <span class="badge badge-primary">Mới</span>
-                    </div>
-                    {{/if}}
-                </div>
-                <div class="product-card-body">
-                    <h3 class="product-card-title">{{this.name}}</h3>
-
-                    <div class="space-y-2 text-sm mb-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500">Giá hiện tại:</span>
-                            <span class="product-card-price">{{formatNumber this.current_price}}<sup
-                                    class="text-xs">đ</sup></span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500">Người đặt:</span>
-                            <span class="text-gray-700 font-medium">{{this.highestBidder.username}}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500">Ngày đăng:</span>
-                            <span class="text-gray-700">{{formatDate this.start_at}}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-500">Còn lại:</span>
-                            <span class="remaining-time font-semibold text-gray-900"
-                                data-end-time="{{this.end_at}}">--:--:--</span>
-                        </div>
-                    </div>
-
-                    <span
-                        class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
-                        Đấu giá ngay
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </span>
-                </div>
-            </a>
+            {{#if this.isNew}}
+            {{set this "badgeType" "primary"}}
+            {{set this "badgeText" "Mới"}}
+            {{/if}}
+            {{> product-card}}
             {{/each}}
         </div>
 

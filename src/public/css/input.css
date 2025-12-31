@@ -261,16 +261,16 @@
     }
 
     .product-card-title {
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-weight: 600;
         color: var(--color-foreground);
         margin-bottom: 0.75rem;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         line-height: 1.4;
-        height: 2.4em;
+        height: 4.2em;
     }
 
     .product-card-price {
