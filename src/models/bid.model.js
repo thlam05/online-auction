@@ -2,7 +2,16 @@ import db from "../configs/db.config.js";
 
 const bidModel = {
     createOne(bid) {
-        return db("bids").insert(bid).returning("*");
+        const { id, ...data } = bid;
+        return db("bids").insert(data).returning("*");
+    },
+
+    async countBib(auction_id) {
+        const result = await db("bids")
+            .where("auction_id", auction_id)
+            .count("id as total");
+
+        return Number(result[0].total);
     },
 
     getHighestBidder(auction_id) {
