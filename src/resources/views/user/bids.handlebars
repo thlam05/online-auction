@@ -66,9 +66,9 @@
         <div
             class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all">
             <div class="aspect-[4/3] overflow-hidden">
-                <img src="{{this.mainImage.url}}"
+                <img src="{{imageOrPlaceholder this.mainImage.url}}"
                     class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    alt="{{this.name}}">
+                    alt="{{this.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
             </div>
             <div class="p-4">
                 <h3 class="font-medium text-gray-900 line-clamp-1 mb-3">{{this.name}}</h3>

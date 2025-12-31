@@ -158,7 +158,8 @@
             {{#each auctions}}
             <a href="/auctions/{{this.id}}" class="product-card group">
                 <div class="relative overflow-hidden">
-                    <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                    <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
+                        onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                     {{#if this.isNew}}
                     <div class="absolute top-2 left-2">
                         <span class="badge badge-primary">Mới</span>

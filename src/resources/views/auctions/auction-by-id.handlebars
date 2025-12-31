@@ -177,14 +177,16 @@
     <!-- Product Images -->
     <div class="lg:col-span-7">
         <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
-            <img src="{{auction.mainImage.url}}" class="w-full h-96 object-contain rounded-xl" alt="{{auction.name}}">
+            <img src="{{imageOrPlaceholder auction.mainImage.url}}" class="w-full h-96 object-contain rounded-xl"
+                alt="{{auction.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
         </div>
 
         <div class="grid grid-cols-4 gap-3">
             {{#each auction.subImages}}
             <div
                 class="bg-white rounded-xl border border-gray-200 p-2 cursor-pointer hover:border-primary-500 transition">
-                <img src="{{this.url}}" class="w-full h-20 object-contain rounded-lg" alt="">
+                <img src="{{this.url}}" class="w-full h-20 object-contain rounded-lg" alt=""
+                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
             </div>
             {{/each}}
         </div>

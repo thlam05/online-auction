@@ -85,6 +85,9 @@ function configEngine(app) {
             include(list, item) {
                 if (!Array.isArray(list)) return false;
                 return list.includes(item);
+            },
+            imageOrPlaceholder(imageUrl) {
+                return imageUrl || '/images/placeholder.webp';
             }
         }
     }));

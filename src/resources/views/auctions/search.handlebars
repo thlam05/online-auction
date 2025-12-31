@@ -111,9 +111,9 @@
             <a href="/auctions/{{this.id}}"
                 class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all">
                 <div class="aspect-square overflow-hidden bg-gray-50">
-                    <img src="{{this.mainImage.url}}"
+                    <img src="{{imageOrPlaceholder this.mainImage.url}}"
                         class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                        alt="{{this.name}}">
+                        alt="{{this.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                 </div>
                 <div class="p-4">
                     <h3 class="font-medium text-gray-900 line-clamp-2 mb-3 group-hover:text-primary-500 transition">

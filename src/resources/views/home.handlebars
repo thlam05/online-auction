@@ -49,25 +49,33 @@
 </script>
 {{/section}}
 
-<!-- Hero Banner -->
-<section class="relative bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl overflow-hidden mb-8">
-    <div class="absolute inset-0 bg-black/10"></div>
-    <div class="relative px-8 py-12 md:py-16">
-        <div class="max-w-2xl">
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                Chào mừng đến với bidhub
+<!-- Hero Banner - Clean design -->
+<section class="relative bg-white border border-border rounded-xl overflow-hidden mb-8">
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="px-8 py-10 md:py-14">
+            <span class="badge badge-primary mb-4">Sàn đấu giá trực tuyến #1</span>
+            <h1 class="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                Chào mừng đến với <img src="/images/logo-black.svg" alt="bidhub"
+                    style="height: 0.9em; display: inline; vertical-align: baseline;">
             </h1>
-            <p class="text-lg text-white/90 mb-6">
+            <p class="text-muted-foreground mb-6">
                 Sàn đấu giá trực tuyến uy tín - Hàng ngàn sản phẩm chất lượng đang chờ bạn khám phá!
             </p>
-            <a href="/auctions"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-500 font-semibold rounded-full hover:bg-gray-100 transition-all">
-                Khám phá ngay
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-            </a>
+            <div class="flex flex-wrap gap-3">
+                <a href="/auctions" class="btn-primary">
+                    Khám phá ngay
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+                <a href="/auth/signup" class="btn-outline">
+                    Tạo tài khoản
+                </a>
+            </div>
+        </div>
+        <div class="md:block bg-gradient-to-br from-primary-50 to-accent-50 overflow-hidden h-full min-h-[200px]">
+            <img src="/images/banner.webp" alt="Welcome to bidhub" class="w-full h-full object-cover">
         </div>
     </div>
 </section>
@@ -124,7 +132,8 @@
         {{#each top5EndingSoon}}
         <a href="/auctions/{{this.id}}" class="product-card group">
             <div class="relative overflow-hidden">
-                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
+                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                 <div class="absolute top-2 left-2">
                     <span class="badge badge-danger flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +198,8 @@
         {{#each top5MostBids}}
         <a href="/auctions/{{this.id}}" class="product-card group">
             <div class="relative overflow-hidden">
-                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
+                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                 <div class="absolute top-2 left-2">
                     <span class="badge badge-warning flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,7 +262,8 @@
         {{#each top5HighestPrice}}
         <a href="/auctions/{{this.id}}" class="product-card group">
             <div class="relative overflow-hidden">
-                <img src="{{this.mainImage.url}}" alt="{{this.name}}" class="product-card-img">
+                <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}" class="product-card-img"
+                    onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                 <div class="absolute top-2 left-2">
                     <span class="badge badge-success flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

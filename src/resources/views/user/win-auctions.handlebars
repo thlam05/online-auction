@@ -136,9 +136,9 @@
         <div
             class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-green-200 transition-all">
             <div class="relative aspect-[4/3] overflow-hidden">
-                <img src="{{this.mainImage.url}}"
+                <img src="{{imageOrPlaceholder this.mainImage.url}}"
                     class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    alt="{{this.name}}">
+                    alt="{{this.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
                 <span
                     class="absolute top-3 left-3 inline-flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
