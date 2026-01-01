@@ -672,6 +672,27 @@
         background-color: var(--color-border);
     }
 
+    /* Ensure Preline dropdowns are positioned correctly with high z-index */
+    .hs-dropdown {
+        position: relative;
+    }
+
+    .hs-dropdown-menu {
+        position: absolute !important;
+        z-index: 50;
+        right: 0;
+        top: 100%;
+        margin-right: 0.5rem;
+        border: 1px solid #e5e7eb !important;
+    }
+
+    /* Ensure Preline dropdowns become visible when opened */
+    .hs-dropdown.open>.hs-dropdown-menu,
+    .hs-dropdown-open>.hs-dropdown-menu {
+        opacity: 1 !important;
+        display: block !important;
+    }
+
     /* ==================== HEADER SPECIFIC ==================== */
 
     .header-nav-link {
