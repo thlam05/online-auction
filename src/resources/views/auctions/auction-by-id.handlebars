@@ -136,32 +136,35 @@
     }
 
     const btnAddWatchlist = document.querySelector("#btn-add-watchlist");
-    btnAddWatchlist.onclick = async function () {
-        const auction_id = this.dataset.auctionId;
+    if (btnAddWatchlist) {
 
-        try {
-            const res = await fetch("/watch-list/add", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ auction_id })
-            });
+        btnAddWatchlist.onclick = async function () {
+            const auction_id = this.dataset.auctionId;
 
-            if (!res.ok) {
-                throw new Error("Request failed");
+            try {
+                const res = await fetch("/watch-list/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ auction_id })
+                });
+
+                if (!res.ok) {
+                    throw new Error("Request failed");
+                }
+
+                const data = await res.json();
+                // Show success feedback
+                this.innerHTML = `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
+                this.classList.add("bg-green-50", "text-green-600", "border-green-300");
+            } catch (err) {
+                console.error(err);
+                alert("Không thể thêm vào danh sách theo dõi");
             }
-
-            const data = await res.json();
-            // Show success feedback
-            this.innerHTML = `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
-            this.classList.add("bg-green-50", "text-green-600", "border-green-300");
-        } catch (err) {
-            console.error(err);
-            alert("Không thể thêm vào danh sách theo dõi");
         }
-    }
 
+    }
     // Tab functionality
     document.querySelectorAll('[data-tab-target]').forEach(button => {
         button.addEventListener('click', () => {
@@ -329,26 +332,11 @@
                     </div>
                 </div>
 
+                {{#if isAuthenticated}}
                 <!-- Bid Form -->
                 <div class="border-t border-gray-200 pt-5">
-                    {{#if (greater rating 80)}}
-                    <form action="/auctions/{{auction.id}}/bids" method="POST" id="form-post-bid">
-                        <div class="mb-3">
-                            <input type="number"
-                                class="bid-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
-                                placeholder="Nhập số tiền đấu giá" name="max_price">
-                        </div>
-                        <button type="submit"
-                            class="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                </path>
-                            </svg>
-                            Đặt giá
-                        </button>
-                    </form>
-                    {{else}}
+                    {{#if rating}}
+                    {{#if (less rating 80)}}
                     <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
                         <div class="flex items-start gap-3">
                             <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
@@ -370,6 +358,48 @@
                             </div>
                         </div>
                     </div>
+                    {{/if}}
+                    {{else}}
+                    {{#if (include bidderBlocked authUser.id)}}
+                    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86
+                                c1.54 0 2.5-1.67 1.73-3L13.73 4
+                                c-.77-1.33-2.69-1.33-3.46 0L3.34 16
+                                c-.77 1.33.19 3 1.73 3z" />
+                            </svg>
+
+                            <div>
+                                <p class="font-semibold text-sm">
+                                    Bạn không thể tham gia đấu giá
+                                </p>
+                                <p class="text-sm mt-1 text-red-600">
+                                    Tài khoản của bạn đã bị <strong>Chặn bởi người bán</strong> khỏi phiên đấu giá này.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <form action="/auctions/{{auction.id}}/bids" method="POST" id="form-post-bid">
+                        <div class="mb-3">
+                            <input type="number"
+                                class="bid-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                                placeholder="Nhập số tiền đấu giá" name="max_price">
+                        </div>
+                        <button type="submit"
+                            class="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                            Đặt giá
+                        </button>
+                    </form>
+                    {{/if}}
+
                     {{/if}}
 
                     <div class="grid grid-cols-2 gap-3 mt-3">
@@ -396,6 +426,7 @@
                         </button>
                     </div>
                 </div>
+                {{/if}}
             </div>
         </div>
     </div>
@@ -422,11 +453,13 @@
                 class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
                 Lịch sử đấu giá
             </button>
+            {{#if isAuthenticated}}
             {{#if (isSellerOfAuction authUser auction)}}
             <button data-tab-target="bidder"
                 class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
                 Danh sách người đấu giá
             </button>
+            {{/if}}
             {{/if}}
         </nav>
     </div>
@@ -592,7 +625,7 @@
                 </div>
             </div>
         </div>
-
+        {{#if isAuthenticated}}
         {{#if (isSellerOfAuction authUser auction)}}
         <!-- Bid History -->
         <div data-tab-panel="bidder" class="hidden">
@@ -638,7 +671,7 @@
                             <tr class="hover:bg-gray-50 transition">
                                 <!-- User -->
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {{this.name}}
+                                    {{this.username}}
                                 </td>
 
                                 <!-- Email -->
@@ -665,7 +698,7 @@
 
                                 <!-- Action -->
                                 <td class="px-6 py-4 text-right">
-                                    {{#if this.is_blocked}}
+                                    {{#if (include ../bidderBlocked this.bidder_id)}}
                                     <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
                                            bg-gray-200 text-gray-600">
                                         Đã bị chặn
@@ -673,7 +706,7 @@
                                     {{else}}
                                     <form action="/auctions/{{../auction.id}}/block-bidder" method="POST"
                                         class="inline">
-                                        <input type="hidden" name="bidder_id" value="{{this.id}}">
+                                        <input type="hidden" name="bidder_id" value="{{this.bidder_id}}">
                                         <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5
                                                rounded-lg text-xs font-semibold
                                                bg-red-100 text-red-600 hover:bg-red-200 transition">
@@ -706,6 +739,7 @@
                 </div>
             </div>
         </div>
+        {{/if}}
         {{/if}}
     </div>
 </div>

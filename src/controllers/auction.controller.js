@@ -7,6 +7,7 @@ import messageService from "../services/message.service.js";
 import bidModel from "../models/bid.model.js";
 import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
+import auctionBlockModel from "../models/auction-block.model.js";
 
 
 class AuctionController {
@@ -96,10 +97,32 @@ class AuctionController {
             const messages = await messageService.getAllMessageByAuctionId(id);
             const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
             const bidHistories = await bidModel.getBidHistory(id);
-            const { listReview, rating } = await userRatingService.getRatings(res.locals.authUser.id);
-            const bidders = await bidModel.getBidders(id);
+            let listReview, rating;
+            if (res.locals.isAudenticated) {
+                const { t_listReview, t_rating } = await userRatingService.getRatings(res.locals.authUser.id);
+                listReview = t_listReview;
+                rating = t_rating;
+            }
+            let bidderBlocked = await auctionBlockModel.getBidderBlocked(id);
+            bidderBlocked = bidderBlocked.map((block) => {
+                return block.user_id;
+            })
+            let bidders = await bidModel.getBidders(id);
+            bidders = await Promise.all(
+                bidders.map(async bidder => {
+                    const { listReview, rating } =
+                        await userRatingService.getRatings(bidder.bidder_id);
+                    const total_bids = await bidModel.countBidOfBidder(id, bidder.bidder_id);
+                    return {
+                        ...bidder,
+                        listReview,
+                        rating,
+                        total_bids
+                    };
+                })
+            );
 
-            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders });
+            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders, bidderBlocked });
         } catch (err) {
             next(err);
         }
@@ -233,6 +256,25 @@ class AuctionController {
 
             const updateAuction = await auctionService.appendDesAuction(auction, description);
             res.redirect("/user/auctions");
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // POST - /auctions/:id/block-bidder
+    async blockBidder(req, res, next) {
+        try {
+            const { bidder_id } = req.body;
+            const { id } = req.params;
+
+            const auctionBlock = {
+                user_id: bidder_id,
+                auction_id: id,
+            }
+
+            await auctionService.handleBlockBidder(auctionBlock);
+
+            res.redirect(`/auctions/${id}`);
         } catch (err) {
             next(err);
         }
