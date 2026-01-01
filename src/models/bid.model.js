@@ -14,6 +14,12 @@ const bidModel = {
         return Number(result[0].total);
     },
 
+    getBidders(auction_id) {
+        return db("bids AS b")
+            .join("users AS u", "u.id", "b.bidder_id")
+
+    },
+
     getHighestBidder(auction_id) {
         return db("bids AS b")
             .join("users AS u", "u.id", "b.bidder_id")

@@ -97,8 +97,9 @@ class AuctionController {
             const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
             const bidHistories = await bidModel.getBidHistory(id);
             const { listReview, rating } = await userRatingService.getRatings(res.locals.authUser.id);
+            const bidders = await bidModel.getBidders(id);
 
-            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating });
+            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders });
         } catch (err) {
             next(err);
         }
