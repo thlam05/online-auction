@@ -32,6 +32,26 @@
             emailMessage.innerText = "";
         }
     }
+
+    // reCAPTCHA v3
+    const signupForm = document.querySelector("#signup-form");
+    if (signupForm) {
+        signupForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            grecaptcha.ready(function () {
+                grecaptcha.execute('{{RECAPTCHA_SITE_KEY}}', { action: 'signup' }).then(function (token) {
+                    // Thêm token vào form
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'g-recaptcha-response';
+                    input.value = token;
+                    signupForm.appendChild(input);
+                    // Submit form
+                    signupForm.submit();
+                });
+            });
+        });
+    }
 </script>
 {{/section}}
 
@@ -64,22 +84,21 @@
     <!-- Username -->
     <div class="space-y-2">
         <label for="signup-username" class="text-sm font-medium">Họ và tên</label>
-        <input type="text" class="form-input" id="signup-username" name="username"
-            value="{{data.username}}" placeholder="Nguyễn Văn A" required>
+        <input type="text" class="form-input" id="signup-username" name="username" value="{{data.username}}"
+            placeholder="Nguyễn Văn A" required>
     </div>
 
     <!-- Address -->
     <div class="space-y-2">
         <label for="signup-address" class="text-sm font-medium">Địa chỉ</label>
-        <input type="text" class="form-input" id="signup-address" name="address"
-            value="{{data.address}}" placeholder="123 Nguyễn Văn Cừ, Q.5, TP.HCM">
+        <input type="text" class="form-input" id="signup-address" name="address" value="{{data.address}}"
+            placeholder="123 Nguyễn Văn Cừ, Q.5, TP.HCM">
     </div>
 
     <!-- Birthday -->
     <div class="space-y-2">
         <label for="signup-birthday" class="text-sm font-medium">Ngày sinh</label>
-        <input type="date" class="form-input" id="signup-birthday" name="birthday"
-            value="{{data.birthday}}">
+        <input type="date" class="form-input" id="signup-birthday" name="birthday" value="{{data.birthday}}">
     </div>
 
     <!-- Password -->
@@ -104,8 +123,8 @@
     <div class="space-y-2">
         <label for="signup-password-confirm" class="text-sm font-medium">Xác nhận mật khẩu</label>
         <div class="relative">
-            <input type="password" class="form-input pr-10" id="signup-password-confirm"
-                name="passwordConfirm" placeholder="••••••••" required>
+            <input type="password" class="form-input pr-10" id="signup-password-confirm" name="passwordConfirm"
+                placeholder="••••••••" required>
             <button type="button"
                 class="show-password-confirm-btn absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,6 +141,9 @@
         Đăng ký với Email
     </button>
 </form>
+
+<!-- reCAPTCHA v3 -->
+<script src="https://www.google.com/recaptcha/api.js?render={{RECAPTCHA_SITE_KEY}}"></script>
 
 <!-- Divider -->
 <div class="relative">

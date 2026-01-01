@@ -3,6 +3,7 @@ import authService from "../services/auth.service.js";
 import { sendOtpEmail } from "../utils/nodemailer.js";
 import bcrypt from "bcrypt";
 import pendingUserModel from "../models/pending-user.model.js";
+import axios from "axios";
 
 class AuthController {
     //  GET - /auth/login
@@ -17,7 +18,7 @@ class AuthController {
     // GET - /auth/signup
     getSignUp(req, res, next) {
         try {
-            res.render("auth/signup");
+            res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY });
         } catch (err) {
             next(err);
         }
@@ -77,9 +78,28 @@ class AuthController {
             const { username, email, address, birthday, password } = req.body;
             const data = { username, email, address, birthday, password };
 
+            const recaptchaResponse = req.body['g-recaptcha-response'];
+            if (!recaptchaResponse) {
+                return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Vui lòng xác nhận reCAPTCHA.", error: true });
+            }
+
+            // Xác thực reCAPTCHA v3
+            const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+            const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+            const params = new URLSearchParams();
+            params.append('secret', secretKey);
+            params.append('response', recaptchaResponse);
+
+            const googleRes = await axios.post(verifyUrl, params);
+
+            // v3 trả về score từ 0.0 - 1.0, >= 0.5 là người thật
+            if (!googleRes.data.success || googleRes.data.score < 0.5) {
+                return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Xác thực reCAPTCHA thất bại. Vui lòng thử lại.", error: true });
+            }
+
             const result = await authService.signUpWithEmail(data);
             if (result.status == 1) {
-                res.render("auth/signup", { data: req.body, message: result.message, error: true });
+                res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: result.message, error: true });
             }
             else {
                 const { email, id } = result.data;
