@@ -51,7 +51,7 @@
 
                 <!-- User Dropdown -->
                 <div class="hs-dropdown relative inline-flex pl-6">
-                    <button id="hs-dropdown-user" type="button"
+                    <button type="button"
                         class="hs-dropdown-toggle flex items-center gap-2 px-2 py-1.5 text-foreground hover:bg-muted rounded-md transition-all">
                         <div class="avatar avatar-sm bg-primary-100 text-primary-600">
                             {{#if authUser.username}}
@@ -67,9 +67,9 @@
                         </svg>
                     </button>
 
-                    <div class="hs-dropdown-menu transition-[opacity,margin] duration-150 hs-dropdown-open:opacity-100 opacity-0 hidden dropdown-menu mt-1"
-                        aria-labelledby="hs-dropdown-user">
-                        <div class="px-3 py-2 border-b border-border">
+                    <div
+                        class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 divide-y divide-gray-200">
+                        <div class="px-3 py-2">
                             <p class="text-xs text-muted-foreground">Đăng nhập với</p>
                             <p class="text-sm font-medium text-foreground truncate">{{authUser.email}}</p>
                         </div>
@@ -109,8 +109,10 @@
                                 Nâng cấp Seller
                             </a>
                             {{/if}}
-                            {{#if (isSeller authUser.permission)}}
-                            <div class="dropdown-separator"></div>
+                        </div>
+
+                        {{#if (isSeller authUser.permission)}}
+                        <div class="py-1">
                             <a href="/auctions/create" class="dropdown-item text-primary-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,10 +128,9 @@
                                 </svg>
                                 Sản phẩm của tôi
                             </a>
-                            {{/if}}
                         </div>
+                        {{/if}}
 
-                        <div class="dropdown-separator"></div>
                         <div class="py-1">
                             <form action="/auth/logout" method="POST">
                                 <button type="submit" class="dropdown-item text-destructive w-full">

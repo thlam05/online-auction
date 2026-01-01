@@ -46,11 +46,11 @@
                     {{#if isAuthenticated}}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton1" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                            data-bs-toggle="dropdown">
                             Hello, {{authUser.username}}!
                         </a>
 
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <ul class="dropdown-menu">
                             <li class="nav-item"><a class="dropdown-item" href="/auctions">
                                     <i class="bi bi-cart pe-2"></i>
                                     Watch list
@@ -93,7 +93,10 @@
     {{> footer}}
 
     <!-- Preline JS -->
-    <script src="/preline/preline.js"></script>
+    <script src="/preline/index.js"></script>
+    <script>
+        window.HSStaticMethods?.autoInit();
+    </script>
 
     {{{_sections.js}}}
 </body>
