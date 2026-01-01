@@ -26,6 +26,10 @@ function configEngine(app) {
             equal: function (a, b) {
                 return a === b;
             },
+            substring: function (str, start, end) {
+                if (!str) return '';
+                return str.substring(start, end);
+            },
             calcRemainingTime: function (date) {
                 const end = new Date(date);
                 const now = new Date();
