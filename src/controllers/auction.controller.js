@@ -5,6 +5,8 @@ import categoryModel from "../models/category.model.js";
 import bidService from "../services/bid.service.js";
 import messageService from "../services/message.service.js";
 import bidModel from "../models/bid.model.js";
+import userService from "../services/user.service.js";
+import userRatingService from "../services/user-rating.service.js";
 
 
 class AuctionController {
@@ -94,7 +96,9 @@ class AuctionController {
             const messages = await messageService.getAllMessageByAuctionId(id);
             const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
             const bidHistories = await bidModel.getBidHistory(id);
-            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories });
+            const { listReview, rating } = await userRatingService.getRatings(res.locals.authUser.id);
+
+            res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating });
         } catch (err) {
             next(err);
         }

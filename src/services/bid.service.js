@@ -20,7 +20,7 @@ const bidService = {
             auction.current_price = bid.amount;
         }
         else {
-            while (bid.max_price >= auction.current_price && highestBid.max_price >= auction.current_price) {
+            while (bid.max_price >= auction.current_price + auction.bid_step && highestBid.max_price >= auction.current_price + auction.bid_step) {
                 if (bid.max_price >= auction.current_price + auction.bid_step) {
                     bid.amount = auction.current_price + auction.bid_step;
                     bid.created_at = new Date();

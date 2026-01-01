@@ -65,37 +65,39 @@
     const auctionBidStep = extractNumber(auctionBidStepElement.innerText);
 
     const formPostBid = document.querySelector("#form-post-bid");
-    const placeBidButton = formPostBid.querySelector("button");
+    if (formPostBid) {
+        const placeBidButton = formPostBid.querySelector("button");
+        updateBidButtonState();
+        setInterval(updateBidButtonState, 1000);
 
-    function updateBidButtonState() {
-        if (isAuctionOver()) {
-            placeBidButton.disabled = true;
-            placeBidButton.textContent = "Auction is over";
-        } else {
-            placeBidButton.disabled = false;
-            placeBidButton.textContent = "Place bid";
+        formPostBid.onsubmit = function (event) {
+            event.preventDefault();
+
+            const bidPrice = formPostBid.querySelector(".bid-input");
+
+            bidPrice.oninput = function () {
+                bidPrice.classList.remove("border-red-500");
+            }
+
+            if (+bidPrice.value < auctionCurPrice + auctionBidStep) {
+                bidPrice.classList.add("border-red-500");
+                return;
+            }
+
+            formPostBid.submit();
+        }
+
+        function updateBidButtonState() {
+            if (isAuctionOver()) {
+                placeBidButton.disabled = true;
+                placeBidButton.textContent = "Auction is over";
+            } else {
+                placeBidButton.disabled = false;
+                placeBidButton.textContent = "Place bid";
+            }
         }
     }
 
-    updateBidButtonState();
-    setInterval(updateBidButtonState, 1000);
-
-    formPostBid.onsubmit = function (event) {
-        event.preventDefault();
-
-        const bidPrice = formPostBid.querySelector(".bid-input");
-
-        bidPrice.oninput = function () {
-            bidPrice.classList.remove("border-red-500");
-        }
-
-        if (+bidPrice.value < auctionCurPrice + auctionBidStep) {
-            bidPrice.classList.add("border-red-500");
-            return;
-        }
-
-        formPostBid.submit();
-    }
 
     const formSendMessage = document.querySelector("#form-send-message");
     formSendMessage.onsubmit = function (event) {
@@ -177,7 +179,10 @@
             document.querySelectorAll('[data-tab-panel]').forEach(panel => {
                 panel.classList.add('hidden');
             });
-            document.querySelector(`[data-tab-panel="${target}"]`).classList.remove('hidden');
+            const panel = document.querySelector(`[data-tab-panel="${target}"]`);
+            if (panel) {
+                panel.classList.remove('hidden');
+            }
         });
     });
 </script>
@@ -326,6 +331,7 @@
 
                 <!-- Bid Form -->
                 <div class="border-t border-gray-200 pt-5">
+                    {{#if (greater rating 80)}}
                     <form action="/auctions/{{auction.id}}/bids" method="POST" id="form-post-bid">
                         <div class="mb-3">
                             <input type="number"
@@ -342,6 +348,29 @@
                             Đặt giá
                         </button>
                     </form>
+                    {{else}}
+                    <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86
+                   c1.54 0 2.5-1.67 1.73-3L13.73 4
+                   c-.77-1.33-2.69-1.33-3.46 0L3.34 16
+                   c-.77 1.33.19 3 1.73 3z" />
+                            </svg>
+
+                            <div>
+                                <p class="font-semibold text-sm">
+                                    Bạn chưa đủ điều kiện tham gia đấu giá
+                                </p>
+                                <p class="text-sm mt-1 text-red-600">
+                                    Điểm đánh giá hiện tại của bạn là <strong>{{rating}}%</strong>.
+                                    Người dùng cần đạt tối thiểu <strong>80%</strong> để được phép ra giá.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
 
                     <div class="grid grid-cols-2 gap-3 mt-3">
                         <button
@@ -393,6 +422,12 @@
                 class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
                 Lịch sử đấu giá
             </button>
+            {{#if (isSellerOfAuction authUser auction)}}
+            <button data-tab-target="bidder"
+                class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition">
+                Danh sách người đấu giá
+            </button>
+            {{/if}}
         </nav>
     </div>
 
@@ -508,7 +543,6 @@
             </div>
         </div>
 
-        <!-- Bid History -->
         <div data-tab-panel="history" class="hidden">
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 <div class="p-5 border-b border-gray-200">
@@ -558,5 +592,120 @@
                 </div>
             </div>
         </div>
+
+        {{#if (isSellerOfAuction authUser auction)}}
+        <!-- Bid History -->
+        <div data-tab-panel="bidder" class="hidden">
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="p-5 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Danh sách người tham gia đấu giá
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Quản lý các bidder đã từng ra giá cho sản phẩm này
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Người dùng
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Điểm đánh giá
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Số lần đấu giá
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Hành động
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-200">
+                            {{#each bidders}}
+                            <tr class="hover:bg-gray-50 transition">
+                                <!-- User -->
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {{this.name}}
+                                </td>
+
+                                <!-- Email -->
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    {{this.email}}
+                                </td>
+
+                                <!-- Rating -->
+                                <td class="px-6 py-4 text-sm text-center">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
+                                {{#if (greater this.rating 80)}}
+                                    bg-green-100 text-green-700
+                                {{else}}
+                                    bg-yellow-100 text-yellow-700
+                                {{/if}}">
+                                        {{this.rating}}%
+                                    </span>
+                                </td>
+
+                                <!-- Total bids -->
+                                <td class="px-6 py-4 text-sm text-center text-gray-700">
+                                    {{this.total_bids}}
+                                </td>
+
+                                <!-- Action -->
+                                <td class="px-6 py-4 text-right">
+                                    {{#if this.is_blocked}}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold
+                                           bg-gray-200 text-gray-600">
+                                        Đã bị chặn
+                                    </span>
+                                    {{else}}
+                                    <form action="/auctions/{{../auction.id}}/block-bidder" method="POST"
+                                        class="inline">
+                                        <input type="hidden" name="bidder_id" value="{{this.id}}">
+                                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5
+                                               rounded-lg text-xs font-semibold
+                                               bg-red-100 text-red-600 hover:bg-red-200 transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728" />
+                                            </svg>
+                                            Chặn
+                                        </button>
+                                    </form>
+                                    {{/if}}
+                                </td>
+                            </tr>
+                            {{/each}}
+
+                            {{#unless bidders.length}}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728" />
+                                    </svg>
+                                    Chưa có bidder nào tham gia đấu giá
+                                </td>
+                            </tr>
+                            {{/unless}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {{/if}}
     </div>
 </div>
