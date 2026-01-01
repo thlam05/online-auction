@@ -33,7 +33,10 @@
     {{> footer}}
 
     <!-- Preline JS -->
-    <script src="/preline/preline.js"></script>
+    <script src="/preline/index.js"></script>
+    <script>
+        window.HSStaticMethods?.autoInit();
+    </script>
 
     {{{_sections.js}}}
 </body>

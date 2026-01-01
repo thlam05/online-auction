@@ -6,3 +6,4 @@ node_modules
 src/public/css/output.css
 src/public/uploads/*
 !src/public/uploads/.gitkeep
+src/public/css/output.css
