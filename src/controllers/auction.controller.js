@@ -6,6 +6,19 @@ import bidService from "../services/bid.service.js";
 import messageService from "../services/message.service.js";
 import bidModel from "../models/bid.model.js";
 
+function getPaginationData(count, page, limit) {
+    const nPages = Math.ceil(+count / limit);
+    const pageNumbers = [];
+    for (let i = 1; i <= nPages; i++) {
+        pageNumbers.push({
+            value: i,
+            isCurrent: i === +page,
+        });
+    }
+    const prevPage = +page > 1 ? +page - 1 : 1;
+    const nextPage = +page < nPages ? +page + 1 : nPages;
+    return { nPages, pageNumbers, prevPage, nextPage };
+}
 
 class AuctionController {
 
@@ -19,17 +32,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const { count } = await auctionModel.countAllAuctions();
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
@@ -59,16 +62,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionsByCatId(category.id);
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByCatId(category.id, limit, offset);
 
@@ -124,16 +118,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionByQuery(q);
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByQuery(q, limit, offset, sort);
 
