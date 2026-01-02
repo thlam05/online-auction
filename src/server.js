@@ -15,7 +15,6 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("src/public"));
-app.use('/preline', express.static('node_modules/preline'));
 app.use(passport.initialize());
 
 

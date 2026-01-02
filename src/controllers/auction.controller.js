@@ -153,6 +153,21 @@ class AuctionController {
         }
     }
 
+    // GET - /auctions/search/suggestions
+    async getSearchSuggestions(req, res, next) {
+        try {
+            const { q } = req.query;
+            if (!q || q.trim().length < 2) {
+                return res.json({ suggestions: [] });
+            }
+
+            const suggestions = await auctionService.getSearchSuggestions(q.trim(), 5);
+            return res.json({ suggestions });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     // POST /auctions
     async addAuction(req, res, next) {
         try {
@@ -186,7 +201,17 @@ class AuctionController {
 
             const result = await messageService.createOne(message, auction);
 
-            res.redirect(`/auctions/${id}`);
+            // Return JSON for AJAX
+            return res.json({
+                success: true,
+                message: {
+                    id: result.id,
+                    content: content,
+                    sender_name: req.session.passport.user.username,
+                    created_at: new Date(),
+                    reply_id: reply_id || null
+                }
+            });
         } catch (err) {
             next(err);
         }
@@ -202,7 +227,23 @@ class AuctionController {
 
             const data = { auction_id: id, max_price, bidder_id };
             const bid = await bidService.createBid(data);
-            res.redirect(`/auctions/${id}`);
+
+            // Get updated auction info
+            const auction = await auctionModel.findById(id);
+
+            // Return JSON for AJAX
+            return res.json({
+                success: true,
+                bid: {
+                    current_price: auction.current_price,
+                    bid_count: auction.bid_count || 0,
+                    highest_bidder: auction.highestBidder ? {
+                        username: auction.highestBidder.username,
+                        rating: auction.highestBidder.rating
+                    } : null
+                },
+                message: "Đặt giá thành công!"
+            });
         } catch (err) {
             next(err);
         }

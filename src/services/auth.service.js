@@ -11,27 +11,27 @@ const authService = {
         const user = await userModel.findByEmail(rawData.signInField);
         if (user == undefined) {
             return {
-                message: "Incorrect Email or password",
+                message: "Email hoặc mật khẩu không chính xác",
                 status: 1
             }
         }
-        if (bcrypt.compareSync(rawData.password, user.password)) {
+        if (await bcrypt.compare(rawData.password, user.password)) {
             if (user.is_verified == false) {
                 return {
                     status: 2,
-                    message: "Verify OTP to sign in",
+                    message: "Vui lòng xác thực OTP để đăng nhập",
                     data: user
                 }
             }
             return {
-                message: "Success",
+                message: "Thành công",
                 status: 0,
                 data: user
             }
         }
         else {
             return {
-                message: "Incorrect Email or password",
+                message: "Email hoặc mật khẩu không chính xác",
                 status: 1
             }
         }
@@ -42,12 +42,11 @@ const authService = {
         if (isExistEmail) {
             return {
                 status: 1,
-                message: "Email already exist",
+                message: "Email đã tồn tại",
                 data: isExistEmail
             }
         }
-
-        data.password = bcrypt.hashSync(data.password, config.saltRounds);
+        data.password = await bcrypt.hash(data.password, config.saltRounds);
         data.created_at = new Date(Date.now());
         data.updated_at = new Date(Date.now());
         data.permission = 0;
@@ -60,13 +59,13 @@ const authService = {
             otp: otp,
             created_at: new Date(Date.now()),
             expired_at: new Date(Date.now() + 5 * 60 * 1000),
-            message: "Verify the OTP we just sent to your email to register your account",
+            message: "Vui lòng xác thực mã OTP được gửi đến email của bạn để hoàn tất đăng ký",
             redirect_to: "/auth/signin"
         }
         const [pendingUser] = await pendingUserModel.createOne(pendingData);
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: pendingUser
         }
     },
@@ -88,7 +87,7 @@ const authService = {
                 const [newUser] = await userModel.createOne(userData);
                 return {
                     status: 0,
-                    message: "Successfully",
+                    message: "Thành công",
                     data: newUser
                 }
             }
@@ -100,14 +99,14 @@ const authService = {
                 await pendingUserModel.deleteByEmail(userData.email);
                 return {
                     status: 0,
-                    message: "Successfully",
+                    message: "Thành công",
                     data: updatedUser
                 }
             }
         }
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: user
         }
     },
@@ -125,13 +124,13 @@ const authService = {
             const newUser = await userModel.createOne(userData);
             return {
                 status: 0,
-                message: "Successfully",
+                message: "Thành công",
                 data: newUser
             }
         }
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: user
         }
     },
@@ -142,7 +141,7 @@ const authService = {
         if (!user) {
             return {
                 status: 1,
-                message: "User not found",
+                message: "Không tìm thấy người dùng",
                 error: true
             }
         }
@@ -151,7 +150,7 @@ const authService = {
         await pendingUserModel.deleteOne(pendingUser.id);
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: user
         }
     },
@@ -172,7 +171,7 @@ const authService = {
             const [newPendingUser] = await pendingUserModel.createOne(pendingData);
             return {
                 status: 0,
-                message: "Successfully",
+                message: "Thành công",
                 data: newPendingUser
             }
         }
@@ -185,7 +184,7 @@ const authService = {
             const [newPendingUser] = await pendingUserModel.updateOne(id, pendingData);
             return {
                 status: 0,
-                message: "Successfully",
+                message: "Thành công",
                 data: newPendingUser
             }
         }
@@ -196,7 +195,7 @@ const authService = {
         if (!user) {
             return {
                 status: 1,
-                message: "Email is not exist"
+                message: "Email không tồn tại"
             }
         }
         const { otp, info } = await sendOtpEmail(email);
@@ -206,13 +205,13 @@ const authService = {
             otp: otp,
             expired_at: new Date(Date.now() + 5 * 60 * 1000),
             created_at: new Date(Date.now()),
-            message: "Verify OTP to recovery password",
+            message: "Vui lòng xác thực OTP để khôi phục mật khẩu",
             redirect_to: `/auth/recovery-password?userId=${user.id}`
         }
         const [newPendingUser] = await pendingUserModel.createOne(pendingData);
         return {
             status: 0,
-            message: "Email is exist",
+            message: "Email tồn tại",
             data: newPendingUser
         }
     },
@@ -222,22 +221,26 @@ const authService = {
         if (!user) {
             return {
                 status: 1,
-                message: "Don't find user"
+                message: "Không tìm thấy người dùng"
             }
         }
-        const hashedPassword = bcrypt.hashSync(password, config.saltRounds);
+        const hashedPassword = await bcrypt.hash(password, config.saltRounds);
         const [updatedUser] = await userModel.updateOne(userId, { password: hashedPassword });
         if (!updatedUser) {
             return {
                 status: 1,
-                message: "Failed to update password"
+                message: "Cập nhật mật khẩu thất bại"
             }
         }
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: updatedUser
         }
+    },
+
+    async checkExistingEmail(email) {
+        return await userModel.findByEmail(email);
     }
 };
 

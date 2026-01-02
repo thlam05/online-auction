@@ -38,8 +38,7 @@
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3",
-    "preline": "^3.2.3"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.0.0",

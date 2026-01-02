@@ -27,11 +27,61 @@
 
     const emailMessage = document.querySelector(".signup-email-message");
     const emailInput = document.querySelector("#signup-email");
-    if (emailInput && emailMessage) {
-        emailInput.oninput = function (event) {
-            emailMessage.innerText = "";
-        }
+    let emailCheckTimeout;
+
+    if (emailInput) {
+        emailInput.addEventListener('input', function () {
+            // Clear previous message
+            if (emailMessage) emailMessage.innerText = "";
+            emailInput.classList.remove("border-red-500", "border-green-500");
+
+            const email = emailInput.value.trim();
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                return;
+            }
+
+            // Debounce: wait 500ms after user stops typing
+            clearTimeout(emailCheckTimeout);
+            emailCheckTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch('/auth/check-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        if (data.exists) {
+                            emailInput.classList.add("border-red-500");
+                            if (emailMessage) {
+                                emailMessage.innerText = "Email đã được sử dụng";
+                                emailMessage.classList.remove("hidden");
+                            }
+                        } else {
+                            emailInput.classList.add("border-green-500");
+                            if (emailMessage) {
+                                emailMessage.innerText = "Email khả dụng";
+                                emailMessage.classList.remove("hidden");
+                                emailMessage.parentElement.classList.remove("alert-destructive");
+                                emailMessage.parentElement.classList.add("text-green-600");
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking email:', error);
+                }
+            }, 500);
+        });
     }
+
+    // reCAPTCHA v2 - không cần thêm script, widget tự xử lý
 </script>
 {{/section}}
 
@@ -45,9 +95,7 @@
 {{#if error}}
 <div class="alert alert-destructive flex items-center gap-2 text-sm">
     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
     </svg>
     <span class="signup-email-message">{{message}}</span>
 </div>
@@ -64,22 +112,21 @@
     <!-- Username -->
     <div class="space-y-2">
         <label for="signup-username" class="text-sm font-medium">Họ và tên</label>
-        <input type="text" class="form-input" id="signup-username" name="username"
-            value="{{data.username}}" placeholder="Nguyễn Văn A" required>
+        <input type="text" class="form-input" id="signup-username" name="username" value="{{data.username}}"
+            placeholder="Nguyễn Văn A" required>
     </div>
 
     <!-- Address -->
     <div class="space-y-2">
         <label for="signup-address" class="text-sm font-medium">Địa chỉ</label>
-        <input type="text" class="form-input" id="signup-address" name="address"
-            value="{{data.address}}" placeholder="123 Nguyễn Văn Cừ, Q.5, TP.HCM">
+        <input type="text" class="form-input" id="signup-address" name="address" value="{{data.address}}"
+            placeholder="123 Nguyễn Văn Cừ, Q.5, TP.HCM">
     </div>
 
     <!-- Birthday -->
     <div class="space-y-2">
         <label for="signup-birthday" class="text-sm font-medium">Ngày sinh</label>
-        <input type="date" class="form-input" id="signup-birthday" name="birthday"
-            value="{{data.birthday}}">
+        <input type="date" class="form-input" id="signup-birthday" name="birthday" value="{{data.birthday}}">
     </div>
 
     <!-- Password -->
@@ -104,8 +151,8 @@
     <div class="space-y-2">
         <label for="signup-password-confirm" class="text-sm font-medium">Xác nhận mật khẩu</label>
         <div class="relative">
-            <input type="password" class="form-input pr-10" id="signup-password-confirm"
-                name="passwordConfirm" placeholder="••••••••" required>
+            <input type="password" class="form-input pr-10" id="signup-password-confirm" name="passwordConfirm"
+                placeholder="••••••••" required>
             <button type="button"
                 class="show-password-confirm-btn absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,10 +165,18 @@
         </div>
     </div>
 
+    <!-- reCAPTCHA v2 -->
+    <div class="flex justify-center">
+        <div class="g-recaptcha" data-sitekey="{{RECAPTCHA_SITE_KEY}}"></div>
+    </div>
+
     <button type="submit" class="btn-primary w-full">
         Đăng ký với Email
     </button>
 </form>
+
+<!-- reCAPTCHA v2 -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <!-- Divider -->
 <div class="relative">

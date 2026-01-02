@@ -59,7 +59,7 @@
     const auctionBidStep = extractNumber(auctionBidStepElement.innerText);
 
     const formPostBid = document.querySelector("#form-post-bid");
-    formPostBid.onsubmit = function (event) {
+    formPostBid.onsubmit = async function (event) {
         event.preventDefault();
 
         const bidPrice = formPostBid.querySelector(".bid-input");
@@ -73,11 +73,77 @@
             return;
         }
 
-        formPostBid.submit();
+        const auctionId = formPostBid.action.split('/')[4];
+        const submitButton = formPostBid.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+
+        try {
+            // Disable button while processing
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Đang xử lý...';
+
+            const response = await fetch(`/auctions/${auctionId}/bids`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ max_price: bidPrice.value })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update current price
+                const currentPriceElement = document.querySelector('.auction-current-price');
+                currentPriceElement.innerHTML = `${data.bid.current_price.toLocaleString('vi-VN')}<sup class="text-xs">đ</sup>`;
+
+                // Update global variable for validation
+                auctionCurPrice = data.bid.current_price;
+
+                // Update highest bidder info if exists
+                if (data.bid.highest_bidder) {
+                    const bidderNameElement = document.querySelector('.highest-bidder-name');
+                    if (bidderNameElement) {
+                        bidderNameElement.textContent = data.bid.highest_bidder.username;
+                    }
+                }
+
+                // Show success message with animation
+                const successMsg = document.createElement('div');
+                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 transition-all transform';
+                successMsg.style.opacity = '0';
+                successMsg.style.transform = 'translateY(-20px)';
+                successMsg.textContent = data.message;
+                document.body.appendChild(successMsg);
+
+                setTimeout(() => {
+                    successMsg.style.opacity = '1';
+                    successMsg.style.transform = 'translateY(0)';
+                }, 10);
+
+                setTimeout(() => {
+                    successMsg.style.opacity = '0';
+                    successMsg.style.transform = 'translateY(-20px)';
+                    setTimeout(() => successMsg.remove(), 300);
+                }, 3000);
+
+                // Clear input
+                bidPrice.value = '';
+            } else {
+                throw new Error('Bid failed');
+            }
+        } catch (error) {
+            console.error('Error placing bid:', error);
+            alert('Có lỗi xảy ra khi đặt giá. Vui lòng thử lại.');
+        } finally {
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        }
     }
 
     const formSendMessage = document.querySelector("#form-send-message");
-    formSendMessage.onsubmit = function (event) {
+    formSendMessage.onsubmit = async function (event) {
         event.preventDefault();
 
         const input = formSendMessage.querySelector(".message-input");
@@ -89,13 +155,64 @@
             return;
         }
 
-        formSendMessage.submit();
+        const formData = new FormData(formSendMessage);
+        const content = formData.get('content');
+        const auctionId = formSendMessage.action.split('/')[4];
+
+        try {
+            const response = await fetch(`/auctions/${auctionId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Create new message element
+                const messagesList = document.querySelector('.space-y-4');
+                const newMessageHTML = `
+                    <div class="bg-white rounded-2xl border border-gray-200 p-5" style="opacity: 0; transform: translateY(-10px); transition: all 0.3s ease;">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-900">${data.message.sender_name}</span>
+                                <span class="text-sm text-gray-500 ml-2">Vừa xong</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 mb-4 pl-12">${data.message.content}</p>
+                    </div>
+                `;
+
+                messagesList.insertAdjacentHTML('afterbegin', newMessageHTML);
+
+                // Animate in
+                setTimeout(() => {
+                    const newMsg = messagesList.firstElementChild;
+                    newMsg.style.opacity = '1';
+                    newMsg.style.transform = 'translateY(0)';
+                }, 10);
+
+                // Clear input
+                input.value = '';
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+        }
     }
 
     const formReplyMessage = document.querySelectorAll(".form-reply-message");
     if (formReplyMessage) {
         formReplyMessage.forEach(function (form) {
-            form.onsubmit = function (event) {
+            form.onsubmit = async function (event) {
                 event.preventDefault();
 
                 const input = form.querySelector(".reply-input");
@@ -107,7 +224,64 @@
                     return;
                 }
 
-                form.submit();
+                const formData = new FormData(form);
+                const content = formData.get('content');
+                const reply_id = formData.get('reply_id');
+                const auctionId = form.action.split('/')[4];
+
+                try {
+                    const response = await fetch(`/auctions/${auctionId}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content, reply_id })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Find or create replies container
+                        const messageCard = form.closest('.bg-white');
+                        let repliesContainer = messageCard.querySelector('.space-y-3');
+
+                        if (!repliesContainer) {
+                            const repliesWrapper = document.createElement('div');
+                            repliesWrapper.className = 'mt-4 pl-12 space-y-3';
+                            form.parentElement.insertBefore(repliesWrapper, form);
+                            repliesContainer = repliesWrapper;
+                        }
+
+                        // Add new reply
+                        const newReplyHTML = `
+                            <div class="bg-primary-50 rounded-xl p-4" style="opacity: 0; transform: translateY(-10px); transition: all 0.3s ease;">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-500 text-white">
+                                        Người bán
+                                    </span>
+                                    <span class="font-medium text-gray-900">${data.message.sender_name}</span>
+                                    <span class="text-sm text-gray-500">Vừa xong</span>
+                                </div>
+                                <p class="text-gray-700">${data.message.content}</p>
+                            </div>
+                        `;
+
+                        repliesContainer.insertAdjacentHTML('beforeend', newReplyHTML);
+
+                        // Animate in
+                        setTimeout(() => {
+                            const newReply = repliesContainer.lastElementChild;
+                            newReply.style.opacity = '1';
+                            newReply.style.transform = 'translateY(0)';
+                        }, 10);
+
+                        // Clear input
+                        input.value = '';
+                    }
+                } catch (error) {
+                    console.error('Error sending reply:', error);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
             }
         })
     }
@@ -284,7 +458,8 @@
                             </div>
                             <div>
                                 <span class="block text-xs text-gray-500">Người đấu giá cao nhất</span>
-                                <span class="block font-medium text-gray-900">{{auction.highestBidder.username}}</span>
+                                <span
+                                    class="block font-medium text-gray-900 highest-bidder-name">{{auction.highestBidder.username}}</span>
                             </div>
                         </div>
                         {{#if auction.highestBidder.rating}}
