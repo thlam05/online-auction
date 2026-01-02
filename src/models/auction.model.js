@@ -108,7 +108,8 @@ const auctionModel = {
             .limit(limit);
     },
 
-    // Thay vì 1 sản phẩm query N + 1 lần thì gộp thành 1 lần query (đoạn này thì vibe code có nhờ AI giúp)
+    // Thay vì 1 sản phẩm query N + 1 lần thì gộp thành 1 lần query
+    // (Vì trước khi update bấm xem all sản phẩm load lâu)
 
     findAllWithRelations() {
         return db("auctions as a")

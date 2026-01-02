@@ -12,7 +12,7 @@ function configSession(app) {
         }),
         secret: config.sessionSecretKey,
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: false,
         cookie: { maxAge: 1000 * 60 * 60 }
     }));
 
