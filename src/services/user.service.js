@@ -80,14 +80,15 @@ const userService = {
     },
 
     async updatePassword(user, rawData) {
-        if (!bcrypt.compareSync(rawData.currentPassword, user.password)) {
+        const isMatch = await bcrypt.compare(rawData.currentPassword, user.password);
+        if (!isMatch) {
             return {
                 status: 1,
                 message: "Mật khẩu hiện tại không chính xác",
                 error: true
             }
         }
-        user.password = bcrypt.hashSync(rawData.password, config.saltRounds);
+        user.password = await bcrypt.hash(rawData.password, config.saltRounds);
         user.updated_at = new Date(Date.now());
         const [updateUser] = await userModel.updateOne(user.id, { password: user.password, updated_at: user.updated_at });
         return {

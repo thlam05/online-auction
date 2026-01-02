@@ -15,7 +15,7 @@ const authService = {
                 status: 1
             }
         }
-        if (bcrypt.compareSync(rawData.password, user.password)) {
+        if (await bcrypt.compare(rawData.password, user.password)) {
             if (user.is_verified == false) {
                 return {
                     status: 2,
@@ -46,8 +46,7 @@ const authService = {
                 data: isExistEmail
             }
         }
-
-        data.password = bcrypt.hashSync(data.password, config.saltRounds);
+        data.password = await bcrypt.hash(data.password, config.saltRounds);
         data.created_at = new Date(Date.now());
         data.updated_at = new Date(Date.now());
         data.permission = 0;
@@ -225,7 +224,7 @@ const authService = {
                 message: "Không tìm thấy người dùng"
             }
         }
-        const hashedPassword = bcrypt.hashSync(password, config.saltRounds);
+        const hashedPassword = await bcrypt.hash(password, config.saltRounds);
         const [updatedUser] = await userModel.updateOne(userId, { password: hashedPassword });
         if (!updatedUser) {
             return {
