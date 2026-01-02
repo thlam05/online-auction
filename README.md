@@ -8,7 +8,7 @@
 - **Frontend:** Handlebars (SSR), Tailwind CSS
 - **Auth:** Passport.js, bcrypt
 - **Session:** express-session, connect-session-knex
-- **Realtime:** fetch API (AJAX)
+- **Realtime:** fetch API
 - **Other:** Preline UI, Nodemailer, reCAPTCHA v2
 
 ## Hướng dẫn cài đặt & chạy web
