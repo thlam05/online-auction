@@ -17,12 +17,10 @@ const bidService = {
             bid.created_at = new Date();
             bid.amount = auction.current_price + auction.bid_step;
             auction.current_price = bid.amount;
-            auction.bid_count = 1;
         } else {
             bid.created_at = new Date();
             bid.amount = highestBid.amount + auction.bid_step;
             auction.current_price = bid.amount;
-            auction.bid_count = (auction.bid_count || 0) + 1;
         }
 
         await auctionModel.update(auction);
