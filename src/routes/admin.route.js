@@ -3,16 +3,7 @@ import * as adminController from '../controllers/admin.controller.js';
 
 const router = express.Router();
 
-// Admin Dashboard
+// Admin Dashboard - hiển thị tất cả categories, auctions, users trong 1 trang
 router.get('/', adminController.getDashboard);
-
-// Admin Categories Management
-router.get('/categories', adminController.getCategories);
-
-// Admin Auctions Management
-router.get('/auctions', adminController.getAuctions);
-
-// Admin Users Management
-router.get('/users', adminController.getUsers);
 
 export default router;

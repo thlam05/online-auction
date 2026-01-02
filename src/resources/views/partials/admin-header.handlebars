@@ -1,0 +1,76 @@
+<!-- Header Admin - Nền trắng, logo xanh, hover xanh -->
+<header class="sticky top-0 z-50 bg-white border-b border-border">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+
+            <!-- Logo Only -->
+            <div class="flex items-center gap-3">
+                <a href="/admin-dashboard" class="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/images/logo-admin.svg" alt="bidhub admin" style="height: 40px;">
+                </a>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="flex items-center gap-4">
+                <!-- Auctions Button (Blue, Left Arrow) -->
+                <a href="/"
+                    class="flex items-center gap-2 px-4 py-2 rounded-md bg-[#1447e6] text-white text-sm font-medium hover:bg-[#0d2f8c] transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Quay lại trang chủ
+                </a>
+
+                <!-- Divider -->
+                <div class="h-5 w-px bg-gray-200 mx-2"></div>
+
+                <!-- User Dropdown -->
+                <div class="hs-dropdown relative inline-flex">
+                    <button type="button"
+                        class="hs-dropdown-toggle flex items-center gap-2 px-2 py-1.5 text-foreground hover:bg-muted rounded-md transition-all">
+                        <div class="avatar avatar-sm bg-[#1447e6]/10 text-[#1447e6]">
+                            {{substring authUser.username 0 1}}
+                        </div>
+                        <span class="text-sm font-medium">{{authUser.username}}</span>
+                        <svg class="w-4 h-4 text-muted-foreground hs-dropdown-open:rotate-180 transition-transform"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div
+                        class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 divide-y divide-gray-200">
+                        <div class="px-3 py-2">
+                            <p class="text-xs text-muted-foreground">Đăng nhập với</p>
+                            <p class="text-sm font-medium text-foreground truncate">{{authUser.email}}</p>
+                        </div>
+
+                        <div class="py-1">
+                            <a href="/user/profile" class="dropdown-item">
+                                <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Hồ sơ cá nhân
+                            </a>
+                        </div>
+
+                        <div class="py-1">
+                            <form action="/auth/logout" method="POST">
+                                <button type="submit" class="dropdown-item text-destructive w-full">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    Đăng xuất
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
