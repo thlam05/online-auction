@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/", auctionController.getAllAuctions);
 router.get("/create", ensureAuthenticated, isSeller, auctionController.getCreateAuction);
 router.get("/search", auctionController.searchAuctions);
+router.get("/search/suggestions", auctionController.getSearchSuggestions);
 router.get("/categories/:category", auctionController.getAuctionsByCategory);
 router.get("/:id", auctionController.getAuctionsById);
 router.get("/edit/:id", ensureAuthenticated, isSeller, auctionController.getEditAuctions);

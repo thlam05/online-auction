@@ -321,6 +321,15 @@ const auctionService = {
         );
 
         return auctions;
+    },
+
+    async getSearchSuggestions(query, limit = 5) {
+        const auctions = await auctionModel.searchAuctionsByName(query, limit);
+        return auctions.map(auction => ({
+            id: auction.id,
+            name: auction.name,
+            current_price: auction.current_price
+        }));
     }
 };
 

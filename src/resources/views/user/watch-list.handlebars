@@ -43,6 +43,51 @@
     updateRemainingTime();
 
     setInterval(updateRemainingTime, 1000);
+
+    // Delete watchlist with AJAX
+    const deleteForms = document.querySelectorAll("form[action*='/watch-list/del/']");
+    deleteForms.forEach(form => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const watchlistItem = form.closest(".group");
+            const watchlistId = form.action.split("/").pop();
+
+            try {
+                const response = await fetch(`/watch-list/del/${watchlistId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.ok) {
+                    // Remove item with animation
+                    watchlistItem.style.opacity = "0";
+                    watchlistItem.style.transform = "translateX(20px)";
+                    watchlistItem.style.transition = "all 0.3s ease";
+
+                    setTimeout(() => {
+                        watchlistItem.remove();
+
+                        // Update count
+                        const countBadge = document.querySelector(".bg-primary-100");
+                        const currentCount = parseInt(countBadge.textContent);
+                        countBadge.textContent = `${currentCount - 1} sản phẩm`;
+
+                        // Show empty state if no items left
+                        const remainingItems = document.querySelectorAll("form[action*='/watch-list/del/']").length;
+                        if (remainingItems === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            } catch (error) {
+                console.error("Error deleting watchlist item:", error);
+                alert("Có lỗi xảy ra. Vui lòng thử lại.");
+            }
+        });
+    });
 </script>
 {{/section}}
 

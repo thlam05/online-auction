@@ -6,7 +6,7 @@ class WatchListController {
         try {
             const { id } = req.params;
             const result = await watchListModel.deleteWatchList(id);
-            res.redirect("/user/watch-list");
+            return res.json({ success: true, message: "Đã xóa khỏi danh sách theo dõi" });
         } catch (err) {
             next(err);
         }

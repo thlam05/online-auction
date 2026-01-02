@@ -238,6 +238,10 @@ const authService = {
             message: "Successfully",
             data: updatedUser
         }
+    },
+
+    async checkExistingEmail(email) {
+        return await userModel.findByEmail(email);
     }
 };
 

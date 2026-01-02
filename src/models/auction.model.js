@@ -99,6 +99,13 @@ const auctionModel = {
             .where({ id: id })
             .update(auction_data)
             .returning("*");
+    },
+
+    searchAuctionsByName(query, limit) {
+        return db("auctions")
+            .where("name", "ilike", `%${query}%`)
+            .orderBy("created_at", "desc")
+            .limit(limit);
     }
 };
 

@@ -3,7 +3,6 @@ import authService from "../services/auth.service.js";
 import { sendOtpEmail } from "../utils/nodemailer.js";
 import bcrypt from "bcrypt";
 import pendingUserModel from "../models/pending-user.model.js";
-import axios from "axios";
 
 class AuthController {
     //  GET - /auth/login
@@ -72,6 +71,17 @@ class AuthController {
         }
     }
 
+    // POST - /auth/check-email
+    async checkEmailExists(req, res, next) {
+        try {
+            const { email } = req.body;
+            const user = await authService.checkExistingEmail(email);
+            return res.json({ exists: !!user });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     // POST - /auth/signup
     async signUp(req, res, next) {
         try {
@@ -90,10 +100,14 @@ class AuthController {
             params.append('secret', secretKey);
             params.append('response', recaptchaResponse);
 
-            const googleRes = await axios.post(verifyUrl, params);
+            const googleRes = await fetch(verifyUrl, {
+                method: 'POST',
+                body: params
+            });
+            const googleData = await googleRes.json();
 
             // v3 trả về score từ 0.0 - 1.0, >= 0.5 là người thật
-            if (!googleRes.data.success || googleRes.data.score < 0.5) {
+            if (!googleData.success || googleData.score < 0.5) {
                 return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Xác thực reCAPTCHA thất bại. Vui lòng thử lại.", error: true });
             }
 

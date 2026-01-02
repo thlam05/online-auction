@@ -9,6 +9,7 @@ router.get("/signin", authController.getSignIn);
 router.post("/signin", authController.signIn);
 router.get("/signup", authController.getSignUp);
 router.post("/signup", authController.signUp);
+router.post("/check-email", authController.checkEmailExists);
 router.post("/logout", authController.logout);
 router.get("/otp-verify", authController.getOtpVerify);
 router.post("/otp-verify", authController.verifyOtp);
