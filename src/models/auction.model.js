@@ -296,7 +296,7 @@ const auctionModel = {
             .where("a.id", id)
             .select(
                 "a.*",
-                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email, 'fullname', u.fullname, 'is_seller', u.is_seller, 'is_bidder', u.is_bidder) as seller"),
+                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email, 'address', u.address, 'permission', u.permission, 'is_verified', u.is_verified) as seller"),
                 db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\""),
                 db.raw("(SELECT json_agg(json_build_object('url', ai.url, 'is_main', ai.is_main, 'index', ai.index) ORDER BY ai.index) FROM auction_images ai WHERE ai.auction_id = a.id) as images")
             )

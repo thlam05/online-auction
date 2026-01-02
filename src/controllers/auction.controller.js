@@ -221,7 +221,6 @@ class AuctionController {
                 success: true,
                 bid: {
                     current_price: auction.current_price,
-                    bid_count: auction.bid_count || 0,
                     highest_bidder: auction.highestBidder ? {
                         username: auction.highestBidder.username,
                         rating: auction.highestBidder.rating
