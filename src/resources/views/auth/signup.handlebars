@@ -81,25 +81,7 @@
         });
     }
 
-    // reCAPTCHA v3
-    const signupForm = document.querySelector("#signup-form");
-    if (signupForm) {
-        signupForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            grecaptcha.ready(function () {
-                grecaptcha.execute('{{RECAPTCHA_SITE_KEY}}', { action: 'signup' }).then(function (token) {
-                    // Thêm token vào form
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'g-recaptcha-response';
-                    input.value = token;
-                    signupForm.appendChild(input);
-                    // Submit form
-                    signupForm.submit();
-                });
-            });
-        });
-    }
+    // reCAPTCHA v2 - không cần thêm script, widget tự xử lý
 </script>
 {{/section}}
 
@@ -185,13 +167,18 @@
         </div>
     </div>
 
+    <!-- reCAPTCHA v2 -->
+    <div class="flex justify-center">
+        <div class="g-recaptcha" data-sitekey="{{RECAPTCHA_SITE_KEY}}"></div>
+    </div>
+
     <button type="submit" class="btn-primary w-full">
         Đăng ký với Email
     </button>
 </form>
 
-<!-- reCAPTCHA v3 -->
-<script src="https://www.google.com/recaptcha/api.js?render={{RECAPTCHA_SITE_KEY}}"></script>
+<!-- reCAPTCHA v2 -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <!-- Divider -->
 <div class="relative">

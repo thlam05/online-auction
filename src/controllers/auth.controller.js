@@ -93,7 +93,7 @@ class AuthController {
                 return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Vui lòng xác nhận reCAPTCHA.", error: true });
             }
 
-            // Xác thực reCAPTCHA v3
+            // Xác thực reCAPTCHA v2
             const secretKey = process.env.RECAPTCHA_SECRET_KEY;
             const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
             const params = new URLSearchParams();
@@ -106,8 +106,8 @@ class AuthController {
             });
             const googleData = await googleRes.json();
 
-            // v3 trả về score từ 0.0 - 1.0, >= 0.5 là người thật
-            if (!googleData.success || googleData.score < 0.5) {
+            // v2 chỉ trả về success true/false
+            if (!googleData.success) {
                 return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Xác thực reCAPTCHA thất bại. Vui lòng thử lại.", error: true });
             }
 
