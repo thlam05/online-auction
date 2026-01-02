@@ -110,6 +110,7 @@ const auctionModel = {
 
     // Thay vì 1 sản phẩm query N + 1 lần thì gộp thành 1 lần query
     // (Vì trước khi update bấm xem all sản phẩm load lâu)
+    // Trước tối ưu: ~3,6s -> Sau tối ưu: ~2s
 
     findAllWithRelations() {
         return db("auctions as a")
