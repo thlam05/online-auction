@@ -75,18 +75,8 @@ const auctionService = {
             return +count;
         }
 
-        const subCategories = await categoryModel.findCategoiesLevel2(category.id);
-
-        let listCount = await Promise.all(
-            subCategories.map(cat => auctionModel.countAllAuctionsByCat(cat.id))
-        );
-
-        let total = 0;
-        listCount.forEach(item => {
-            total += +item.count;
-        })
-
-        return total;
+        const { count } = await auctionModel.countAllAuctionsByCatWithSubcategories(cat_id);
+        return +count;
     },
 
     async getAuctionByCatId(cat_id, limit, offset) {
@@ -112,19 +102,20 @@ const auctionService = {
     },
 
     async getAuctionById(id) {
-        const auction = await auctionModel.findById(id);
+        const auction = await auctionModel.findByIdWithAllRelations(id);
 
-        const mainImage = await auctionImageModel.findMainByAuctionId(id);
-        auction.mainImage = mainImage;
-        const subImages = await auctionImageModel.findSubImageByAuctionId(id);
-        auction.subImages = subImages;
-        const seller = await userService.getUserById(auction.seller_id);
-        auction.seller = seller;
-        const tempHighestBidder = await bidModel.getHighestBidder(auction.id);
-        if (tempHighestBidder != undefined) {
-            const highestBidder = await userService.getUserById(tempHighestBidder.id);
-            auction.highestBidder = highestBidder;
+        if (!auction) return null;
+
+        if (auction.images && auction.images.length > 0) {
+            auction.mainImage = auction.images.find(img => img.is_main) || null;
+            auction.subImages = auction.images.filter(img => !img.is_main);
         } else {
+            auction.mainImage = null;
+            auction.subImages = [];
+        }
+        delete auction.images;
+
+        if (auction.highestBidder && !auction.highestBidder.id) {
             auction.highestBidder = undefined;
         }
 

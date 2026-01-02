@@ -81,12 +81,30 @@ const auctionModel = {
         return db("auctions").count("id as count").where("category_id", cat_id).first();
     },
 
+    countAllAuctionsByCatWithSubcategories(parent_cat_id) {
+        return db("auctions as a")
+            .join("categories as c", "a.category_id", "c.id")
+            .where(function () {
+                this.where("c.id", parent_cat_id)
+                    .orWhere("c.parent_category_id", parent_cat_id);
+            })
+            .count("a.id as count")
+            .first();
+    },
+
     countAuctionsByQuery(tsquery) {
-        return db("auctions").count("id as count").whereRaw(`fts @@ to_tsquery('${tsquery}')`).first();
+        return db("auctions")
+            .count("id as count")
+            .whereRaw("fts @@ to_tsquery(?)", [tsquery])
+            .first();
     },
 
     findAuctionsByQuery(tsquery, limit, offset, sortQuery) {
-        return db("auctions").whereRaw(`fts @@ to_tsquery('${tsquery}')`).orderBy(...sortQuery).limit(limit).offset(offset);
+        return db("auctions")
+            .whereRaw("fts @@ to_tsquery(?)", [tsquery])
+            .orderBy(...sortQuery)
+            .limit(limit)
+            .offset(offset);
     },
 
     createOne(auction) {
@@ -108,11 +126,8 @@ const auctionModel = {
             .limit(limit);
     },
 
-    // Thay vì 1 sản phẩm query N + 1 lần thì gộp thành 1 lần query
-    // (Vì trước khi update bấm xem all sản phẩm load lâu)
-    // Trước tối ưu: ~3,6s -> Sau tối ưu: ~2s
-
-    findAllWithRelations() {
+    // dùng join base query: category, seller, mainImage
+    baseAuctionQuerySimple() {
         return db("auctions as a")
             .leftJoin("categories as c", "c.id", "a.category_id")
             .leftJoin("users as u", "u.id", "a.seller_id")
@@ -127,7 +142,8 @@ const auctionModel = {
             );
     },
 
-    findAuctionsWithRelations(limit, offset) {
+    // dùng cho highest bidder
+    baseAuctionQueryFull() {
         return db("auctions as a")
             .leftJoin("categories as c", "c.id", "a.category_id")
             .leftJoin("users as u", "u.id", "a.seller_id")
@@ -153,117 +169,41 @@ const auctionModel = {
                 db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
                 db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
                 db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
-            )
+            );
+    },
+
+    findAllWithRelations() {
+        return this.baseAuctionQuerySimple();
+    },
+
+    findAuctionsWithRelations(limit, offset) {
+        return this.baseAuctionQueryFull()
             .limit(limit)
             .offset(offset);
     },
 
     findAuctionsByCatWithRelations(cat_id, limit, offset) {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("users as u", "u.id", "a.seller_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
-            .leftJoin(
-                db("bids")
-                    .select("auction_id", db.raw("MAX(amount) as max_amount"))
-                    .groupBy("auction_id")
-                    .as("max_bids"),
-                "max_bids.auction_id",
-                "a.id"
-            )
-            .leftJoin("bids as highest_bid", function () {
-                this.on("highest_bid.auction_id", "a.id")
-                    .andOn("highest_bid.amount", "max_bids.max_amount");
-            })
-            .leftJoin("users as bidder", "bidder.id", "highest_bid.bidder_id")
+        return this.baseAuctionQueryFull()
             .where("a.category_id", cat_id)
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
-                db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
-            )
             .limit(limit)
             .offset(offset);
     },
 
     findAuctionsByCatIdsWithRelations(listCatId, limit, offset) {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("users as u", "u.id", "a.seller_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
-            .leftJoin(
-                db("bids")
-                    .select("auction_id", db.raw("MAX(amount) as max_amount"))
-                    .groupBy("auction_id")
-                    .as("max_bids"),
-                "max_bids.auction_id",
-                "a.id"
-            )
-            .leftJoin("bids as highest_bid", function () {
-                this.on("highest_bid.auction_id", "a.id")
-                    .andOn("highest_bid.amount", "max_bids.max_amount");
-            })
-            .leftJoin("users as bidder", "bidder.id", "highest_bid.bidder_id")
+        return this.baseAuctionQueryFull()
             .whereIn("a.category_id", listCatId)
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
-                db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
-            )
             .limit(limit)
             .offset(offset);
     },
 
     findBySellerIdWithRelations(seller_id) {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("users as u", "u.id", "a.seller_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
-            .leftJoin(
-                db("bids")
-                    .select("auction_id", db.raw("MAX(amount) as max_amount"))
-                    .groupBy("auction_id")
-                    .as("max_bids"),
-                "max_bids.auction_id",
-                "a.id"
-            )
-            .leftJoin("bids as highest_bid", function () {
-                this.on("highest_bid.auction_id", "a.id")
-                    .andOn("highest_bid.amount", "max_bids.max_amount");
-            })
-            .leftJoin("users as bidder", "bidder.id", "highest_bid.bidder_id")
-            .where("a.seller_id", seller_id)
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
-                db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
-            );
+        return this.baseAuctionQueryFull()
+            .where("a.seller_id", seller_id);
     },
 
     findTop5EndingSoonWithRelations() {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
+        return this.baseAuctionQuerySimple()
             .where("a.end_at", ">", new Date())
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\"")
-            )
             .orderBy("a.end_at", "asc")
             .limit(5);
     },
@@ -287,34 +227,14 @@ const auctionModel = {
     },
 
     findTop5HighestPriceWithRelations() {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\"")
-            )
+        return this.baseAuctionQuerySimple()
             .orderBy("a.current_price", "desc")
             .limit(5);
     },
 
     findAuctionsByQueryWithRelations(tsquery, limit, offset, sortQuery) {
-        return db("auctions as a")
-            .leftJoin("categories as c", "c.id", "a.category_id")
-            .leftJoin("users as u", "u.id", "a.seller_id")
-            .leftJoin("auction_images as ai", function () {
-                this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
-            })
-            .whereRaw(`a.fts @@ to_tsquery('${tsquery}')`)
-            .select(
-                "a.*",
-                db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
-                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
-                db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\"")
-            )
+        return this.baseAuctionQuerySimple()
+            .whereRaw("a.fts @@ to_tsquery(?)", [tsquery])
             .orderBy(...sortQuery)
             .limit(limit)
             .offset(offset);
@@ -355,6 +275,32 @@ const auctionModel = {
                 db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
                 db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
             );
+    },
+
+    findByIdWithAllRelations(id) {
+        return db("auctions as a")
+            .leftJoin("users as u", "u.id", "a.seller_id")
+            .leftJoin(
+                db("bids")
+                    .select("auction_id", db.raw("MAX(amount) as max_amount"))
+                    .groupBy("auction_id")
+                    .as("max_bids"),
+                "max_bids.auction_id",
+                "a.id"
+            )
+            .leftJoin("bids as highest_bid", function () {
+                this.on("highest_bid.auction_id", "a.id")
+                    .andOn("highest_bid.amount", "max_bids.max_amount");
+            })
+            .leftJoin("users as bidder", "bidder.id", "highest_bid.bidder_id")
+            .where("a.id", id)
+            .select(
+                "a.*",
+                db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email, 'fullname', u.fullname, 'is_seller', u.is_seller, 'is_bidder', u.is_bidder) as seller"),
+                db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\""),
+                db.raw("(SELECT json_agg(json_build_object('url', ai.url, 'is_main', ai.is_main, 'index', ai.index) ORDER BY ai.index) FROM auction_images ai WHERE ai.auction_id = a.id) as images")
+            )
+            .first();
     }
 };
 
