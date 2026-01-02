@@ -11,7 +11,7 @@ const userService = {
         if (user.username === rawData.username && user.email === rawData.email && user.address === rawData.address && user.birthday === rawData.birthday) {
             return {
                 status: 1,
-                message: "No changes detected"
+                message: "Không có thay đổi nào"
             }
         }
         if (user.email !== rawData.email) {
@@ -19,7 +19,7 @@ const userService = {
             if (existingUser) {
                 return {
                     status: 2,
-                    message: "Email already in use"
+                    message: "Email đã được sử dụng"
                 }
             }
         }
@@ -39,12 +39,12 @@ const userService = {
                     pendingData.expired_at = new Date(Date.now() + 5 * 60 * 1000);
                     pendingData.otp = otp;
                     pendingData.user_id = user.id;
-                    pendingData.message = "Profile updated successfully. Please verify your new email.";
+                    pendingData.message = "Cập nhật hồ sơ thành công. Vui lòng xác thực email mới của bạn.";
                     pendingData.redirect_to = "/auth/signin";
                     const [newPendingUser] = await pendingUserModel.updateOne(id, pendingData);
                     return {
                         status: 0,
-                        message: "Profile updated successfully. Please verify your new email.",
+                        message: "Cập nhật hồ sơ thành công. Vui lòng xác thực email mới của bạn.",
                         data: newPendingUser
                     }
                 }
@@ -53,14 +53,14 @@ const userService = {
                     pendingData.email = rawData.email;
                     pendingData.otp = otp;
                     pendingData.user_id = user.id;
-                    pendingData.message = "Profile updated successfully. Please verify your new email.";
+                    pendingData.message = "Cập nhật hồ sơ thành công. Vui lòng xác thực email mới của bạn.";
                     pendingData.expired_at = new Date(Date.now() + 5 * 60 * 1000);
                     pendingData.updated_at = new Date(Date.now());
                     pendingData.redirect_to = "/auth/signin";
                     const [newPendingUser] = await pendingUserModel.createOne(pendingData);
                     return {
                         status: 3,
-                        message: "Profile updated successfully. Please verify your new email.",
+                        message: "Cập nhật hồ sơ thành công. Vui lòng xác thực email mới của bạn.",
                         data: newPendingUser
                     }
                 }
@@ -68,13 +68,13 @@ const userService = {
             else {
                 return {
                     status: 0,
-                    message: "Successfully",
+                    message: "Thành công",
                     data: user
                 }
             }
         }
         return {
-            message: "Profile update failed",
+            message: "Cập nhật hồ sơ thất bại",
             status: 1
         }
     },
@@ -83,7 +83,7 @@ const userService = {
         if (!bcrypt.compareSync(rawData.currentPassword, user.password)) {
             return {
                 status: 1,
-                message: "Incorrect password",
+                message: "Mật khẩu hiện tại không chính xác",
                 error: true
             }
         }
@@ -92,7 +92,7 @@ const userService = {
         const [updateUser] = await userModel.updateOne(user.id, { password: user.password, updated_at: user.updated_at });
         return {
             status: 0,
-            message: "Successfully",
+            message: "Thành công",
             data: user
         }
     },
