@@ -1,0 +1,14 @@
+<div class="hs-dropdown relative inline-flex mx-auto">
+    <button type="button"
+        class="hs-dropdown-toggle p-2 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+            <circle cx="2" cy="8" r="1.5" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="14" cy="8" r="1.5" />
+        </svg>
+    </button>
+    <div
+        class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-48 bg-white shadow-lg rounded-lg p-1 mt-2 border border-gray-200">
+        {{> @partial-block }}
+    </div>
+</div>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-/* shadcn/ui Theme - Clean & Eye-friendly */
+
 @theme {
-    /* Primary color - Red (used sparingly for CTAs) */
+
     --color-primary-50: hsl(0 86% 97%);
     --color-primary-100: hsl(0 93% 94%);
     --color-primary-200: hsl(0 96% 89%);
@@ -15,7 +15,7 @@
     --color-primary-900: hsl(358 100% 25%);
     --color-primary-950: hsl(358 100% 15%);
 
-    /* Accent color - Blue (complementary) */
+
     --color-accent-50: hsl(214 100% 97%);
     --color-accent-100: hsl(214 95% 93%);
     --color-accent-200: hsl(213 97% 87%);
@@ -27,7 +27,7 @@
     --color-accent-800: hsl(226 71% 40%);
     --color-accent-900: hsl(224 64% 33%);
 
-    /* Neutral/Gray scale - shadcn zinc palette */
+
     --color-background: hsl(0 0% 100%);
     --color-foreground: hsl(240 10% 3.9%);
     --color-card: hsl(0 0% 100%);
@@ -43,16 +43,16 @@
     --color-success: hsl(142 76% 36%);
     --color-warning: hsl(38 92% 50%);
 
-    /* Fonts */
+
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 
-    /* Border radius */
+
     --radius: 0.5rem;
     --radius-sm: 0.375rem;
     --radius-lg: 0.75rem;
 }
 
-/* Base styles */
+
 @layer base {
     * {
         border-color: var(--color-border);
@@ -70,7 +70,7 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Fast 150ms transitions */
+
     a,
     button,
     input,
@@ -80,12 +80,12 @@
     }
 }
 
-/* Component styles - shadcn/ui inspired */
+
 @layer components {
 
-    /* ==================== BUTTONS ==================== */
 
-    /* Primary button - Red, use sparingly */
+
+
     .btn-primary {
         display: inline-flex;
         align-items: center;
@@ -120,7 +120,7 @@
         cursor: not-allowed;
     }
 
-    /* Secondary button - Gray, default choice */
+
     .btn-secondary {
         display: inline-flex;
         align-items: center;
@@ -145,7 +145,7 @@
         transform: scale(0.98);
     }
 
-    /* Outline button - Clean borders */
+
     .btn-outline {
         display: inline-flex;
         align-items: center;
@@ -171,7 +171,7 @@
         transform: scale(0.98);
     }
 
-    /* Ghost button - No background */
+
     .btn-ghost {
         display: inline-flex;
         align-items: center;
@@ -192,7 +192,7 @@
         background-color: var(--color-muted);
     }
 
-    /* Accent button - Blue */
+
     .btn-accent {
         display: inline-flex;
         align-items: center;
@@ -213,7 +213,7 @@
         background-color: var(--color-accent-600);
     }
 
-    /* ==================== CARDS ==================== */
+
 
     .card {
         background-color: var(--color-card);
@@ -230,7 +230,7 @@
         padding: 1.25rem;
     }
 
-    /* Product card */
+
     .product-card {
         display: flex;
         flex-direction: column;
@@ -279,7 +279,7 @@
         color: var(--color-primary-500);
     }
 
-    /* ==================== FORM ELEMENTS ==================== */
+
 
     .form-input {
         display: flex;
@@ -322,7 +322,7 @@
         margin-top: 0.25rem;
     }
 
-    /* Checkbox - shadcn style */
+
     .form-checkbox {
         width: 1rem;
         height: 1rem;
@@ -336,7 +336,7 @@
     .form-checkbox:checked {
         background-color: var(--color-primary-500);
         border-color: var(--color-primary-500);
-        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
     }
 
     .form-checkbox:focus-visible {
@@ -344,7 +344,7 @@
         box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring);
     }
 
-    /* Radio - shadcn style */
+
     .form-radio {
         width: 1rem;
         height: 1rem;
@@ -358,10 +358,10 @@
     .form-radio:checked {
         border-color: var(--color-primary-500);
         background-color: var(--color-background);
-        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23e7000b' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='4'/%3e%3c/svg%3e");
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23e7000b'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
     }
 
-    /* Select */
+
     .form-select {
         display: flex;
         width: 100%;
@@ -373,7 +373,7 @@
         border-radius: var(--radius);
         outline: none;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23374151'%3e%3cpath d='M4.22 6.22a.75.75 0 011.06 0L8 8.94l2.72-2.72a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0L4.22 7.28a.75.75 0 010-1.06z'/%3e%3c/svg%3e");
         background-position: right 0.5rem center;
         background-repeat: no-repeat;
         background-size: 1.25rem;
@@ -431,7 +431,7 @@
         border-color: hsl(0 84% 85%);
     }
 
-    /* ==================== ALERTS ==================== */
+
 
     .alert {
         position: relative;
@@ -456,7 +456,7 @@
         background-color: hsl(38 92% 97%);
     }
 
-    /* ==================== SEPARATOR ==================== */
+
 
     .separator {
         height: 1px;
@@ -470,7 +470,7 @@
         background-color: var(--color-border);
     }
 
-    /* ==================== AVATAR ==================== */
+
 
     .avatar {
         position: relative;
@@ -498,7 +498,7 @@
         font-size: 1.125rem;
     }
 
-    /* ==================== TABS ==================== */
+
 
     .tabs {
         display: inline-flex;
@@ -527,7 +527,7 @@
         box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     }
 
-    /* ==================== SKELETON ==================== */
+
 
     .skeleton {
         background: linear-gradient(90deg, var(--color-muted) 25%, hsl(240 4.8% 92%) 50%, var(--color-muted) 75%);
@@ -546,7 +546,7 @@
         }
     }
 
-    /* ==================== STATUS INDICATORS ==================== */
+
 
     .status-dot {
         width: 0.5rem;
@@ -583,7 +583,7 @@
         }
     }
 
-    /* ==================== PRICE TAG ==================== */
+
 
     .price {
         font-weight: 600;
@@ -596,7 +596,7 @@
         color: var(--color-primary-500);
     }
 
-    /* ==================== COUNTDOWN / TIME ==================== */
+
 
     .countdown {
         display: inline-flex;
@@ -615,7 +615,7 @@
         color: var(--color-destructive);
     }
 
-    /* ==================== TOOLTIP ==================== */
+
 
     .tooltip {
         position: relative;
@@ -639,7 +639,7 @@
         opacity: 1;
     }
 
-    /* ==================== DROPDOWN MENU ==================== */
+
 
     .dropdown-menu {
         min-width: 12rem;
@@ -672,7 +672,7 @@
         background-color: var(--color-border);
     }
 
-    /* Ensure Preline dropdowns are positioned correctly with high z-index */
+
     .hs-dropdown {
         position: relative;
     }
@@ -686,14 +686,14 @@
         border: 1px solid #e5e7eb !important;
     }
 
-    /* Ensure Preline dropdowns become visible when opened */
+
     .hs-dropdown.open>.hs-dropdown-menu,
     .hs-dropdown-open>.hs-dropdown-menu {
         opacity: 1 !important;
         display: block !important;
     }
 
-    /* ==================== HEADER SPECIFIC ==================== */
+
 
     .header-nav-link {
         padding: 0.5rem 0.75rem;
@@ -713,7 +713,7 @@
         background-color: var(--color-muted);
     }
 
-    /* Search input in header */
+
     .search-input {
         width: 100%;
         height: 2.25rem;
@@ -734,7 +734,7 @@
         border-color: var(--color-border);
     }
 
-    /* ==================== AUCTION SPECIFIC ==================== */
+
 
     .bid-input {
         display: flex;
@@ -761,7 +761,7 @@
         color: var(--color-destructive);
     }
 
-    /* ==================== NUMBER INPUT WITH +/- ==================== */
+
 
     .number-input {
         display: inline-flex;
@@ -797,7 +797,7 @@
         border-right: 1px solid var(--color-border);
     }
 
-    /* ==================== PAGINATION ==================== */
+
 
     .pagination {
         display: flex;
@@ -830,7 +830,7 @@
         border-color: var(--color-foreground);
     }
 
-    /* ==================== LOADING SPINNER ==================== */
+
 
     .spinner {
         width: 1.25rem;
@@ -847,7 +847,7 @@
         }
     }
 
-    /* ==================== EMPTY STATE ==================== */
+
 
     .empty-state {
         display: flex;
@@ -876,4 +876,43 @@
         font-size: 0.875rem;
         color: var(--color-muted-foreground);
     }
+}
+
+/* ==================== PRELINE OVERLAY ANIMATIONS ==================== */
+/* Modal animations (admin modals) */
+.hs-overlay {
+    pointer-events: none;
+}
+
+.hs-overlay.hidden {
+    display: block !important;
+}
+
+.hs-overlay.open,
+.hs-overlay.hs-overlay-open {
+    pointer-events: auto;
+}
+
+.hs-overlay .hs-overlay-backdrop {
+    opacity: 0;
+    transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hs-overlay.open .hs-overlay-backdrop,
+.hs-overlay.hs-overlay-open .hs-overlay-backdrop {
+    opacity: 1;
+}
+
+.hs-overlay .hs-overlay-dialog {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
+        transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hs-overlay.open .hs-overlay-dialog,
+.hs-overlay.hs-overlay-open .hs-overlay-dialog {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
 }

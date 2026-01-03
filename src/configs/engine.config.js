@@ -80,6 +80,10 @@ const configEngine = (app) => {
                 if (permission == 1) return true;
                 return false;
             },
+            isAdmin: function (permission) {
+                if (permission == 2) return true;
+                return false;
+            },
             isSellerOfAuction(user, auction) {
                 if (user.permission != 1) return false;
                 if (auction.seller_id != user.id) return false;
@@ -96,6 +100,13 @@ const configEngine = (app) => {
             },
             imageOrPlaceholder(imageUrl) {
                 return imageUrl || '/images/placeholder.webp';
+            },
+            range(count) {
+                const result = [];
+                for (let i = 0; i < count; i++) {
+                    result.push(i);
+                }
+                return result;
             },
 
             getCategoryIcon(categoryName) {
