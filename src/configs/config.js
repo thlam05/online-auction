@@ -1,11 +1,10 @@
 import dotenv from "dotenv/config";
-import bcrypt from "bcrypt";
 
 const config = {
     port: Number(process.env.PORT) || 3000,
     sessionSecretKey: process.env.SESSION_SECRET_KEY,
 
-    saltRounds: bcrypt.genSaltSync(Number(process.env.BCRYPT_SALT_ROUNDS) || 10),
+    saltRounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 10,
 
     databaseHost: process.env.DATABASE_HOST || "",
     databasePort: Number(process.env.DATABASE_PORT) || 5432,

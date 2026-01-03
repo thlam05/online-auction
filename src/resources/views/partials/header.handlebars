@@ -15,8 +15,9 @@
 
             <!-- Search Bar - Larger -->
             <div class="flex-1 px-6">
-                <form action="/auctions/search" method="GET" class="relative">
-                    <input type="text" name="q" placeholder="Hôm nay bạn muốn tìm kiếm gì?"
+                <form action="/auctions/search" method="GET" class="relative" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Hôm nay bạn muốn tìm kiếm gì?"
+                        autocomplete="off"
                         class="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-red-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.3)] transition-all"
                         style="outline: none !important;">
                     <button type="submit"
@@ -26,6 +27,10 @@
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </button>
+                    <!-- Suggestions Dropdown -->
+                    <div id="search-suggestions"
+                        class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                    </div>
                 </form>
             </div>
 
@@ -158,4 +163,70 @@
             </div>
         </div>
     </div>
+</header>
+
+<script>
+    // Search autocomplete
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+    const searchForm = document.getElementById('search-form');
+    let searchTimeout;
+
+    if (searchInput && searchSuggestions) {
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+
+            clearTimeout(searchTimeout);
+
+            if (query.length < 2) {
+                searchSuggestions.classList.add('hidden');
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/auctions/search/suggestions?q=${encodeURIComponent(query)}`);
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        if (data.suggestions && data.suggestions.length > 0) {
+                            let html = '<div class="py-2">';
+                            data.suggestions.forEach(item => {
+                                html += `
+                                    <a href="/auctions/${item.id}" class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition">
+                                        <span class="text-sm text-gray-900">${item.name}</span>
+                                        <span class="text-xs text-primary-500 font-medium">${item.current_price.toLocaleString('vi-VN')} ₫</span>
+                                    </a>
+                                `;
+                            });
+                            html += '</div>';
+                            searchSuggestions.innerHTML = html;
+                            searchSuggestions.classList.remove('hidden');
+                        } else {
+                            searchSuggestions.classList.add('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }
+            }, 300);
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!searchForm.contains(e.target)) {
+                searchSuggestions.classList.add('hidden');
+            }
+        });
+
+        // Show suggestions when focus and has value
+        searchInput.addEventListener('focus', function () {
+            if (this.value.trim().length >= 2 && searchSuggestions.innerHTML) {
+                searchSuggestions.classList.remove('hidden');
+            }
+        });
+    }
+</script>
+</div>
+</div>
 </header>

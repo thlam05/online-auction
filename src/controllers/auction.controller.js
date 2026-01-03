@@ -9,6 +9,19 @@ import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import auctionBlockModel from "../models/auction-block.model.js";
 
+function getPaginationData(count, page, limit) {
+    const nPages = Math.ceil(+count / limit);
+    const pageNumbers = [];
+    for (let i = 1; i <= nPages; i++) {
+        pageNumbers.push({
+            value: i,
+            isCurrent: i === +page,
+        });
+    }
+    const prevPage = +page > 1 ? +page - 1 : 1;
+    const nextPage = +page < nPages ? +page + 1 : nPages;
+    return { nPages, pageNumbers, prevPage, nextPage };
+}
 
 class AuctionController {
 
@@ -22,17 +35,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const { count } = await auctionModel.countAllAuctions();
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
@@ -62,16 +65,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionsByCatId(category.id);
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByCatId(category.id, limit, offset);
 
@@ -152,16 +146,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionByQuery(q);
-            const nPages = Math.ceil(+count / limit);
-            const pageNumbers = [];
-            for (let i = 1; i <= nPages; i++) {
-                pageNumbers.push({
-                    value: i,
-                    isCurrent: i === +page,
-                });
-            }
-            const prevPage = page > 1 ? page - 1 : 1;
-            const nextPage = page < nPages ? page + 1 : nPages;
+            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByQuery(q, limit, offset, sort);
 
@@ -176,6 +161,21 @@ class AuctionController {
             const qSearch = q.trim().split(/\s+/).join("+");
 
             res.render("auctions/search", { empty, categories, auctions, pageNumbers, prevPage, nextPage, qSearch });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // GET - /auctions/search/suggestions
+    async getSearchSuggestions(req, res, next) {
+        try {
+            const { q } = req.query;
+            if (!q || q.trim().length < 2) {
+                return res.json({ suggestions: [] });
+            }
+
+            const suggestions = await auctionService.getSearchSuggestions(q.trim(), 5);
+            return res.json({ suggestions });
         } catch (err) {
             next(err);
         }
@@ -214,7 +214,17 @@ class AuctionController {
 
             const result = await messageService.createOne(message, auction);
 
-            res.redirect(`/auctions/${id}`);
+            // Return JSON for AJAX
+            return res.json({
+                success: true,
+                message: {
+                    id: result.id,
+                    content: content,
+                    sender_name: req.session.passport.user.username,
+                    created_at: new Date(),
+                    reply_id: reply_id || null
+                }
+            });
         } catch (err) {
             next(err);
         }
@@ -230,7 +240,22 @@ class AuctionController {
 
             const data = { auction_id: id, max_price, bidder_id };
             const bid = await bidService.createBid(data);
-            res.redirect(`/auctions/${id}`);
+
+            // Get updated auction info
+            const auction = await auctionModel.findById(id);
+
+            // Return JSON for AJAX
+            return res.json({
+                success: true,
+                bid: {
+                    current_price: auction.current_price,
+                    highest_bidder: auction.highestBidder ? {
+                        username: auction.highestBidder.username,
+                        rating: auction.highestBidder.rating
+                    } : null
+                },
+                message: "Đặt giá thành công!"
+            });
         } catch (err) {
             next(err);
         }

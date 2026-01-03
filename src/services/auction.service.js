@@ -50,72 +50,23 @@ const auctionService = {
     },
 
     async getAllAuctions() {
-        const auctions = await auctionModel.findAll();
-        if (!auctions) {
-            return [];
-        }
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const seller = await userModel.findById(auction.seller_id);
-                auction.seller = seller;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findAllWithRelations();
+        return auctions || [];
     },
 
     async getAuctions(limit, offset) {
-        const auctions = await auctionModel.findAuctions(limit, offset);
-        if (!auctions) {
-            return [];
-        }
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const seller = await userModel.findById(auction.seller_id);
-                auction.seller = seller;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-                const highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.highestBidder = highestBidder;
-                const totalBid = await bidModel.countBib(auction.id);
-                auction.totalBid = totalBid;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findAuctionsWithRelations(limit, offset);
+        return auctions || [];
     },
 
+    async getAuctionByCatId(cat_id, limit, offset) {
+        const auctions = await auctionModel.findAuctionsByCatWithRelations(cat_id, limit, offset);
+        return auctions || [];
+    },
 
     async getAuctionBySellerId(seller_id) {
-        const auctions = await auctionModel.findBySellerId(seller_id);
-        if (!auctions) {
-            return [];
-        }
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const seller = await userModel.findById(auction.seller_id);
-                auction.seller = seller;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-                const highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.highestBidder = highestBidder;
-                const totalBid = await bidModel.countBib(auction.id);
-                auction.totalBid = totalBid;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findBySellerIdWithRelations(seller_id);
+        return auctions || [];
     },
 
     async countAuctionsByCatId(cat_id) {
@@ -125,18 +76,8 @@ const auctionService = {
             return +count;
         }
 
-        const subCategories = await categoryModel.findCategoiesLevel2(category.id);
-
-        let listCount = await Promise.all(
-            subCategories.map(cat => auctionModel.countAllAuctionsByCat(cat.id))
-        );
-
-        let total = 0;
-        listCount.forEach(item => {
-            total += +item.count;
-        })
-
-        return total;
+        const { count } = await auctionModel.countAllAuctionsByCatWithSubcategories(cat_id);
+        return +count;
     },
 
     async getAuctionByCatId(cat_id, limit, offset) {
@@ -157,37 +98,25 @@ const auctionService = {
             }
         }
 
-        const auctions = await auctionModel.findAuctionsByCatIds(categoryIds, limit, offset);
-
-        if (!auctions || auctions.length === 0) return [];
-
-        await Promise.all(
-            auctions.map(async (auction) => {
-                auction.category = await categoryModel.findById(auction.category_id);
-                auction.seller = await userModel.findById(auction.seller_id);
-                auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.totalBid = await bidModel.countBib(auction.id);
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findAuctionsByCatIdsWithRelations(categoryIds, limit, offset);
+        return auctions || [];
     },
 
     async getAuctionById(id) {
-        const auction = await auctionModel.findById(id);
+        const auction = await auctionModel.findByIdWithAllRelations(id);
 
-        const mainImage = await auctionImageModel.findMainByAuctionId(id);
-        auction.mainImage = mainImage;
-        const subImages = await auctionImageModel.findSubImageByAuctionId(id);
-        auction.subImages = subImages;
-        const seller = await userService.getUserById(auction.seller_id);
-        auction.seller = seller;
-        const tempHighestBidder = await bidModel.getHighestBidder(auction.id);
-        if (tempHighestBidder != undefined) {
-            const highestBidder = await userService.getUserById(tempHighestBidder.id);
-            auction.highestBidder = highestBidder;
+        if (!auction) return null;
+
+        if (auction.images && auction.images.length > 0) {
+            auction.mainImage = auction.images.find(img => img.is_main) || null;
+            auction.subImages = auction.images.filter(img => !img.is_main);
         } else {
+            auction.mainImage = null;
+            auction.subImages = [];
+        }
+        delete auction.images;
+
+        if (auction.highestBidder && !auction.highestBidder.id) {
             auction.highestBidder = undefined;
         }
 
@@ -195,48 +124,18 @@ const auctionService = {
     },
 
     async getTop5EndingSoon() {
-        const auctions = await auctionModel.findTop5EndingSoon();
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findTop5EndingSoonWithRelations();
+        return auctions || [];
     },
 
     async getTop5MostBids() {
-        const auctions = await auctionModel.findTop5MostBids();
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findTop5MostBidsWithRelations();
+        return auctions || [];
     },
 
     async getTop5HighestPrice() {
-        const auctions = await auctionModel.findTop5HighestPrice();
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findTop5HighestPriceWithRelations();
+        return auctions || [];
     },
 
 
@@ -257,20 +156,8 @@ const auctionService = {
             sortQuery = sort.trim().split(/-+/);
         }
 
-
-        const auctions = await auctionModel.findAuctionsByQuery(tsquery, limit, offset, sortQuery);
-
-        await Promise.all(
-            auctions.map(async (auction) => {
-                auction.category = await categoryModel.findById(auction.category_id);
-                auction.seller = await userModel.findById(auction.seller_id);
-                auction.mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.totalBid = await bidModel.countBib(auction.id);
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findAuctionsByQueryWithRelations(tsquery, limit, offset, sortQuery);
+        return auctions || [];
     },
 
 
@@ -293,39 +180,17 @@ const auctionService = {
     },
 
     async getAuctionsWon(user_id) {
-        const auctions = await auctionModel.findAuctionsWon(user_id);
-        if (!auctions) {
-            return [];
-        }
-
-        await Promise.all(
-            auctions.map(async function (auction) {
-                const category = await categoryModel.findById(auction.category_id);
-                auction.category = category;
-                const seller = await userModel.findById(auction.seller_id);
-                auction.seller = seller;
-                const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
-                auction.mainImage = mainImage;
-                const highestBidder = await bidModel.getHighestBidder(auction.id);
-                auction.highestBidder = highestBidder;
-            })
-        );
-
-        return auctions;
+        const auctions = await auctionModel.findAuctionsWonWithRelations(user_id);
+        return auctions || [];
     },
 
-    async handleBlockBidder(auctionBlock) {
-        await auctionBlockModel.createOne(auctionBlock);
-
-        await bidModel.deleteBib(auctionBlock.user_id, auctionBlock.auction_id);
-
-        const highestBidder = await bidModel.getHighestBidder(auctionBlock.auction_id);
-        const auction = await auctionModel.getAuctionById(auctionBlock.auction_id);
-
-        auction.current_price = highestBidder
-            ? highestBidder.amount
-            : auction.start_price;
-        auctionModel.update(auction);
+    async getSearchSuggestions(query, limit = 5) {
+        const auctions = await auctionModel.searchAuctionsByName(query, limit);
+        return auctions.map(auction => ({
+            id: auction.id,
+            name: auction.name,
+            current_price: auction.current_price
+        }));
     }
 };
 

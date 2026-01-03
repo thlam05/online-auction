@@ -17,7 +17,7 @@ class AuthController {
     // GET - /auth/signup
     getSignUp(req, res, next) {
         try {
-            res.render("auth/signup");
+            res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY });
         } catch (err) {
             next(err);
         }
@@ -28,7 +28,22 @@ class AuthController {
         try {
             const { email, pendingUserId } = req.query;
             const pendingUser = await pendingUserModel.findById(pendingUserId);
-            res.render("auth/otp-verify", { email, pendingUserId, message: pendingUser.message, redirectTo: pendingUser.redirect_to });
+
+            if (!pendingUser) {
+                return res.render("auth/otp-verify", {
+                    email,
+                    pendingUserId,
+                    message: "Vui lòng xác thực tài khoản của bạn",
+                    redirectTo: "/auth/signin"
+                });
+            }
+
+            res.render("auth/otp-verify", {
+                email,
+                pendingUserId,
+                message: pendingUser.message,
+                redirectTo: pendingUser.redirect_to
+            });
         } catch (err) {
             next(err);
         }
@@ -43,7 +58,7 @@ class AuthController {
                     return res.render("auth/signin", { data: req.body, message: info.message, error: true });
                 }
                 else if (info && info.status == 2) {
-                    const { status, message, data } = await authService.savePendingUser(user, "Your account has not been verified by OTP, please enter the OTP code to log in");
+                    const { status, message, data } = await authService.savePendingUser(user, "Tài khoản của bạn chưa được xác thực bằng OTP, vui lòng nhập mã OTP để đăng nhập");
                     return res.redirect(`/auth/otp-verify?email=${data.email}&pendingUserId=${data.id}`);
                 }
 
@@ -71,15 +86,49 @@ class AuthController {
         }
     }
 
+    // POST - /auth/check-email
+    async checkEmailExists(req, res, next) {
+        try {
+            const { email } = req.body;
+            const user = await authService.checkExistingEmail(email);
+            return res.json({ exists: !!user });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     // POST - /auth/signup
     async signUp(req, res, next) {
         try {
             const { username, email, address, birthday, password } = req.body;
             const data = { username, email, address, birthday, password };
 
+            const recaptchaResponse = req.body['g-recaptcha-response'];
+            if (!recaptchaResponse) {
+                return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Vui lòng xác nhận reCAPTCHA.", error: true });
+            }
+
+            // Xác thực reCAPTCHA v2
+            const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+            const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+            const params = new URLSearchParams();
+            params.append('secret', secretKey);
+            params.append('response', recaptchaResponse);
+
+            const googleRes = await fetch(verifyUrl, {
+                method: 'POST',
+                body: params
+            });
+            const googleData = await googleRes.json();
+
+            // v2 chỉ trả về success true/false
+            if (!googleData.success) {
+                return res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: "Xác thực reCAPTCHA thất bại. Vui lòng thử lại.", error: true });
+            }
+
             const result = await authService.signUpWithEmail(data);
             if (result.status == 1) {
-                res.render("auth/signup", { data: req.body, message: result.message, error: true });
+                res.render("auth/signup", { RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY, data: req.body, message: result.message, error: true });
             }
             else {
                 const { email, id } = result.data;
@@ -95,15 +144,40 @@ class AuthController {
         try {
             const { otp, pendingUserId, email, redirectTo } = req.body;
             const pendingUser = await pendingUserModel.findById(pendingUserId) || await pendingUserModel.findByEmail(email);
-            if (pendingUser == undefined) {
-                return res.render("/auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "Invalid pending user. Please sign up again.", error: true, redirectTo: pendingUser.redirect_to });
+
+            if (!pendingUser) {
+                return res.render("auth/otp-verify", {
+                    email: req.body.email,
+                    pendingUserId,
+                    message: "Vui lòng xác thực tài khoản của bạn",
+                    errorMessage: "Người dùng chưa được xác thực. Vui lòng đăng ký lại.",
+                    error: true,
+                    redirectTo: "/auth/signin"
+                });
             }
+
             if (pendingUser.expired_at < new Date(Date.now())) {
-                return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "OTP has expired. Please resend code again.", error: true, redirectTo: pendingUser.redirect_to });
+                return res.render("auth/otp-verify", {
+                    email: req.body.email,
+                    pendingUserId,
+                    message: pendingUser.message,
+                    errorMessage: "Mã OTP đã hết hạn. Vui lòng gửi lại mã.",
+                    error: true,
+                    redirectTo: pendingUser.redirect_to
+                });
             }
+
             if (pendingUser.otp != otp) {
-                return res.render("auth/otp-verify", { email: req.body.email, pendingUserId, message: pendingUser.message, errorMessage: "Incorrect OTP. Please try again.", error: true, redirectTo: pendingUser.redirect_to });
+                return res.render("auth/otp-verify", {
+                    email: req.body.email,
+                    pendingUserId,
+                    message: pendingUser.message,
+                    errorMessage: "Mã OTP không chính xác. Vui lòng thử lại.",
+                    error: true,
+                    redirectTo: pendingUser.redirect_to
+                });
             }
+
             if (otp == pendingUser.otp) {
                 const result = await authService.verifyUser(pendingUser);
                 if (result.status == 0) {

@@ -1,6 +1,7 @@
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import authService from "../services/auth.service.js";
+import userService from "../services/user.service.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
 import config from "./config.js";
@@ -62,13 +63,18 @@ passport.use(new LocalStrategy(async function (username, password, done) {
 
 passport.serializeUser(async function (user, cb) {
     process.nextTick(function () {
-        cb(null, user);
+        cb(null, { id: user.id });
     });
 });
 
-passport.deserializeUser(function (user, cb) {
-    process.nextTick(function () {
-        return cb(null, user);
+passport.deserializeUser(async function (user, cb) {
+    process.nextTick(async function () {
+        try {
+            const fullUser = await userService.getUserById(user.id);
+            return cb(null, fullUser);
+        } catch (err) {
+            return cb(err);
+        }
     });
 });
 
