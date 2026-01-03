@@ -2,7 +2,34 @@ import db from "../configs/db.config.js";
 
 const bidModel = {
     createOne(bid) {
-        return db("bids").insert(bid).returning("*");
+        const { id, ...data } = bid;
+        return db("bids").insert(data).returning("*");
+    },
+
+    async countBib(auction_id) {
+        const result = await db("bids")
+            .where("auction_id", auction_id)
+            .count("id as total");
+
+        return Number(result[0].total);
+    },
+
+    async countBidOfBidder(auction_id, bidder_id) {
+        const result = await db("bids")
+            .where({
+                auction_id: auction_id,
+                bidder_id: bidder_id
+            })
+            .count("id as total");
+
+        return Number(result[0].total);
+    },
+
+    getBidders(auction_id) {
+        return db("bids AS b")
+            .join("users AS u", "u.id", "b.bidder_id")
+            .where("b.auction_id", auction_id)
+            .distinct("b.bidder_id", "u.*");
     },
 
     getHighestBidder(auction_id) {
@@ -35,6 +62,15 @@ const bidModel = {
             .where("b.bidder_id", user_id)
             .select("a.*", "b.max_price as max_price")
             .orderBy("b.created_at", "desc")
+    },
+
+    deleteBib(bidder_id, auction_id) {
+        return db("bids")
+            .where({
+                bidder_id: bidder_id,
+                auction_id: auction_id
+            })
+            .del();
     }
 }
 

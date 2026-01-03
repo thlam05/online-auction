@@ -14,6 +14,7 @@ router.get("/:id", auctionController.getAuctionsById);
 router.get("/edit/:id", ensureAuthenticated, isSeller, auctionController.getEditAuctions);
 router.post("/:id/messages", ensureAuthenticated, auctionController.sendMessage);
 router.post("/:id/bids", ensureAuthenticated, auctionController.bidAuctions)
+router.post("/:id/block-bidder", ensureAuthenticated, auctionController.blockBidder);
 router.post("/edit", auctionController.updateDesAuction);
 router.post("/",
     upload.fields([
