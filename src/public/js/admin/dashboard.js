@@ -1,43 +1,42 @@
 import { setupPagination, setupSearch, setupFilters } from '../shared/pagination.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-
     setupPagination(
         'categories-table-body',
         'categories-pagination',
-        '/admin-dashboard/categories/data',
+        '/admin/categories/data',
         null,
         'blue'
     );
-    setupSearch('search-categories', 'categories-table-body', '/admin-dashboard/categories/data');
+    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data');
 
 
     setupPagination(
         'auctions-table-body',
         'auctions-pagination',
-        '/admin-dashboard/auctions/data',
+        '/admin/auctions/data',
         null,
         'blue'
     );
-    setupSearch('search-auctions', 'auctions-table-body', '/admin-dashboard/auctions/data');
+    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data');
     setupFilters(
         ['filter-auction-category', 'filter-auction-status'],
         'auctions-table-body',
-        '/admin-dashboard/auctions/data'
+        '/admin/auctions/data'
     );
 
 
     setupPagination(
         'users-table-body',
         'users-pagination',
-        '/admin-dashboard/users/data',
+        '/admin/users/data',
         null,
         'blue'
     );
-    setupSearch('search-users', 'users-table-body', '/admin-dashboard/users/data');
+    setupSearch('search-users', 'users-table-body', '/admin/users/data');
     setupFilters(
         ['filter-user-role', 'filter-user-status'],
         'users-table-body',
-        '/admin-dashboard/users/data'
+        '/admin/users/data'
     );
 });
