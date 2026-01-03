@@ -21,7 +21,7 @@ const configEngine = (app) => {
                 const month = String(d.getMonth() + 1).padStart(2, '0');
                 const year = d.getFullYear();
 
-                return `${hours}h:${minutes}m ${day}:${month}:${year}`;
+                return `${hours} giờ ${minutes} phút - ${day}/${month}/${year}`;
             },
             equal: function (a, b) {
                 return a === b;
@@ -35,7 +35,7 @@ const configEngine = (app) => {
                 const now = new Date();
 
                 let diff = end - now;
-                if (diff <= 0) return "It's over.";
+                if (diff <= 0) return "Đã kết thúc";
 
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 diff -= days * 24 * 60 * 60 * 1000;
@@ -48,17 +48,17 @@ const configEngine = (app) => {
                 const parts = [];
 
                 if (days > 0) {
-                    parts.push(`${days}d`);
-                    if (hours > 0) parts.push(`${hours}h`);
-                    if (minutes > 0) parts.push(`${minutes}m`);
+                    parts.push(`${days} ngày`);
+                    if (hours > 0) parts.push(`${hours} giờ`);
+                    if (minutes > 0) parts.push(`${minutes} phút`);
                     return parts.join(" ");
                 }
 
-                if (hours >= 0) parts.push(`${hours}h`);
-                if (minutes >= 0) parts.push(`${minutes}m`);
-                parts.push(`${seconds} s`);
+                if (hours >= 0) parts.push(`${hours} giờ`);
+                if (minutes >= 0) parts.push(`${minutes} phút`);
+                parts.push(`${seconds} giây`);
 
-                return parts.join(": ");
+                return parts.join(" ");
             },
             formatNumber: function (n) {
                 if (!n) return "0";

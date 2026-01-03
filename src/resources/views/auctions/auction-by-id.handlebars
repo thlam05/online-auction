@@ -90,10 +90,14 @@
         function updateBidButtonState() {
             if (isAuctionOver()) {
                 placeBidButton.disabled = true;
-                placeBidButton.textContent = "Auction is over";
+                placeBidButton.textContent = "Đã kết thúc";
+                placeBidButton.classList.remove('bg-primary-500', 'hover:bg-primary-600');
+                placeBidButton.classList.add('bg-gray-400', 'cursor-not-allowed');
             } else {
                 placeBidButton.disabled = false;
-                placeBidButton.textContent = "Place bid";
+                placeBidButton.textContent = "Đặt giá";
+                placeBidButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                placeBidButton.classList.add('bg-primary-500', 'hover:bg-primary-600');
             }
         }
     }

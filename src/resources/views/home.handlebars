@@ -17,15 +17,15 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            let str = `${days}d ${hours}h ${minutes}m`;
+            let str = `${days} ngày ${hours} giờ ${minutes} phút`;
             return str;
         }
 
         // <= 1 ngày -> hiển thị giây
         let str = "";
-        if (hours > 0) str += `${hours}h `;
-        if (minutes > 0) str += `${minutes}m `;
-        str += `${seconds}s`;
+        if (hours > 0) str += `${hours} giờ `;
+        if (minutes > 0) str += `${minutes} phút `;
+        str += `${seconds} giây`;
 
         return str.trim();
     }
