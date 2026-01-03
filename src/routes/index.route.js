@@ -7,7 +7,7 @@ import WatchListRouter from "./watch-list.route.js";
 import AdminRouter from "./admin.route.js";
 import { ensureAuthenticated, isAdmin } from "../middlewares/authenticate.js";
 
-function route(app) {
+const route = (app) => {
     app.use("/", HomeRouter);
     app.use("/home", HomeRouter);
     app.use("/auth", AuthRouter);

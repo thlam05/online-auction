@@ -1,7 +1,7 @@
 import { engine } from "express-handlebars";
 import expressHandlebarsSections from "express-handlebars-sections";
 
-function configEngine(app) {
+const configEngine = (app) => {
     app.engine("handlebars", engine({
         defaultLayout: "main",
         layoutsDir: "src/resources/views/layouts",

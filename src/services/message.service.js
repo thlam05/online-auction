@@ -20,7 +20,7 @@ const messageService = {
             await messageModel.getAllByAuctionId(auction_id);
 
         await Promise.all(
-            messages.map(async function (message) {
+            messages.map(async (message) => {
                 const replyMessages = await messageModel.getMessageLevel2(message.id);
                 message.replyMessages = replyMessages;
             })

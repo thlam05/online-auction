@@ -10,7 +10,7 @@ const userRatingService = {
     async getListRatedUser(user_id) {
         const list = await userRatingModel.getListRatedById(user_id);
 
-        const result = list.map(function (item) {
+        const result = list.map((item) => {
             return item.rated_id;
         })
 
@@ -20,7 +20,7 @@ const userRatingService = {
     async getListRatedAuction(user_id) {
         const list = await userRatingModel.getListRatedById(user_id);
 
-        const result = list.map(function (item) {
+        const result = list.map((item) => {
             return item.auction_id;
         })
 
@@ -32,7 +32,7 @@ const userRatingService = {
 
         let count = 0;
 
-        listReviews.forEach(function (item) {
+        listReviews.forEach((item) => {
             if (item.rating == '1') {
                 count += 1;
             }

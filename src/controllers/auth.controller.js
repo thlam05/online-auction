@@ -77,7 +77,7 @@ class AuthController {
     // POST - /auth/logout
     logout(req, res, next) {
         try {
-            req.logout(function (err) {
+            req.logout((err) => {
                 if (err) { return next(err); }
                 res.redirect('/');
             });

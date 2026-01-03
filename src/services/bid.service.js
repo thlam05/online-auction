@@ -31,7 +31,7 @@ const bidService = {
     async getBidsByUserId(user_id) {
         const auctions = await bidModel.getBidByUserId(user_id);
         await Promise.all(
-            auctions.map(async function (auction) {
+            auctions.map(async (auction) => {
                 const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
                 auction.mainImage = mainImage;
             })

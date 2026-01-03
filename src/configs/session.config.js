@@ -4,7 +4,7 @@ import db from "./db.config.js";
 import config from "./config.js";
 import passport from "passport";
 
-function configSession(app) {
+const configSession = (app) => {
     app.use(session({
         store: new ConnectSessionKnexStore({
             knex: db,
