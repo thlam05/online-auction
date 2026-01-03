@@ -15,7 +15,7 @@
 
 ### 1. Clone repo
 ```bash
-git clone https://github.com/yourusername/online-auction.git
+git clone https://github.com/thlam05/online-auction.git
 cd online-auction
 ```
 
@@ -34,6 +34,13 @@ npm run dev
 Truy cập: [http://localhost:3000](http://localhost:3000)
 
 ---
+
+## Dump account để test:
+```
+1. Admin:
+Email: admin@bidhub
+Password: 123
+```
 
 ## Thông tin thành viên nhóm
 
