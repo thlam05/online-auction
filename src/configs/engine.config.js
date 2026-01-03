@@ -155,6 +155,16 @@ const configEngine = (app) => {
             },
             showTagsInCard(pageName) {
                 return pageName === 'all-auctions';
+            },
+            substring(str, start, end) {
+                if (!str) return "";
+                return str.substring(start, end);
+            },
+            greater(a, b) {
+                return a > b;
+            },
+            less(a, b) {
+                return a < b;
             }
         }
     }));

@@ -1,3 +1,4 @@
+import auctionBlockModel from "../models/auction-block.model.js";
 import auctionImageModel from "../models/auction-image.model.js";
 import auctionModel from "../models/auction.model.js";
 import bidModel from "../models/bid.model.js";
@@ -145,7 +146,11 @@ const auctionService = {
     },
 
     async getAuctionByQuery(q, limit, offset, sort) {
-        const tsquery = q.trim().split(/\s+/).join("|");
+        const tsquery = q.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D")
+            .trim().split(/\s+/).join("|");
         let sortQuery = ["end_at", "decs"];
         if (sort) {
             sortQuery = sort.trim().split(/-+/);
