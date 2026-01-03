@@ -383,7 +383,7 @@
         border-color: var(--color-foreground);
     }
 
-    /* ==================== BADGES ==================== */
+
 
     .badge {
         display: inline-flex;
@@ -876,43 +876,40 @@
         font-size: 0.875rem;
         color: var(--color-muted-foreground);
     }
-}
 
-/* ==================== PRELINE OVERLAY ANIMATIONS ==================== */
-/* Modal animations (admin modals) */
-.hs-overlay {
-    pointer-events: none;
-}
+    /* ==================== PRELINE COMPATIBILITY FOR TAILWIND V4 ==================== */
 
-.hs-overlay.hidden {
-    display: block !important;
-}
+    /* Overlay/Modal animations */
+    .hs-overlay-backdrop {
+        background-color: rgba(17, 24, 39, 0.5);
+        backdrop-filter: blur(2px);
+    }
 
-.hs-overlay.open,
-.hs-overlay.hs-overlay-open {
-    pointer-events: auto;
-}
+    .hs-overlay-animation-target {
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
+    }
 
-.hs-overlay .hs-overlay-backdrop {
-    opacity: 0;
-    transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .hs-overlay.open .hs-overlay-animation-target,
+    .hs-overlay.hs-overlay-open .hs-overlay-animation-target {
+        opacity: 1;
+        transform: scale(1);
+    }
 
-.hs-overlay.open .hs-overlay-backdrop,
-.hs-overlay.hs-overlay-open .hs-overlay-backdrop {
-    opacity: 1;
-}
+    /* Dropdown animations and states */
+    .hs-dropdown-menu {
+        opacity: 0;
+        transition: opacity 150ms ease-in-out, margin 150ms ease-in-out;
+    }
 
-.hs-overlay .hs-overlay-dialog {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
-        transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .hs-dropdown.open .hs-dropdown-menu {
+        opacity: 1;
+    }
 
-.hs-overlay.open .hs-overlay-dialog,
-.hs-overlay.hs-overlay-open .hs-overlay-dialog {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
+    /* Dropdown toggle icon rotation */
+    .hs-dropdown.open .hs-dropdown-toggle svg.rotate-on-open,
+    .hs-dropdown.open .hs-dropdown-toggle .rotate-on-open {
+        transform: rotate(180deg);
+    }
 }

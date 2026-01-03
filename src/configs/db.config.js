@@ -10,7 +10,12 @@ const db = knex({
         password: config.databasePassword,
         database: config.databaseName
     },
-    pool: { min: 0, max: 7 }
+    pool: {
+        min: 2,
+        max: 20,
+        acquireTimeoutMillis: 30000,
+        idleTimeoutMillis: 30000
+    }
 });
 
 export default db;

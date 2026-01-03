@@ -125,7 +125,7 @@ document.addEventListener('click', async (e) => {
         // Show loading
         content.innerHTML = `
             <div class="flex items-center justify-center py-8">
-                <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent text-cyan-600 rounded-full" role="status" aria-label="loading"></div>
+                <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full" style="color: #1447e6"></div>
             </div>
         `;
 
@@ -138,22 +138,22 @@ document.addEventListener('click', async (e) => {
                 const createdAt = new Date(category.created_at).toLocaleString('vi-VN');
 
                 content.innerHTML = `
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tên danh mục</label>
-                            <p class="text-sm text-gray-900">${category.name}</p>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Tên danh mục</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-900 px-3 py-1.5 rounded-md">${category.name}</span>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                            <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${category.slug}</code>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Slug</label>
+                            <code class="inline-block text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md font-mono">${category.slug}</code>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục cha</label>
-                            <p class="text-sm text-gray-900">${category.parent_category ? category.parent_category.name : '<span class="text-gray-400">— Không có</span>'}</p>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Danh mục cha</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${category.parent_category ? category.parent_category.name : 'Không có'}</span>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Ngày tạo</label>
-                            <p class="text-sm text-gray-900">${createdAt}</p>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Ngày tạo</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${createdAt}</span>
                         </div>
                     </div>
                 `;

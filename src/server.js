@@ -7,6 +7,7 @@ import passport from "passport";
 import cookieParser from "cookie-parser";
 import { authenticate } from "./middlewares/authenticate.js";
 import { errorHandler, errorNotFoundHandler } from "./middlewares/error-handler.js";
+import db from "./configs/db.config.js";
 
 const app = express();
 const port = config.port;
@@ -29,6 +30,30 @@ route(app);
 app.use(errorHandler);
 app.use(errorNotFoundHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);
 });
+
+const shutdown = async (signal) => {
+    console.log(`\n${signal} signal received: closing HTTP server`);
+    server.close(async () => {
+        console.log('HTTP server closed');
+        try {
+            await db.destroy();
+            console.log('Database connections closed');
+            process.exit(0);
+        } catch (err) {
+            console.error('Error during shutdown:', err);
+            process.exit(1);
+        }
+    });
+
+    setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 10000);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGUSR2', () => shutdown('SIGUSR2'));

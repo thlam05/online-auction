@@ -66,14 +66,14 @@
                             {{/if}}
                         </div>
                         <span class="text-sm font-medium">{{authUser.username}}</span>
-                        <svg class="w-4 h-4 text-muted-foreground hs-dropdown-open:rotate-180 transition-transform"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-muted-foreground rotate-on-open transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
 
                     <div
-                        class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 divide-y divide-gray-200">
+                        class="hs-dropdown-menu transition-[opacity,margin] duration-150 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 divide-y divide-gray-200">
                         <div class="px-3 py-2">
                             <p class="text-xs text-muted-foreground">Đăng nhập với</p>
                             <p class="text-sm font-medium text-foreground truncate">{{authUser.email}}</p>

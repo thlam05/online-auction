@@ -14,7 +14,9 @@ const configSession = (app) => {
     app.use(session({
         store: new ConnectSessionKnexStore({
             knex: db,
-            tablename: "sessions"
+            tablename: "sessions",
+            createtable: false,
+            clearInterval: 60000
         }),
         secret: config.sessionSecretKey,
         resave: false,
