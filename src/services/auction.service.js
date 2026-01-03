@@ -184,6 +184,20 @@ const auctionService = {
         return auctions || [];
     },
 
+    async handleBlockBidder(auctionBlock) {
+        await auctionBlockModel.createOne(auctionBlock);
+
+        await bidModel.deleteBib(auctionBlock.user_id, auctionBlock.auction_id);
+
+        const highestBidder = await bidModel.getHighestBidder(auctionBlock.auction_id);
+        const auction = await auctionModel.getAuctionById(auctionBlock.auction_id);
+
+        auction.current_price = highestBidder
+            ? highestBidder.amount
+            : auction.start_price;
+        auctionModel.update(auction);
+    },
+
     async getSearchSuggestions(query, limit = 5) {
         const auctions = await auctionModel.searchAuctionsByName(query, limit);
         return auctions.map(auction => ({

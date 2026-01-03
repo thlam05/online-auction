@@ -384,6 +384,11 @@ class AuctionController {
             }).join('');
 
             res.json({ html, totalPages, currentPage: +page });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     // POST - /auctions/:id/block-bidder
     async blockBidder(req, res, next) {
         try {
@@ -402,7 +407,6 @@ class AuctionController {
             next(err);
         }
     }
-
 }
 
 export default new AuctionController();
