@@ -53,6 +53,7 @@
         window.location.href = url.toString();
     }
 </script>
+<script type="module" src="/js/user/auctions.js"></script>
 {{/section}}
 
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 py-6">
@@ -106,7 +107,7 @@
         </div>
         {{else}}
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" id="auctions-grid">
             {{#each auctions}}
             {{#if this.isNew}}
             {{set this "badgeType" "primary"}}
@@ -117,31 +118,9 @@
         </div>
 
         <!-- Pagination -->
-        <nav class="flex justify-center">
-            <div class="inline-flex items-center gap-1">
-                <a href="/auctions?limit=6&page={{prevPage}}"
-                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                    </svg>
-                </a>
-                {{#each pageNumbers}}
-                {{#if this.isCurrent}}
-                <a href="/auctions?limit=6&page={{this.value}}"
-                    class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-500 text-white font-medium">{{this.value}}</a>
-                {{else}}
-                <a href="/auctions?limit=6&page={{this.value}}"
-                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition text-gray-700">{{this.value}}</a>
-                {{/if}}
-                {{/each}}
-                <a href="/auctions?limit=6&page={{nextPage}}"
-                    class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-            </div>
+        <nav class="flex items-center justify-center gap-1" id="search-auctions-pagination"
+            data-total-pages="{{totalPages}}" data-current-page="{{currentPage}}" data-search="{{query}}">
+            <!-- Pagination buttons will be rendered by JavaScript -->
         </nav>
         {{/if}}
     </main>

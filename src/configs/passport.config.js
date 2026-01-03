@@ -43,7 +43,7 @@ passport.use(new GoogleStrategy({
 ));
 
 
-passport.use(new LocalStrategy(async function (username, password, done) {
+passport.use(new LocalStrategy(async (username, password, done) => {
     try {
         const { status, message, data } = await authService.signInWithEmail({ signInField: username, password: password });
         if (status === 0) {
@@ -61,14 +61,14 @@ passport.use(new LocalStrategy(async function (username, password, done) {
     }
 }));
 
-passport.serializeUser(async function (user, cb) {
-    process.nextTick(function () {
+passport.serializeUser(async (user, cb) => {
+    process.nextTick(() => {
         cb(null, { id: user.id });
     });
 });
 
-passport.deserializeUser(async function (user, cb) {
-    process.nextTick(async function () {
+passport.deserializeUser(async (user, cb) => {
+    process.nextTick(async () => {
         try {
             const fullUser = await userService.getUserById(user.id);
             return cb(null, fullUser);

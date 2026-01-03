@@ -5,6 +5,12 @@ import { ensureAuthenticated, isSeller } from "../middlewares/authenticate.js"
 
 const router = express.Router();
 
+// AJAX API endpoints for pagination
+router.get("/data", auctionController.getAuctionsData);
+router.get("/category/:category/data", auctionController.getAuctionsByCategoryData);
+router.get("/search/data", auctionController.searchAuctionsData);
+
+// Regular routes
 router.get("/", auctionController.getAllAuctions);
 router.get("/create", ensureAuthenticated, isSeller, auctionController.getCreateAuction);
 router.get("/search", auctionController.searchAuctions);

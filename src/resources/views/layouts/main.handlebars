@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Auction - Sàn Đấu Giá Trực Tuyến</title>
+    <title>BIDHUB - Sàn Đấu Giá Trực Tuyến</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
@@ -22,6 +22,65 @@
 </head>
 
 <body class="bg-gray-50 font-sans antialiased">
+    {{!-- <div id="header">
+        <ul class="nav nav-pills p-2">
+            <li class="container d-flex justify-content-between list-unstyled">
+
+                <ul class="nav d-flex">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/auctions">Auctions</a>
+                    </li>
+                </ul>
+
+                <form action="" method="GET" class="d-flex">
+                    <input type="text" class="form-control me-3" placeholder="Search">
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+
+                <ul class="nav d-flex">
+                    {{#if isAuthenticated}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton1" data-bs-toggle="dropdown">
+                            Hello, {{authUser.username}}!
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li class="nav-item"><a class="dropdown-item" href="/auctions">
+                                    <i class="bi bi-cart pe-2"></i>
+                                    Watch list
+                                </a></li>
+                            <li><a class="dropdown-item" href="/user/profile">
+                                    <i class="bi bi-person pe-2"></i>
+                                    Profile
+                                </a></li>
+                            <li>
+                                <form action="/auth/logout" method="POST" class="">
+                                    <button type="submit" class="dropdown-item"><i
+                                            class="bi bi-box-arrow-right pe-2"></i>
+                                        Log out</button>
+                                </form>
+
+                            </li>
+                        </ul>
+                    </li>
+                    {{else}}
+                    <li class="nav-item border-end border-secondary">
+                        <a class="nav-link" href="/auth/signin">Sign in</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/signup">Sign up</a>
+                    </li>
+                    {{/if}}
+                </ul>
+
+            </li>
+        </ul>
+    </div> --}}
     {{> header}}
 
     <main id="content" class="min-h-screen">

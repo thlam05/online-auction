@@ -9,7 +9,7 @@ import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import auctionBlockModel from "../models/auction-block.model.js";
 
-function getPaginationData(count, page, limit) {
+const getPaginationData = (count, page, limit) => {
     const nPages = Math.ceil(+count / limit);
     const pageNumbers = [];
     for (let i = 1; i <= nPages; i++) {
@@ -286,6 +286,104 @@ class AuctionController {
         }
     }
 
+    // AJAX API - GET /auctions/data
+    async getAuctionsData(req, res, next) {
+        try {
+            const limit = req.query.limit || 6;
+            const page = req.query.page || 1;
+            const offset = (page - 1) * limit;
+            const search = req.query.search || '';
+
+            let auctions;
+            let count;
+
+            if (search) {
+                // Search functionality
+                const result = await auctionModel.searchAuctions(search, limit, offset);
+                auctions = result.auctions;
+                count = result.count;
+            } else {
+                auctions = await auctionService.getAuctions(limit, offset);
+                const countResult = await auctionModel.countAllAuctions();
+                count = countResult.count;
+            }
+
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+                auction.showTags = true;
+            });
+
+            const totalPages = Math.ceil(+count / limit);
+
+            // Render product cards HTML
+            const html = auctions.map(auction => {
+                return `<!-- Product card HTML would go here -->`;
+            }).join('');
+
+            res.json({ html, totalPages, currentPage: +page });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // AJAX API - GET /auctions/category/:category/data
+    async getAuctionsByCategoryData(req, res, next) {
+        try {
+            const { category } = req.params;
+            const limit = req.query.limit || 6;
+            const page = req.query.page || 1;
+            const offset = (page - 1) * limit;
+
+            const curCategory = await categoryModel.findCategoryBySlug(category);
+            if (!curCategory) {
+                return res.status(404).json({ error: 'Category not found' });
+            }
+
+            const { count } = await auctionModel.countByCategoryID(curCategory.id);
+            const auctions = await auctionService.getAuctionsByCategoryID(curCategory.id, limit, offset);
+
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+                auction.showTags = true;
+            });
+
+            const totalPages = Math.ceil(+count / limit);
+
+            const html = auctions.map(auction => {
+                return `<!-- Product card HTML would go here -->`;
+            }).join('');
+
+            res.json({ html, totalPages, currentPage: +page });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // AJAX API - GET /auctions/search/data
+    async searchAuctionsData(req, res, next) {
+        try {
+            const query = req.query.q || req.query.search || '';
+            const limit = req.query.limit || 6;
+            const page = req.query.page || 1;
+            const offset = (page - 1) * limit;
+
+            const { auctions, count } = await auctionModel.searchAuctions(query, limit, offset);
+
+            auctions.forEach(auction => {
+                auction.showBidder = true;
+                auction.showDate = true;
+                auction.showTags = true;
+            });
+
+            const totalPages = Math.ceil(+count / limit);
+
+            const html = auctions.map(auction => {
+                return `<!-- Product card HTML would go here -->`;
+            }).join('');
+
+            res.json({ html, totalPages, currentPage: +page });
     // POST - /auctions/:id/block-bidder
     async blockBidder(req, res, next) {
         try {

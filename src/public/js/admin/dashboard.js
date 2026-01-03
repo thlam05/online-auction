@@ -1,0 +1,205 @@
+import { setupPagination, setupSearch, setupFilters } from '../shared/pagination.js';
+
+// Utility function to create action dropdown
+const createActionDropdown = (buttons) => {
+    const buttonsHtml = buttons.map(btn => `
+        <button type="button" 
+            class="${btn.className || 'w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors'}"
+            ${btn.attributes || ''}>
+            ${btn.text}
+        </button>
+    `).join('');
+
+    return `
+        <div class="hs-dropdown relative inline-flex mx-auto">
+            <button type="button" class="hs-dropdown-toggle p-2 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                    <circle cx="2" cy="8" r="1.5"/>
+                    <circle cx="8" cy="8" r="1.5"/>
+                    <circle cx="14" cy="8" r="1.5"/>
+                </svg>
+            </button>
+            <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-48 bg-white shadow-lg rounded-lg p-1 mt-2 border border-gray-200">
+                ${buttonsHtml}
+            </div>
+        </div>
+    `;
+};
+
+const renderCategoriesTable = (categories) => {
+    if (!categories || categories.length === 0) {
+        return `
+            <tr>
+                <td colspan="4" class="px-6 py-12 text-center">
+                    <p class="text-gray-500">Chưa có danh mục nào</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    return categories.map(category => {
+        const prefix = category.level > 0 ? '<span class="text-gray-400">└─ </span>' : '';
+        const indent = '\u00a0\u00a0\u00a0\u00a0'.repeat(category.level || 0);
+
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <span class="text-sm font-medium text-gray-900">${prefix}${indent}${category.name}</span>
+                </td>
+                <td class="ps-12 pe-6 py-4 text-sm text-gray-500">
+                    ${category.parent_category ? category.parent_category.name : '<span class="text-gray-400">\u2014</span>'}
+                </td>
+                <td class="ps-12 pe-6 py-4">
+                    <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${category.slug}</code>
+                </td>
+                <td class="px-6 py-4 text-sm text-center">
+                    ${createActionDropdown([
+            {
+                text: 'Xem chi tiết',
+                className: 'view-category w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-id="${category.id}" data-hs-overlay="#modal-view-category"`
+            },
+            {
+                text: 'Xóa',
+                className: 'delete-category w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-id="${category.id}"`
+            }
+        ])}
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupPagination(
+        'categories-table-body',
+        'categories-pagination',
+        '/admin/categories/data',
+        renderCategoriesTable,
+        'blue'
+    );
+    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data');
+
+    setupPagination(
+        'auctions-table-body',
+        'auctions-pagination',
+        '/admin/auctions/data',
+        null,
+        'blue'
+    );
+    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data');
+    setupFilters(
+        ['filter-auction-category', 'filter-auction-status'],
+        'auctions-table-body',
+        '/admin/auctions/data'
+    );
+
+    setupPagination(
+        'users-table-body',
+        'users-pagination',
+        '/admin/users/data',
+        null,
+        'blue'
+    );
+    setupSearch('search-users', 'users-table-body', '/admin/users/data');
+    setupFilters(
+        ['filter-user-role', 'filter-user-status'],
+        'users-table-body',
+        '/admin/users/data'
+    );
+});
+
+// Handle click events using event delegation
+document.addEventListener('click', async (e) => {
+    // View category detail - fetch data when modal opens
+    if (e.target.classList.contains('view-category')) {
+        const categoryId = e.target.dataset.id;
+        const content = document.getElementById('category-detail-content');
+
+        if (!content) {
+            console.error('Content element not found');
+            return;
+        }
+
+        // Show loading
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full" style="color: #1447e6"></div>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/admin/categories/${categoryId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const category = data.category;
+                const createdAt = new Date(category.created_at).toLocaleString('vi-VN');
+
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Tên danh mục</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-900 px-3 py-1.5 rounded-md">${category.name}</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Slug</label>
+                            <code class="inline-block text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md font-mono">${category.slug}</code>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Danh mục cha</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${category.parent_category ? category.parent_category.name : 'Không có'}</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Ngày tạo</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${createdAt}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="text-center py-4 text-red-600">
+                        Không thể tải thông tin danh mục
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error fetching category detail:', error);
+            content.innerHTML = `
+                <div class="text-center py-4 text-red-600">
+                    Đã xảy ra lỗi khi tải thông tin
+                </div>
+            `;
+        }
+    }
+
+    // Delete category
+    if (e.target.classList.contains('delete-category')) {
+        const categoryId = e.target.dataset.id;
+
+        if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/categories/${categoryId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert(result.error || 'Không thể xóa danh mục');
+            }
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            alert('Đã xảy ra lỗi khi xóa danh mục');
+        }
+    }
+});

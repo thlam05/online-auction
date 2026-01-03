@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../configs/config.js";
 
-export async function sendOtpEmail(toEmail) {
+export const sendOtpEmail = async (toEmail) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -25,7 +25,7 @@ export async function sendOtpEmail(toEmail) {
 }
 
 
-export async function sendInformMessage(toEmail, auction) {
+export const sendInformMessage = async (toEmail, auction) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {

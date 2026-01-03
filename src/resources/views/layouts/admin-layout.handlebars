@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Admin Dashboard</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <!-- Tailwind CSS Output -->
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline@2.4.1/dist/preline.min.css">
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Admin custom styles - Primary color: #1447e6 -->
+    <style>
+        :root {
+            --admin-primary: #1447e6;
+            --admin-primary-hover: #0f3bbf;
+            --admin-primary-light: #e6eeff;
+        }
+
+        .admin-header {
+            background: var(--admin-primary);
+        }
+
+        .admin-btn-primary {
+            background: var(--admin-primary);
+        }
+
+        .admin-btn-primary:hover {
+            background: var(--admin-primary-hover);
+        }
+    </style>
+
+    {{{_sections.css}}}
+</head>
+
+<body class="bg-gray-50 font-sans antialiased">
+    {{> admin-header}}
+
+    <main id="content" class="min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {{{body}}}
+        </div>
+    </main>
+
+    {{> footer}}
+
+    <!-- Preline JS -->
+    <script src="https://cdn.jsdelivr.net/npm/preline@2.4.1/dist/preline.min.js"></script>
+    <script>
+        window.HSStaticMethods?.autoInit();
+    </script>
+
+    {{{_sections.js}}}
+</body>
+
+</html>

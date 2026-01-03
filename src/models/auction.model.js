@@ -67,7 +67,7 @@ const auctionModel = {
             .where("a.category_id", category_id)
             .select(
                 "a.*",
-                "ai.url as auction_img"
+                db.raw("json_build_object('url', ai.url) as \"mainImage\"")
             )
             .orderBy("a.created_at", "desc")
             .limit(5);

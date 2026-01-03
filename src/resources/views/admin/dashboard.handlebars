@@ -1,0 +1,542 @@
+<!-- Admin Dashboard Content -->
+<div class="py-8">
+    <div class="max-w-7xl mx-auto px-6 space-y-8">
+
+        <!-- ==================== CATEGORIES TABLE ==================== -->
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+            <!-- Table Header with Actions -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-foreground">Quản lý danh mục</h2>
+                        <p class="text-sm text-muted-foreground">Danh sách các danh mục sản phẩm</p>
+                    </div>
+                    <button type="button"
+                        class="py-1.5 px-3 inline-flex items-center gap-x-1.5 text-sm font-medium rounded-md border border-transparent bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        data-hs-overlay="#modal-add-category">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Thêm danh mục
+                    </button>
+                </div>
+                <!-- Search Box -->
+                <div class="relative">
+                    <input type="text" placeholder="Tìm kiếm..."
+                        class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
+                        id="search-categories">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto px-6">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Tên danh mục
+                            </th>
+                            <th scope="col"
+                                class="ps-12 pe-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Danh mục cha
+                            </th>
+                            <th scope="col"
+                                class="ps-12 pe-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Slug
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100" id="categories-table-body">
+                        {{#each categories}}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-medium text-gray-900">{{#if this.level}}<span
+                                        class="text-gray-400">└─ </span>{{#each (range
+                                    this.level)}}&#160;&#160;&#160;&#160;{{/each}}{{/if}}{{this.name}}</span>
+                            </td>
+                            <td class="ps-12 pe-6 py-4 text-sm text-gray-500">
+                                {{#if this.parent_category}}
+                                {{this.parent_category.name}}
+                                {{else}}
+                                <span class="text-gray-400">—</span>
+                                {{/if}}
+                            </td>
+                            <td class="ps-12 pe-6 py-4">
+                                <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{{this.slug}}</code>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-center">
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="view-category w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-id="{{this.id}}" data-hs-overlay="#modal-view-category">
+                                    Xem chi tiết
+                                </button>
+                                <button type="button"
+                                    class="delete-category w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-id="{{this.id}}">
+                                    Xóa
+                                </button>
+                                {{/action-dropdown}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center">
+                                <p class="text-gray-500">Chưa có danh mục nào</p>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200" id="categories-pagination"
+                data-total-pages="{{categoriesPages}}" data-current-page="1">
+                <div class="flex items-center justify-center gap-2">
+                    <!-- Pagination buttons will be rendered by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== AUCTIONS TABLE ==================== -->
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+            <!-- Table Header with Actions -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-foreground">Quản lý sản phẩm đấu giá</h2>
+                        <p class="text-sm text-muted-foreground">Danh sách các sản phẩm đang đấu giá</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <select id="filter-auction-category"
+                                class="appearance-none py-2.5 ps-4 pe-10 w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
+                                <option value="">Tất cả danh mục</option>
+                                {{#each allCategories}}
+                                <option value="{{this.id}}">{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                            <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                                <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="filter-auction-status"
+                                class="appearance-none py-2.5 ps-4 pe-10 w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active">Đang diễn ra</option>
+                                <option value="ended">Đã kết thúc</option>
+                            </select>
+                            <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                                <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Search Box -->
+                <div class="relative">
+                    <input type="text" placeholder="Tìm kiếm..."
+                        class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
+                        id="search-auctions">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto px-6">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Sản phẩm
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Danh mục
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Người bán
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Giá hiện tại
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Trạng thái
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100" id="auctions-table-body">
+                        {{#each auctions}}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{this.main_image}}" alt="{{this.name}}"
+                                        class="w-10 h-10 rounded-md object-cover bg-gray-100">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                                            {{this.name}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{this.category.name}}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{this.seller.username}}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-semibold text-[#1447e6]">{{formatCurrency this.current_price}}
+                                    đ</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{#if this.is_active}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Đang diễn ra
+                                </span>
+                                {{else}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Đã kết thúc
+                                </span>
+                                {{/if}}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-center">
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors">
+                                    Xóa
+                                </button>
+                                {{/action-dropdown}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <p class="text-gray-500">Chưa có sản phẩm đấu giá nào</p>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200" id="auctions-pagination"
+                data-total-pages="{{auctionsPages}}" data-current-page="1">
+                <div class="flex items-center justify-center gap-2">
+                    <!-- Pagination buttons will be rendered by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== USERS TABLE ==================== -->
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+            <!-- Table Header with Actions -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-foreground">Quản lý người dùng</h2>
+                        <p class="text-sm text-muted-foreground">Danh sách người dùng và yêu cầu nâng cấp</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <select id="filter-user-role"
+                                class="appearance-none py-2.5 ps-4 pe-10 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
+                                <option value="">Tất cả vai trò</option>
+                                <option value="0">Bidder</option>
+                                <option value="1">Seller</option>
+                                <option value="2">Admin</option>
+                            </select>
+                            <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                                <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <select id="filter-user-status"
+                                class="appearance-none py-2.5 ps-4 pe-10 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="pending">Chờ duyệt nâng cấp</option>
+                                <option value="approved">Đã duyệt</option>
+                                <option value="rejected">Đã từ chối</option>
+                            </select>
+                            <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
+                                <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Search Box -->
+                <div class="relative">
+                    <input type="text" placeholder="Tìm kiếm..."
+                        class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
+                        id="search-users">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto px-6">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Người dùng
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Vai trò
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                Trạng thái nâng cấp
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100" id="users-table-body">
+                        {{#each users}}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar avatar-sm bg-[#1447e6]/10 text-[#1447e6]">
+                                        {{substring this.username 0 1}}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{this.username}}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{this.email}}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{#if (eq this.permission 2)}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    Admin
+                                </span>
+                                {{else if (eq this.permission 1)}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Seller
+                                </span>
+                                {{else}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Bidder
+                                </span>
+                                {{/if}}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{#if (eq this.upgrade_status "pending")}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3" />
+                                    </svg>
+                                    Chờ duyệt
+                                </span>
+                                {{else if (eq this.upgrade_status "approved")}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Đã duyệt
+                                </span>
+                                {{else if (eq this.upgrade_status "rejected")}}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Đã từ chối
+                                </span>
+                                {{else}}
+                                <span class="text-gray-400 text-sm">—</span>
+                                {{/if}}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-center">
+                                {{#if (eq this.upgrade_status "pending")}}
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}" data-action="approve">
+                                    Duyệt
+                                </button>
+                                <button type="button"
+                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}" data-action="reject">
+                                    Từ chối
+                                </button>
+                                {{/action-dropdown}}
+                                {{else}}
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors">
+                                    Xem
+                                </button>
+                                {{/action-dropdown}}
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <p class="text-gray-500">Chưa có người dùng nào</p>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200" id="users-pagination" data-total-pages="{{usersPages}}"
+                data-current-page="1">
+                <div class="flex items-center justify-center gap-2">
+                    <!-- Pagination buttons will be rendered by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal View Category Detail -->
+    <div id="modal-view-category"
+        class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
+        role="dialog" tabindex="-1" aria-labelledby="modal-view-category-label">
+        <div
+            class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-2xl sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+            <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
+                <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                    <h3 id="modal-view-category-label" class="font-bold text-gray-800">Chi tiết danh mục</h3>
+                    <button type="button"
+                        class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                        aria-label="Close" data-hs-overlay="#modal-view-category">
+                        <span class="sr-only">Close</span>
+                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 overflow-y-auto" id="category-detail-content">
+                    <div class="flex items-center justify-center py-8">
+                        <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full"
+                            style="color: #1447e6"></div>
+                    </div>
+                </div>
+                <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                    <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                        data-hs-overlay="#modal-view-category">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Category -->
+    <div id="modal-add-category"
+        class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
+        role="dialog" tabindex="-1" aria-labelledby="modal-add-category-label">
+        <div
+            class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-2xl sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+            <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
+                <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                    <h3 id="modal-add-category-label" class="font-bold text-gray-800">Thêm danh mục mới</h3>
+                    <button type="button"
+                        class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                        aria-label="Close" data-hs-overlay="#modal-add-category">
+                        <span class="sr-only">Close</span>
+                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form action="/admin/categories" method="POST">
+                    <div class="p-4 overflow-y-auto">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="category-name" class="block text-sm font-medium mb-2">Tên danh mục</label>
+                                <input type="text" id="category-name" name="name"
+                                    class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]"
+                                    placeholder="Nhập tên danh mục" required>
+                            </div>
+                            <div>
+                                <label for="category-parent" class="block text-sm font-medium mb-2">Danh mục cha</label>
+                                <select id="category-parent" name="parent_category_id"
+                                    class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]">
+                                    <option value="">Không có (Danh mục gốc)</option>
+                                    {{#each allCategories}}
+                                    <option value="{{this.id}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                        <button type="button"
+                            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                            data-hs-overlay="#modal-add-category">
+                            Hủy
+                        </button>
+                        <button type="submit"
+                            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#1447e6] text-white hover:bg-[#0d2f8c] focus:outline-none focus:bg-[#0d2f8c]">
+                            Thêm danh mục
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/admin/dashboard.js"></script>
