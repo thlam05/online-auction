@@ -6,6 +6,11 @@ const bidModel = {
         return db("bids").insert(data).returning("*");
     },
 
+    createMany(bids) {
+        const cleanBids = bids.map(({ id, ...data }) => data);
+        return db("bids").insert(cleanBids).returning("*");
+    },
+
     async countBib(auction_id) {
         const result = await db("bids")
             .where("auction_id", auction_id)
@@ -53,7 +58,7 @@ const bidModel = {
             .join("users AS u", "u.id", "b.bidder_id")
             .where("b.auction_id", auction_id)
             .select("b.*", "u.username as bidder_name")
-            .orderBy("b.created_at", "desc")
+            .orderBy("b.amount", "desc")
     },
 
     getBidByUserId(user_id) {

@@ -1,10 +1,7 @@
-<!-- Admin Dashboard Content -->
 <div class="py-8">
     <div class="max-w-7xl mx-auto px-6 space-y-8">
 
-        <!-- ==================== CATEGORIES TABLE ==================== -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <!-- Table Header with Actions -->
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -20,7 +17,6 @@
                         Thêm danh mục
                     </button>
                 </div>
-                <!-- Search Box -->
                 <div class="relative">
                     <input type="text" placeholder="Tìm kiếm..."
                         class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
@@ -33,7 +29,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="overflow-x-auto px-6">
                 <table class="min-w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
@@ -99,18 +94,14 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200" id="categories-pagination"
                 data-total-pages="{{categoriesPages}}" data-current-page="1">
                 <div class="flex items-center justify-center gap-2">
-                    <!-- Pagination buttons will be rendered by JavaScript -->
                 </div>
             </div>
         </div>
 
-        <!-- ==================== AUCTIONS TABLE ==================== -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <!-- Table Header with Actions -->
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -151,7 +142,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Search Box -->
                 <div class="relative">
                     <input type="text" placeholder="Tìm kiếm..."
                         class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
@@ -164,7 +154,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="overflow-x-auto px-6">
                 <table class="min-w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
@@ -250,18 +239,14 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200" id="auctions-pagination"
                 data-total-pages="{{auctionsPages}}" data-current-page="1">
                 <div class="flex items-center justify-center gap-2">
-                    <!-- Pagination buttons will be rendered by JavaScript -->
                 </div>
             </div>
         </div>
 
-        <!-- ==================== USERS TABLE ==================== -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <!-- Table Header with Actions -->
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -303,7 +288,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Search Box -->
                 <div class="relative">
                     <input type="text" placeholder="Tìm kiếm..."
                         class="w-full px-4 py-3 pl-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1447e6] focus:ring-1 focus:ring-[#1447e6]"
@@ -316,7 +300,6 @@
                 </div>
             </div>
 
-            <!-- Table -->
             <div class="overflow-x-auto px-6">
                 <table class="min-w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
@@ -432,18 +415,15 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="px-6 py-4 border-t border-gray-200" id="users-pagination" data-total-pages="{{usersPages}}"
                 data-current-page="1">
                 <div class="flex items-center justify-center gap-2">
-                    <!-- Pagination buttons will be rendered by JavaScript -->
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Modal View Category Detail -->
     <div id="modal-view-category"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
         role="dialog" tabindex="-1" aria-labelledby="modal-view-category-label">
@@ -456,7 +436,7 @@
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
                         aria-label="Close" data-hs-overlay="#modal-view-category">
                         <span class="sr-only">Close</span>
-                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        <svg class="shrink-0 size-4" width="24" height="24"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 6 6 18"></path>
@@ -481,7 +461,6 @@
         </div>
     </div>
 
-    <!-- Modal Add Category -->
     <div id="modal-add-category"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
         role="dialog" tabindex="-1" aria-labelledby="modal-add-category-label">
@@ -494,7 +473,7 @@
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
                         aria-label="Close" data-hs-overlay="#modal-add-category">
                         <span class="sr-only">Close</span>
-                        <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        <svg class="shrink-0 size-4" width="24" height="24"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 6 6 18"></path>

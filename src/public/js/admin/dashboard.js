@@ -1,6 +1,5 @@
 import { setupPagination, setupSearch, setupFilters } from '../shared/pagination.js';
 
-// Utility function to create action dropdown
 const createActionDropdown = (buttons) => {
     const buttonsHtml = buttons.map(btn => `
         <button type="button" 
@@ -110,9 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 });
 
-// Handle click events using event delegation
 document.addEventListener('click', async (e) => {
-    // View category detail - fetch data when modal opens
     if (e.target.classList.contains('view-category')) {
         const categoryId = e.target.dataset.id;
         const content = document.getElementById('category-detail-content');
@@ -122,7 +119,6 @@ document.addEventListener('click', async (e) => {
             return;
         }
 
-        // Show loading
         content.innerHTML = `
             <div class="flex items-center justify-center py-8">
                 <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full" style="color: #1447e6"></div>
@@ -174,7 +170,6 @@ document.addEventListener('click', async (e) => {
         }
     }
 
-    // Delete category
     if (e.target.classList.contains('delete-category')) {
         const categoryId = e.target.dataset.id;
 

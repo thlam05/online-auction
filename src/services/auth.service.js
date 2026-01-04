@@ -7,7 +7,6 @@ import pendingUserModel from "../models/pending-user.model.js";
 
 const authService = {
     async signInWithEmail(rawData) {
-        // rawData: { signInField, password }
         const user = await userModel.findByEmail(rawData.signInField);
         if (user == undefined) {
             return {
@@ -75,7 +74,6 @@ const authService = {
         if (!user) {
             const userByEmail = await userModel.findByEmail(data.email);
             if (!userByEmail) {
-                // tao moi
                 const userData = {};
                 userData.email = data.email;
                 userData.google_id = data.google_id;
@@ -112,7 +110,6 @@ const authService = {
     },
 
     async signInWithFaceBook(data) {
-        // username, facebook_id
         const user = await userModel.findByFacebookId(data.facebook_id);
         if (!user) {
             const userData = {};

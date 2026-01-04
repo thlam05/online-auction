@@ -31,19 +31,16 @@
 
     if (emailInput) {
         emailInput.addEventListener('input', function () {
-            // Clear previous message
             if (emailMessage) emailMessage.innerText = "";
             emailInput.classList.remove("border-red-500", "border-green-500");
 
             const email = emailInput.value.trim();
 
-            // Basic email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email || !emailRegex.test(email)) {
                 return;
             }
 
-            // Debounce: wait 500ms after user stops typing
             clearTimeout(emailCheckTimeout);
             emailCheckTimeout = setTimeout(async () => {
                 try {
@@ -81,12 +78,10 @@
         });
     }
 
-    // reCAPTCHA v2 - không cần thêm script, widget tự xử lý
 </script>
 {{/section}}
 
 {{#> auth-container navigationLink="/auth/signin" navigationText="Đăng nhập →"}}
-<!-- Header -->
 <div class="text-center space-y-2">
     <h1 class="text-2xl font-semibold tracking-tight">Tạo tài khoản</h1>
     <p class="text-sm text-muted-foreground">Nhập thông tin bên dưới để tạo tài khoản</p>
@@ -102,34 +97,29 @@
 {{/if}}
 
 <form id="signup-form" action="/auth/signup" method="POST" class="space-y-4">
-    <!-- Email -->
     <div class="space-y-2">
         <label for="signup-email" class="text-sm font-medium">Email</label>
         <input type="email" class="form-input" id="signup-email" name="email" value="{{data.email}}"
             placeholder="name@example.com" required>
     </div>
 
-    <!-- Username -->
     <div class="space-y-2">
         <label for="signup-username" class="text-sm font-medium">Họ và tên</label>
         <input type="text" class="form-input" id="signup-username" name="username" value="{{data.username}}"
             placeholder="Nguyễn Văn A" required>
     </div>
 
-    <!-- Address -->
     <div class="space-y-2">
         <label for="signup-address" class="text-sm font-medium">Địa chỉ</label>
         <input type="text" class="form-input" id="signup-address" name="address" value="{{data.address}}"
             placeholder="123 Nguyễn Văn Cừ, Q.5, TP.HCM">
     </div>
 
-    <!-- Birthday -->
     <div class="space-y-2">
         <label for="signup-birthday" class="text-sm font-medium">Ngày sinh</label>
         <input type="date" class="form-input" id="signup-birthday" name="birthday" value="{{data.birthday}}">
     </div>
 
-    <!-- Password -->
     <div class="space-y-2">
         <label for="signup-password" class="text-sm font-medium">Mật khẩu</label>
         <div class="relative">
@@ -147,7 +137,6 @@
         </div>
     </div>
 
-    <!-- Password confirm -->
     <div class="space-y-2">
         <label for="signup-password-confirm" class="text-sm font-medium">Xác nhận mật khẩu</label>
         <div class="relative">
@@ -165,7 +154,6 @@
         </div>
     </div>
 
-    <!-- reCAPTCHA v2 -->
     <div class="flex justify-center">
         <div class="g-recaptcha" data-sitekey="{{RECAPTCHA_SITE_KEY}}"></div>
     </div>
@@ -175,10 +163,8 @@
     </button>
 </form>
 
-<!-- reCAPTCHA v2 -->
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-<!-- Divider -->
 <div class="relative">
     <div class="absolute inset-0 flex items-center">
         <span class="w-full border-t"></span>
@@ -188,7 +174,6 @@
     </div>
 </div>
 
-<!-- Social login -->
 <div class="grid grid-cols-2 gap-3">
     <a href="/auth/google" class="btn-outline h-10">
         <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -212,7 +197,6 @@
     </a>
 </div>
 
-<!-- Terms -->
 <p class="px-8 text-center text-sm text-muted-foreground">
     Bằng việc tiếp tục, bạn đồng ý với
     <a href="#" class="underline underline-offset-4 hover:text-primary-500">Điều khoản dịch vụ</a>

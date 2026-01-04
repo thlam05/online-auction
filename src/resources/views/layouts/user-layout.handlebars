@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tài khoản - BIDHUB</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,12 +21,10 @@
     <div id="content" class="min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 py-8">
-                <!-- Sidebar -->
                 <div class="lg:col-span-1">
                     {{> user-sidebar}}
                 </div>
 
-                <!-- Main Content -->
                 <div class="lg:col-span-3">
                     <div class="bg-white rounded-2xl border border-gray-200 p-6 min-h-[600px]">
                         {{{body}}}
@@ -38,8 +35,12 @@
     </div>
 
     {{> footer}}
+    {{> notification-modal}}
 
     <script src="https://cdn.jsdelivr.net/npm/preline@3/dist/preline.min.js"></script>
+
+    <script src="/js/shared/notification-modal.js"></script>
+
     {{{_sections.js}}}
 </body>
 

@@ -6,7 +6,6 @@ import userRatingService from "../services/user-rating.service.js";
 import userService from "../services/user.service.js";
 
 class UserController {
-    // GET - /user/profile
     getProfileInformation(req, res, next) {
         try {
             res.render("user/profile", {
@@ -17,7 +16,6 @@ class UserController {
         }
     }
 
-    // GET - /user/reviews
     async getReviews(req, res, next) {
         try {
             const id = req.session.passport.user.id
@@ -35,7 +33,6 @@ class UserController {
         }
     }
 
-    // GET - /user/watch-list
     async getWatchList(req, res, next) {
         try {
             const watchlists = await watchListModel.getWatchListByUserId(req.session.passport.user.id);
@@ -48,7 +45,6 @@ class UserController {
         }
     }
 
-    // GET - /user/bids
     async getBids(req, res, next) {
         try {
             const id = req.session.passport.user.id;
@@ -63,7 +59,6 @@ class UserController {
         }
     }
 
-    // PATHC - /user/profile
     async updateProfileInformation(req, res, next) {
         try {
             const { email, username, birthday, address } = req.body;
@@ -99,7 +94,6 @@ class UserController {
     }
 
 
-    // GET - /user/upgrade-seller
     async showUpgrageSeller(req, res, next) {
         try {
             res.render("user/upgradeSeller", {
@@ -111,7 +105,6 @@ class UserController {
     }
 
 
-    // GET - /user/auctions
     async getMyAuctions(req, res, next) {
         try {
             const id = req.session.passport.user.id;
@@ -128,7 +121,6 @@ class UserController {
         }
     }
 
-    // GET - /user/auctions-won
     async getWinAutions(req, res, next) {
         try {
             const id = req.session.passport.user.id;
@@ -146,7 +138,6 @@ class UserController {
         }
     }
 
-    // POST - user/ratings/:id
     async addRating(req, res, next) {
         try {
             const { id } = req.params;

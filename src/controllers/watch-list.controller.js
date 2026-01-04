@@ -1,7 +1,6 @@
 import watchListModel from "../models/watch-list.model.js";
 
 class WatchListController {
-    // POST - /watch-list/del/:id
     async deleteWatchlistItem(req, res, next) {
         try {
             const { id } = req.params;
@@ -12,7 +11,6 @@ class WatchListController {
         }
     }
 
-    // POST - /watch-list/add
     async addWatchListItem(req, res, next) {
         try {
             const { auction_id } = req.body;

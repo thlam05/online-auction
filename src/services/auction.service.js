@@ -8,7 +8,6 @@ import userService from "./user.service.js";
 
 const auctionService = {
     async createOne(data) {
-        // data: {sellerId, categoryId, name, startingPrice, priceStep, costBuyNow, description, duration, mainImage, subImages}
         const auction = {
             seller_id: data.sellerId,
             category_id: data.categoryId,

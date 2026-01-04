@@ -21,7 +21,6 @@
             return str;
         }
 
-        // <= 1 ngày -> hiển thị giây
         let str = "";
         if (hours > 0) str += `${hours} giờ `;
         if (minutes > 0) str += `${minutes} phút `;
@@ -37,7 +36,6 @@
             const diff = end - now;
             element.textContent = formatRemainingTime(diff);
 
-            // Add urgent class when less than 1 hour
             if (diff > 0 && diff < 3600000) {
                 element.classList.add('text-primary-500', 'animate-pulse', 'font-bold');
             }
@@ -49,7 +47,6 @@
 </script>
 {{/section}}
 
-<!-- Hero Banner - Clean design -->
 <section class="relative bg-white border border-border rounded-xl overflow-hidden mb-8">
     <div class="grid md:grid-cols-2 gap-6">
         <div class="px-8 py-10 md:py-14">
@@ -82,7 +79,6 @@
     </div>
 </section>
 
-<!-- Categories Section -->
 <section class="mb-10">
     <div class="flex items-center justify-between mb-6">
         <h2 class="section-title flex items-center gap-2">
@@ -133,7 +129,6 @@
     </div>
 </section>
 
-<!-- Top 5 Ending Soon -->
 <section class="mb-10">
     <div class="flex items-center justify-between mb-6">
         <h2 class="section-title flex items-center gap-2">
@@ -158,7 +153,6 @@
     </div>
 </section>
 
-<!-- Top 5 Most Bids -->
 <section class="mb-10">
     <div class="flex items-center justify-between mb-6">
         <h2 class="section-title flex items-center gap-2">
@@ -185,7 +179,6 @@
     </div>
 </section>
 
-<!-- Top 5 Highest Price -->
 <section class="mb-10">
     <div class="flex items-center justify-between mb-6">
         <h2 class="section-title flex items-center gap-2">

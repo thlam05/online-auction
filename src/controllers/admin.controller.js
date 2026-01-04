@@ -104,7 +104,6 @@ export const getCategoryById = async (req, res) => {
             });
         }
 
-        // Get parent category if exists
         if (category.parent_category_id) {
             const parent = await categoryModel.findById(category.parent_category_id);
             category.parent_category = parent;

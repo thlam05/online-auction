@@ -44,7 +44,6 @@
 
     setInterval(updateRemainingTime, 1000);
 
-    // Delete watchlist with AJAX
     const deleteForms = document.querySelectorAll("form[action*='/watch-list/del/']");
     deleteForms.forEach(form => {
         form.addEventListener("submit", async (e) => {
@@ -62,7 +61,6 @@
                 });
 
                 if (response.ok) {
-                    // Remove item with animation
                     watchlistItem.style.opacity = "0";
                     watchlistItem.style.transform = "translateX(20px)";
                     watchlistItem.style.transition = "all 0.3s ease";
@@ -70,12 +68,10 @@
                     setTimeout(() => {
                         watchlistItem.remove();
 
-                        // Update count
                         const countBadge = document.querySelector(".bg-primary-100");
                         const currentCount = parseInt(countBadge.textContent);
                         countBadge.textContent = `${currentCount - 1} sản phẩm`;
 
-                        // Show empty state if no items left
                         const remainingItems = document.querySelectorAll("form[action*='/watch-list/del/']").length;
                         if (remainingItems === 0) {
                             location.reload();
@@ -92,7 +88,6 @@
 {{/section}}
 
 <div>
-    <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
         <h1 class="text-xl font-semibold text-gray-900">Danh sách theo dõi</h1>
         <span
@@ -101,7 +96,6 @@
         </span>
     </div>
 
-    <!-- Watch List -->
     <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
         {{#each watchlists}}
         <div

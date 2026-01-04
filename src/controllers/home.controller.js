@@ -2,7 +2,6 @@ import categoryModel from "../models/category.model.js";
 import auctionService from "../services/auction.service.js";
 
 class HomeController {
-    // GET - /
     async getHomePage(req, res, next) {
         try {
             const [

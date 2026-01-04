@@ -1,7 +1,6 @@
 
 
 class BidController {
-    // POST - /bids
     async createBib(req, res, next) {
         try {
             res.json({ message: "test" });

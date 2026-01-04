@@ -6,20 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} - Admin Dashboard</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 
-    <!-- Tailwind CSS Output -->
     <link rel="stylesheet" href="/css/output.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline@2.4.1/dist/preline.min.css">
 
-    <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- Admin custom styles - Primary color: #1447e6 -->
     <style>
         :root {
             --admin-primary: #1447e6;
@@ -54,11 +50,14 @@
 
     {{> footer}}
 
-    <!-- Preline JS -->
+    {{> notification-modal}}
+
     <script src="https://cdn.jsdelivr.net/npm/preline@2.4.1/dist/preline.min.js"></script>
     <script>
         window.HSStaticMethods?.autoInit();
     </script>
+
+    <script src="/js/shared/notification-modal.js"></script>
 
     {{{_sections.js}}}
 </body>

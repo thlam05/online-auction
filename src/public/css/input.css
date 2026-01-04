@@ -877,9 +877,9 @@
         color: var(--color-muted-foreground);
     }
 
-    /* ==================== PRELINE COMPATIBILITY FOR TAILWIND V4 ==================== */
+    
 
-    /* Overlay/Modal animations */
+    
     .hs-overlay-backdrop {
         background-color: rgba(17, 24, 39, 0.5);
         backdrop-filter: blur(2px);
@@ -897,7 +897,7 @@
         transform: scale(1);
     }
 
-    /* Dropdown animations and states */
+    
     .hs-dropdown-menu {
         opacity: 0;
         transition: opacity 150ms ease-in-out, margin 150ms ease-in-out;
@@ -907,7 +907,7 @@
         opacity: 1;
     }
 
-    /* Dropdown toggle icon rotation */
+    
     .hs-dropdown.open .hs-dropdown-toggle svg.rotate-on-open,
     .hs-dropdown.open .hs-dropdown-toggle .rotate-on-open {
         transform: rotate(180deg);

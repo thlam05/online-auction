@@ -40,7 +40,6 @@ class AuctionController {
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
 
-            // Add display flags for product card
             auctions.forEach(auction => {
                 auction.showBidder = true;
                 auction.showDate = true;
@@ -71,7 +70,6 @@ class AuctionController {
 
             const empty = auctions.length == 0;
 
-            // Add display flags for product card
             auctions.forEach(auction => {
                 auction.showBidder = true;
                 auction.showDate = true;
@@ -235,26 +233,60 @@ class AuctionController {
     async bidAuctions(req, res, next) {
         try {
             const { id } = req.params;
-            const { max_price } = req.body;
+            const { max_price, expected_price } = req.body;
             const bidder_id = req.session.passport.user.id;
 
-            const data = { auction_id: id, max_price, bidder_id };
-            const bid = await bidService.createBid(data);
+            const data = { auction_id: id, max_price: Number(max_price), bidder_id };
+            const expectedCurrentPrice = expected_price ? Number(expected_price) : null;
 
-            // Get updated auction info
-            const auction = await auctionModel.findById(id);
+            const result = await bidService.createBid(data, expectedCurrentPrice);
 
-            // Return JSON for AJAX
+            if (!result.success) {
+                const highestBidder = await bidModel.getHighestBidder(id);
+                const latestBids = await bidModel.getBidHistory(id);
+                const recentBids = latestBids.slice(0, 10).map(bid => ({
+                    amount: bid.amount,
+                    created_at: bid.created_at,
+                    bidder_name: bid.bidder_name
+                }));
+
+                return res.json({
+                    success: false,
+                    error: result.error,
+                    message: result.message,
+                    auction: {
+                        current_price: result.currentPrice,
+                        highest_bidder: highestBidder ? {
+                            username: highestBidder.username,
+                            rating: highestBidder.rating
+                        } : null
+                    },
+                    newBids: recentBids
+                });
+            }
+
+            const highestBidder = await bidModel.getHighestBidder(id);
+
+            const newBidsForHistory = result.newBids.map(b => ({
+                amount: b.amount,
+                created_at: b.created_at,
+                bidder_name: b.bidder_id === bidder_id
+                    ? req.session.passport.user.username
+                    : (highestBidder ? highestBidder.username : 'Unknown')
+            }));
+
             return res.json({
                 success: true,
-                bid: {
-                    current_price: auction.current_price,
-                    highest_bidder: auction.highestBidder ? {
-                        username: auction.highestBidder.username,
-                        rating: auction.highestBidder.rating
+                message: "Đặt giá thành công!",
+                auction: {
+                    current_price: result.currentPrice,
+                    end_at: result.auction.end_at,
+                    highest_bidder: highestBidder ? {
+                        username: highestBidder.username,
+                        rating: highestBidder.rating
                     } : null
                 },
-                message: "Đặt giá thành công!"
+                newBids: newBidsForHistory
             });
         } catch (err) {
             next(err);

@@ -7,7 +7,6 @@ import config from "../configs/config.js";
 
 const userService = {
     async updateProfileInformation(user, rawData) {
-        // rawData: { username, email, address }
         if (user.username === rawData.username && user.email === rawData.email && user.address === rawData.address && user.birthday === rawData.birthday) {
             return {
                 status: 1,

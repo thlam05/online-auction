@@ -1,4 +1,5 @@
 {{#section "js"}}
+<script src="/js/shared/currency-formatter.js"></script>
 <script>
     const remaininTimes = document.querySelector(".remaining-time");
 
@@ -58,33 +59,177 @@
         return end <= now;
     }
 
+    function formatNumberVN(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function maskName(name) {
+        if (!name || name.length <= 4) return name;
+        return '****' + name.slice(-4);
+    }
+
+    function formatDateVN(dateStr) {
+        const d = new Date(dateStr);
+        const hours = d.getHours().toString().padStart(2, '0');
+        const mins = d.getMinutes().toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        return `${hours} giờ ${mins} phút - ${day}/${month}/${year}`;
+    }
+
     const auctionCurPriceElement = document.querySelector(".auction-current-price");
     const auctionBidStepElement = document.querySelector(".auction-bid-step");
+    const highestBidderNameElement = document.querySelector(".highest-bidder-name");
+    const bidHistoryBody = document.querySelector('[data-tab-panel="history"] tbody');
 
-    const auctionCurPrice = extractNumber(auctionCurPriceElement.innerText);
+    let auctionCurPrice = extractNumber(auctionCurPriceElement.innerText);
     const auctionBidStep = extractNumber(auctionBidStepElement.innerText);
+
+    function updateAuctionUI(data) {
+        auctionCurPrice = data.auction.current_price;
+        auctionCurPriceElement.innerHTML = formatNumberVN(data.auction.current_price) + '<sup class="text-xs">đ</sup>';
+
+        if (data.auction.highest_bidder) {
+            highestBidderNameElement.textContent = data.auction.highest_bidder.username;
+        }
+
+        if (data.auction.end_at) {
+            remaininTimes.setAttribute("data-end-time", data.auction.end_at);
+        }
+    }
+
+    function addBidsToHistory(newBids, replace = false) {
+        if (!bidHistoryBody || !newBids || newBids.length === 0) return;
+
+        const emptyRow = bidHistoryBody.querySelector('td[colspan="3"]');
+        if (emptyRow) {
+            emptyRow.closest('tr').remove();
+        }
+
+        if (replace) {
+            while (bidHistoryBody.firstChild) {
+                bidHistoryBody.removeChild(bidHistoryBody.firstChild);
+            }
+        }
+
+        newBids.forEach((bid, index) => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 transition';
+            tr.style.opacity = '0';
+            tr.style.transform = 'translateY(-10px)';
+            tr.style.transition = 'all 0.3s ease';
+            tr.innerHTML = `
+                <td class="px-6 py-4 text-sm text-gray-600">${formatDateVN(bid.created_at)}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">${maskName(bid.bidder_name)}</td>
+                <td class="px-6 py-4 text-sm font-bold text-primary-500 text-right">${formatNumberVN(bid.amount)} ₫</td>
+            `;
+
+            if (replace) {
+                bidHistoryBody.appendChild(tr);
+            } else {
+                bidHistoryBody.insertBefore(tr, bidHistoryBody.firstChild);
+            }
+
+            setTimeout(() => {
+                tr.style.opacity = '1';
+                tr.style.transform = 'translateY(0)';
+            }, replace ? index * 50 : 10);
+        });
+    }
 
     const formPostBid = document.querySelector("#form-post-bid");
     if (formPostBid) {
         const placeBidButton = formPostBid.querySelector("button");
+        const bidPriceInput = formPostBid.querySelector(".bid-input");
+
+        if (typeof CurrencyFormatter !== 'undefined') {
+            CurrencyFormatter.applyToInput(bidPriceInput);
+        }
+
         updateBidButtonState();
         setInterval(updateBidButtonState, 1000);
 
-        formPostBid.onsubmit = function (event) {
+        formPostBid.onsubmit = async function (event) {
             event.preventDefault();
 
-            const bidPrice = formPostBid.querySelector(".bid-input");
+            const bidValue = typeof CurrencyFormatter !== 'undefined'
+                ? CurrencyFormatter.unformat(bidPriceInput.value)
+                : bidPriceInput.value.replace(/\s/g, '');
 
-            bidPrice.oninput = function () {
-                bidPrice.classList.remove("border-red-500");
-            }
-
-            if (+bidPrice.value < auctionCurPrice + auctionBidStep) {
-                bidPrice.classList.add("border-red-500");
+            if (!bidValue || bidValue.trim() === '') {
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Vui lòng nhập số tiền đấu giá', 'Thiếu thông tin');
+                }
                 return;
             }
 
-            formPostBid.submit();
+            placeBidButton.disabled = true;
+            placeBidButton.innerHTML = `
+                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang xử lý...
+            `;
+
+            try {
+                const response = await fetch(formPostBid.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        max_price: bidValue,
+                        expected_price: auctionCurPrice
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateAuctionUI(data);
+                    addBidsToHistory(data.newBids);
+                    bidPriceInput.value = '';
+
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.success(data.message, 'Thành công');
+                    }
+                } else {
+                    updateAuctionUI(data);
+
+                    if (data.newBids && data.newBids.length > 0) {
+                        addBidsToHistory(data.newBids, true);
+                    }
+
+                    if (typeof NotificationModal !== 'undefined') {
+                        if (data.error === 'PRICE_CHANGED') {
+                            NotificationModal.warning(
+                                `${data.message} Giá hiện tại: ${formatNumberVN(data.auction.current_price)} VNĐ`,
+                                'Giá đã thay đổi'
+                            );
+                        } else {
+                            NotificationModal.error(data.message, 'Không thể đặt giá');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error placing bid:', error);
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Có lỗi xảy ra. Vui lòng thử lại.', 'Lỗi');
+                }
+            } finally {
+                placeBidButton.disabled = false;
+                placeBidButton.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    Đặt giá
+                `;
+                updateBidButtonState();
+            }
         }
 
         function updateBidButtonState() {
@@ -93,11 +238,6 @@
                 placeBidButton.textContent = "Đã kết thúc";
                 placeBidButton.classList.remove('bg-primary-500', 'hover:bg-primary-600');
                 placeBidButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-            } else {
-                placeBidButton.disabled = false;
-                placeBidButton.textContent = "Đặt giá";
-                placeBidButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                placeBidButton.classList.add('bg-primary-500', 'hover:bg-primary-600');
             }
         }
     }
@@ -132,7 +272,6 @@
             if (response.ok) {
                 const data = await response.json();
 
-                // Create new message element
                 const messagesList = document.querySelector('.space-y-4');
                 const newMessageHTML = `
                     <div class="bg-white rounded-2xl border border-gray-200 p-5" style="opacity: 0; transform: translateY(-10px); transition: all 0.3s ease;">
@@ -154,14 +293,12 @@
 
                 messagesList.insertAdjacentHTML('afterbegin', newMessageHTML);
 
-                // Animate in
                 setTimeout(() => {
                     const newMsg = messagesList.firstElementChild;
                     newMsg.style.opacity = '1';
                     newMsg.style.transform = 'translateY(0)';
                 }, 10);
 
-                // Clear input
                 input.value = '';
             }
         } catch (error) {
@@ -202,7 +339,6 @@
                     if (response.ok) {
                         const data = await response.json();
 
-                        // Find or create replies container
                         const messageCard = form.closest('.bg-white');
                         let repliesContainer = messageCard.querySelector('.space-y-3');
 
@@ -213,7 +349,6 @@
                             repliesContainer = repliesWrapper;
                         }
 
-                        // Add new reply
                         const newReplyHTML = `
                             <div class="bg-primary-50 rounded-xl p-4" style="opacity: 0; transform: translateY(-10px); transition: all 0.3s ease;">
                                 <div class="flex items-center gap-2 mb-2">
@@ -229,14 +364,12 @@
 
                         repliesContainer.insertAdjacentHTML('beforeend', newReplyHTML);
 
-                        // Animate in
                         setTimeout(() => {
                             const newReply = repliesContainer.lastElementChild;
                             newReply.style.opacity = '1';
                             newReply.style.transform = 'translateY(0)';
                         }, 10);
 
-                        // Clear input
                         input.value = '';
                     }
                 } catch (error) {
@@ -267,7 +400,6 @@
                 }
 
                 const data = await res.json();
-                // Show success feedback
                 this.innerHTML = `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
                 this.classList.add("bg-green-50", "text-green-600", "border-green-300");
             } catch (err) {
@@ -277,12 +409,10 @@
         }
 
     }
-    // Tab functionality
     document.querySelectorAll('[data-tab-target]').forEach(button => {
         button.addEventListener('click', () => {
             const target = button.dataset.tabTarget;
 
-            // Update buttons
             document.querySelectorAll('[data-tab-target]').forEach(btn => {
                 btn.classList.remove('border-primary-500', 'text-primary-500');
                 btn.classList.add('border-transparent', 'text-gray-500');
@@ -290,7 +420,6 @@
             button.classList.remove('border-transparent', 'text-gray-500');
             button.classList.add('border-primary-500', 'text-primary-500');
 
-            // Update panels
             document.querySelectorAll('[data-tab-panel]').forEach(panel => {
                 panel.classList.add('hidden');
             });
@@ -303,7 +432,6 @@
 </script>
 {{/section}}
 
-<!-- Breadcrumb -->
 <nav class="py-4">
     <ol class="flex items-center text-sm text-gray-500">
         <li><a href="/" class="hover:text-primary-500">Trang chủ</a></li>
@@ -315,7 +443,6 @@
 </nav>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8">
-    <!-- Product Images -->
     <div class="lg:col-span-7">
         <div class="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
             <img src="{{imageOrPlaceholder auction.mainImage.url}}" class="w-full h-96 object-contain rounded-xl"
@@ -333,12 +460,10 @@
         </div>
     </div>
 
-    <!-- Product Info -->
     <div class="lg:col-span-5 auction">
         <h1 class="text-2xl font-bold text-gray-900 mb-4">{{auction.name}}</h1>
 
         <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <!-- Countdown Timer -->
             <div class="bg-gradient-to-r from-primary-500 to-primary-600 p-4 text-white">
                 <div class="flex items-center gap-2 mb-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,7 +477,6 @@
             </div>
 
             <div class="p-5">
-                <!-- Posted date -->
                 <p class="text-sm text-gray-500 mb-4">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -362,7 +486,6 @@
                     Đăng ngày: {{formatDate auction.start_at}}
                 </p>
 
-                <!-- Price Grid -->
                 <div class="grid grid-cols-3 gap-3 mb-5">
                     <div class="bg-gray-50 rounded-xl p-3 text-center">
                         <span class="block text-xs text-gray-500 mb-1">Giá hiện tại</span>
@@ -383,7 +506,6 @@
                     </div>
                 </div>
 
-                <!-- Seller & Bidder Info -->
                 <div class="space-y-3 mb-5">
                     <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
                         <div class="flex items-center gap-3">
@@ -446,7 +568,6 @@
                 </div>
 
                 {{#if isAuthenticated}}
-                <!-- Bid Form -->
                 <div class="border-t border-gray-200 pt-5">
                     {{#if rating}}
                     {{#if (less rating 80)}}
@@ -497,8 +618,8 @@
                     {{else}}
                     <form action="/auctions/{{auction.id}}/bids" method="POST" id="form-post-bid">
                         <div class="mb-3">
-                            <input type="number"
-                                class="bid-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            <input type="text" inputmode="numeric" required
+                                class="bid-input currency-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
                                 placeholder="Nhập số tiền đấu giá" name="max_price">
                         </div>
                         <button type="submit"
@@ -517,7 +638,7 @@
 
                     <div class="grid grid-cols-2 gap-3 mt-3">
                         <button
-                            class="py-3 px-4 border-2 border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2"
+                            class="py-3 px-4 border border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2"
                             {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -545,9 +666,7 @@
     </div>
 </div>
 
-<!-- Tabs -->
 <div class="pb-12">
-    <!-- Tab Navigation -->
     <div class="border-b border-gray-200 mb-6">
         <nav class="flex gap-6 -mb-px">
             <button data-tab-target="description"
@@ -577,16 +696,13 @@
         </nav>
     </div>
 
-    <!-- Tab Content -->
     <div>
-        <!-- Description -->
         <div data-tab-panel="description" class="bg-white rounded-2xl border border-gray-200 p-6">
             <div class="prose max-w-none">
                 {{{auction.description}}}
             </div>
         </div>
 
-        <!-- Q&A -->
         <div data-tab-panel="qa" class="hidden">
             <div class="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Đặt câu hỏi cho người bán</h3>
@@ -605,11 +721,9 @@
                 </form>
             </div>
 
-            <!-- Messages List -->
             <div class="space-y-4">
                 {{#each messages}}
                 <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <!-- Question Header -->
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -623,12 +737,10 @@
                         </div>
                     </div>
 
-                    <!-- Question Content -->
                     <p class="text-gray-700 mb-4 pl-12">{{this.content}}</p>
 
                     {{#if ../authUser}}
                     {{#if (isSellerOfAuction ../authUser ../auction)}}
-                    <!-- Reply Form (for seller) -->
                     <form action="/auctions/{{../auction.id}}/messages" method="POST"
                         class="form-reply-message flex gap-3 pl-12">
                         <input type="text" name="content"
@@ -643,7 +755,6 @@
                     {{/if}}
                     {{/if}}
 
-                    <!-- Replies -->
                     {{#if this.replyMessages.length}}
                     <div class="mt-4 pl-12 space-y-3">
                         {{#each this.replyMessages}}
@@ -666,7 +777,6 @@
             </div>
         </div>
 
-        <!-- Related Products -->
         <div data-tab-panel="related" class="hidden">
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {{#each relateAuctons}}
@@ -726,7 +836,6 @@
         </div>
         {{#if isAuthenticated}}
         {{#if (isSellerOfAuction authUser auction)}}
-        <!-- Bid History -->
         <div data-tab-panel="bidder" class="hidden">
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 <div class="p-5 border-b border-gray-200">
@@ -768,17 +877,14 @@
                         <tbody class="divide-y divide-gray-200">
                             {{#each bidders}}
                             <tr class="hover:bg-gray-50 transition">
-                                <!-- User -->
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900">
                                     {{this.username}}
                                 </td>
 
-                                <!-- Email -->
                                 <td class="px-6 py-4 text-sm text-gray-600">
                                     {{this.email}}
                                 </td>
 
-                                <!-- Rating -->
                                 <td class="px-6 py-4 text-sm text-center">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
                                 {{#if (greater this.rating 80)}}
@@ -790,12 +896,10 @@
                                     </span>
                                 </td>
 
-                                <!-- Total bids -->
                                 <td class="px-6 py-4 text-sm text-center text-gray-700">
                                     {{this.total_bids}}
                                 </td>
 
-                                <!-- Action -->
                                 <td class="px-6 py-4 text-right">
                                     {{#if (include ../bidderBlocked this.bidder_id)}}
                                     <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold

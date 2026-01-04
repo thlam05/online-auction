@@ -126,7 +126,6 @@ const auctionModel = {
             .limit(limit);
     },
 
-    // dùng join base query: category, seller, mainImage
     baseAuctionQuerySimple() {
         return db("auctions as a")
             .leftJoin("categories as c", "c.id", "a.category_id")
@@ -142,7 +141,6 @@ const auctionModel = {
             );
     },
 
-    // dùng cho highest bidder
     baseAuctionQueryFull() {
         return db("auctions as a")
             .leftJoin("categories as c", "c.id", "a.category_id")
