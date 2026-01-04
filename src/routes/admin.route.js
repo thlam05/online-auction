@@ -8,6 +8,7 @@ router.get('/', adminController.getDashboard);
 router.get('/categories/data', adminController.getCategoriesData);
 router.get('/categories/:id', adminController.getCategoryById);
 router.post('/categories', adminController.createCategory);
+router.put('/categories/:id', adminController.updateCategory);
 router.delete('/categories/:id', adminController.deleteCategory);
 
 export default router;

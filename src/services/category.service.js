@@ -87,6 +87,47 @@ const categoryService = {
 
         return categoryModel.deleteById(id);
     },
+
+    async updateCategory(id, data) {
+        const category = await categoryModel.findById(id);
+        if (!category) {
+            throw new Error('Không tìm thấy danh mục');
+        }
+
+        if (data.parent_category_id && data.parent_category_id == id) {
+            throw new Error('Danh mục không thể là danh mục cha của chính nó');
+        }
+
+        if (data.parent_category_id !== undefined && data.parent_category_id !== null && data.parent_category_id !== '') {
+            const newParent = await categoryModel.findById(data.parent_category_id);
+
+            if (newParent.parent_category_id === category.parent_category_id) {
+                throw new Error('Không thể chọn danh mục cùng cấp làm danh mục cha');
+            }
+        }
+
+        const updateData = {};
+
+        if (data.name && data.name !== category.name) {
+            updateData.name = data.name;
+            updateData.slug = data.name.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        if (data.parent_category_id !== undefined) {
+            updateData.parent_category_id = data.parent_category_id || null;
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return category;
+        }
+
+        return categoryModel.update(id, updateData);
+    },
 };
 
 
