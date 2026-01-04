@@ -109,6 +109,12 @@ export const getCategoryById = async (req, res) => {
             category.parent_category = parent;
         }
 
+        const allCategories = await categoryModel.findAll();
+        const siblings = allCategories.filter(cat =>
+            cat.parent_category_id === category.parent_category_id && cat.id !== category.id
+        );
+        category.sibling_ids = siblings.map(s => s.id);
+
         res.json({
             success: true,
             category
@@ -118,6 +124,29 @@ export const getCategoryById = async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Đã xảy ra lỗi khi tải thông tin danh mục'
+        });
+    }
+};
+
+export const updateCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, parent_category_id } = req.body;
+
+        const result = await categoryService.updateCategory(id, {
+            name,
+            parent_category_id
+        });
+
+        res.json({
+            success: true,
+            category: result[0] || result
+        });
+    } catch (error) {
+        console.error('Error in updateCategory:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể cập nhật danh mục'
         });
     }
 };

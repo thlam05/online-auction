@@ -59,6 +59,11 @@ const renderCategoriesTable = (categories) => {
                 attributes: `data-id="${category.id}" data-hs-overlay="#modal-view-category"`
             },
             {
+                text: 'Chỉnh sửa',
+                className: 'edit-category w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-id="${category.id}" data-hs-overlay="#modal-edit-category"`
+            },
+            {
                 text: 'Xóa',
                 className: 'delete-category w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
                 attributes: `data-id="${category.id}"`
@@ -197,4 +202,91 @@ document.addEventListener('click', async (e) => {
             alert('Đã xảy ra lỗi khi xóa danh mục');
         }
     }
+
+    if (e.target.classList.contains('edit-category')) {
+        const categoryId = e.target.dataset.id;
+
+        const loadingEl = document.getElementById('edit-category-loading');
+        const formEl = document.getElementById('edit-category-form');
+        const footerEl = document.getElementById('edit-category-footer');
+
+        loadingEl.style.display = 'flex';
+        formEl.style.display = 'none';
+        footerEl.style.display = 'none';
+
+        try {
+            const response = await fetch(`/admin/categories/${categoryId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const category = data.category;
+                document.getElementById('edit-category-id').value = category.id;
+                document.getElementById('edit-category-name').value = category.name;
+
+                const parentSelect = document.getElementById('edit-category-parent');
+
+                Array.from(parentSelect.options).forEach(option => {
+                    option.disabled = false;
+                });
+
+                parentSelect.value = category.parent_category_id || '';
+
+                const currentOption = parentSelect.querySelector(`option[value="${category.id}"]`);
+                if (currentOption) {
+                    currentOption.disabled = true;
+                }
+
+                if (category.sibling_ids && category.sibling_ids.length > 0) {
+                    category.sibling_ids.forEach(siblingId => {
+                        const siblingOption = parentSelect.querySelector(`option[value="${siblingId}"]`);
+                        if (siblingOption) {
+                            siblingOption.disabled = true;
+                        }
+                    });
+                }
+
+                loadingEl.style.display = 'none';
+                formEl.style.display = 'block';
+                footerEl.style.display = 'flex';
+            }
+        } catch (error) {
+            console.error('Error fetching category for edit:', error);
+            loadingEl.style.display = 'none';
+            formEl.style.display = 'block';
+            footerEl.style.display = 'flex';
+            alert('Đã xảy ra lỗi khi tải thông tin danh mục');
+        }
+    }
 });
+
+const formEditCategory = document.getElementById('form-edit-category');
+if (formEditCategory) {
+    formEditCategory.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const categoryId = document.getElementById('edit-category-id').value;
+        const name = document.getElementById('edit-category-name').value;
+        const parent_category_id = document.getElementById('edit-category-parent').value;
+
+        try {
+            const response = await fetch(`/admin/categories/${categoryId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, parent_category_id })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert(result.error || 'Không thể cập nhật danh mục');
+            }
+        } catch (error) {
+            console.error('Error updating category:', error);
+            alert('Đã xảy ra lỗi khi cập nhật danh mục');
+        }
+    });
+}

@@ -40,6 +40,10 @@ const categoryModel = {
         return db("categories").where({ id }).del();
     },
 
+    update(id, data) {
+        return db("categories").where({ id }).update(data).returning("*");
+    },
+
     async hasChildren(id) {
         const count = await db("categories")
             .where({ parent_category_id: id })
