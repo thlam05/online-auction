@@ -18,6 +18,7 @@ router.get('/auctions/:id', adminController.getAuctionById);
 router.delete('/auctions/:id', adminController.deleteAuction);
 
 router.get('/users/data', adminController.getUsersData);
+router.post('/users', adminController.createUser);
 router.get('/users/:id', adminController.getUserById);
 router.put('/users/:id', adminController.updateUser);
 router.delete('/users/:id', adminController.deleteUser);

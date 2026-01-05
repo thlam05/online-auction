@@ -89,10 +89,13 @@ export const createCategory = async (req, res) => {
             name,
             parent_category_id: parent_category_id || null
         });
-        res.redirect('/admin');
+        res.json({ success: true });
     } catch (error) {
         console.error('Error in createCategory:', error);
-        res.status(500).render('error/500');
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Không thể thêm danh mục'
+        });
     }
 };
 export const deleteCategory = async (req, res) => {
@@ -221,6 +224,45 @@ export const deleteAuction = async (req, res) => {
         res.status(400).json({
             success: false,
             error: error.message || 'Không thể xóa sản phẩm đấu giá'
+        });
+    }
+};
+
+export const createUser = async (req, res) => {
+    try {
+        const { username, email, password, permission } = req.body;
+
+        // Check if email already exists
+        const existingUser = await userModel.findByEmail(email);
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email đã tồn tại'
+            });
+        }
+
+        // Hash password
+        const bcrypt = await import('bcrypt');
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user
+        const newUser = await userModel.createOne({
+            username,
+            email,
+            password: hashedPassword,
+            permission: parseInt(permission) || 0,
+            created_at: new Date()
+        });
+
+        res.json({
+            success: true,
+            user: newUser[0]
+        });
+    } catch (error) {
+        console.error('Error in createUser:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể tạo người dùng'
         });
     }
 };
