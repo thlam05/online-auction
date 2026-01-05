@@ -11,40 +11,56 @@ const categoryService = {
     },
 
     async getCategoriesHierarchical({ page = 1, limit = 10, search = '' }) {
-        const allCategories = await categoryModel.findAll();
+        let allCategories;
+        let flatCategories;
 
-        const categoryMap = {};
-        allCategories.forEach(cat => {
-            categoryMap[cat.id] = { ...cat, children: [] };
-        });
+        // Use FTS if search term provided
+        if (search && search.trim() !== '') {
+            // When searching, return flat list without hierarchy
+            // This ensures all matching results are shown regardless of parent presence
+            allCategories = await categoryModel.searchCategories(search);
 
-        const rootCategories = [];
-        allCategories.forEach(cat => {
-            if (cat.parent_category_id === null) {
-                rootCategories.push(categoryMap[cat.id]);
-            } else if (categoryMap[cat.parent_category_id]) {
-                categoryMap[cat.parent_category_id].children.push(categoryMap[cat.id]);
-            }
-        });
+            // Add parent_name for context and set level to 0 for flat display
+            flatCategories = await Promise.all(
+                allCategories.map(async (cat) => {
+                    let parent_name = null;
+                    if (cat.parent_category_id) {
+                        const parent = await categoryModel.findById(cat.parent_category_id);
+                        parent_name = parent ? parent.name : null;
+                    }
+                    return { ...cat, level: 0, parent_name };
+                })
+            );
+        } else {
+            // No search: build full hierarchy
+            allCategories = await categoryModel.findAll();
 
-        const flattenHierarchy = (categories, level = 0) => {
-            let result = [];
-            categories.forEach(cat => {
-                result.push({ ...cat, level });
-                if (cat.children && cat.children.length > 0) {
-                    result = result.concat(flattenHierarchy(cat.children, level + 1));
+            const categoryMap = {};
+            allCategories.forEach(cat => {
+                categoryMap[cat.id] = { ...cat, children: [] };
+            });
+
+            const rootCategories = [];
+            allCategories.forEach(cat => {
+                if (cat.parent_category_id === null) {
+                    rootCategories.push(categoryMap[cat.id]);
+                } else if (categoryMap[cat.parent_category_id]) {
+                    categoryMap[cat.parent_category_id].children.push(categoryMap[cat.id]);
                 }
             });
-            return result;
-        };
 
-        let flatCategories = flattenHierarchy(rootCategories);
+            const flattenHierarchy = (categories, level = 0) => {
+                let result = [];
+                categories.forEach(cat => {
+                    result.push({ ...cat, level });
+                    if (cat.children && cat.children.length > 0) {
+                        result = result.concat(flattenHierarchy(cat.children, level + 1));
+                    }
+                });
+                return result;
+            };
 
-        if (search) {
-            flatCategories = flatCategories.filter(cat =>
-                cat.name.toLowerCase().includes(search.toLowerCase()) ||
-                cat.slug.toLowerCase().includes(search.toLowerCase())
-            );
+            flatCategories = flattenHierarchy(rootCategories);
         }
 
         const total = flatCategories.length;

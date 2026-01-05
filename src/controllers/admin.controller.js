@@ -1,5 +1,7 @@
 import categoryService from '../services/category.service.js';
 import categoryModel from '../models/category.model.js';
+import auctionService from '../services/auction.service.js';
+import auctionModel from '../models/auction.model.js';
 
 export const getDashboard = async (req, res) => {
     try {
@@ -147,6 +149,93 @@ export const updateCategory = async (req, res) => {
         res.status(400).json({
             success: false,
             error: error.message || 'Không thể cập nhật danh mục'
+        });
+    }
+};
+
+// ==================== AUCTION MANAGEMENT ====================
+
+export const getAuctionsData = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const categoryId = req.query.category || '';
+        const status = req.query.status || '';
+
+        const result = await auctionModel.findAuctionsForAdmin({
+            page,
+            limit,
+            search,
+            categoryId,
+            status
+        });
+
+        res.json({
+            data: result.auctions,
+            pagination: result.pagination
+        });
+    } catch (error) {
+        console.error('Error in getAuctionsData:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const getAuctionById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const auction = await auctionService.getAuctionById(id);
+
+        if (!auction) {
+            return res.status(404).json({
+                success: false,
+                error: 'Không tìm thấy sản phẩm đấu giá'
+            });
+        }
+
+        res.json({
+            success: true,
+            auction
+        });
+    } catch (error) {
+        console.error('Error in getAuctionById:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Đã xảy ra lỗi khi tải thông tin sản phẩm'
+        });
+    }
+};
+
+export const deleteAuction = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const auction = await auctionModel.findById(id);
+        if (!auction) {
+            return res.status(404).json({
+                success: false,
+                error: 'Không tìm thấy sản phẩm đấu giá'
+            });
+        }
+
+        // Check if auction has ended and has winner
+        const now = new Date();
+        if (auction.end_at < now) {
+            return res.status(400).json({
+                success: false,
+                error: 'Không thể xóa sản phẩm đã kết thúc đấu giá'
+            });
+        }
+
+        await auctionModel.deleteById(id);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error in deleteAuction:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể xóa sản phẩm đấu giá'
         });
     }
 };

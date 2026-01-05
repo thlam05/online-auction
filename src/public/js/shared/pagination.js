@@ -95,25 +95,32 @@ export const setupPagination = (containerId, paginationId, endpoint, onUpdate, t
 
         try {
             const response = await fetch(`${endpoint}?page=${currentPage}`);
-            const list = await response.json();
+            const result = await response.json();
 
             const container = document.querySelector('#' + containerId);
-            container.innerHTML = list.html;
+
+            // Use custom render function if provided
+            if (onUpdate && result.data) {
+                container.innerHTML = onUpdate(result.data);
+            } else if (result.html) {
+                container.innerHTML = result.html;
+            }
 
             pagination.dataset.currentPage = currentPage;
-            if (list.totalPages) {
-                pagination.dataset.totalPages = list.totalPages;
+            if (result.pagination && result.pagination.totalPages) {
+                pagination.dataset.totalPages = result.pagination.totalPages;
+                renderPagination(pagination, currentPage, result.pagination.totalPages, theme);
+            } else if (result.totalPages) {
+                pagination.dataset.totalPages = result.totalPages;
+                renderPagination(pagination, currentPage, result.totalPages, theme);
             }
-            renderPagination(pagination, currentPage, list.totalPages || totalPages, theme);
-
-            if (onUpdate) onUpdate(list);
         } catch (error) {
             console.error('Pagination error:', error);
         }
     });
 }
 
-export const setupSearch = (inputId, containerId, endpoint, debounceTime = 300) => {
+export const setupSearch = (inputId, containerId, endpoint, renderFn = null, debounceTime = 100) => {
     const input = document.querySelector('#' + inputId);
     if (!input) return;
 
@@ -122,9 +129,25 @@ export const setupSearch = (inputId, containerId, endpoint, debounceTime = 300) 
         clearTimeout(timeout);
         timeout = setTimeout(async () => {
             try {
-                const response = await fetch(`${endpoint}?search=${e.target.value}`);
-                const list = await response.json();
-                document.querySelector('#' + containerId).innerHTML = list.html;
+                const response = await fetch(`${endpoint}?search=${encodeURIComponent(e.target.value)}`);
+                const result = await response.json();
+                const container = document.querySelector('#' + containerId);
+
+                // Use custom render function if provided, otherwise use html from response
+                if (renderFn && result.data) {
+                    container.innerHTML = renderFn(result.data);
+                } else if (result.html) {
+                    container.innerHTML = result.html;
+                }
+
+                // Update pagination if exists
+                const paginationId = containerId.replace('-table-body', '-pagination');
+                const pagination = document.querySelector('#' + paginationId);
+                if (pagination && result.pagination) {
+                    pagination.dataset.totalPages = result.pagination.totalPages;
+                    pagination.dataset.currentPage = result.pagination.page;
+                    renderPagination(pagination, result.pagination.page, result.pagination.totalPages);
+                }
             } catch (error) {
                 console.error('Search error:', error);
             }
@@ -132,7 +155,7 @@ export const setupSearch = (inputId, containerId, endpoint, debounceTime = 300) 
     });
 }
 
-export const setupFilters = (filterIdList, containerId, endpoint) => {
+export const setupFilters = (filterIdList, containerId, endpoint, renderFn = null) => {
     filterIdList.forEach((id) => {
         const filter = document.querySelector('#' + id);
         if (!filter) return;
@@ -141,13 +164,29 @@ export const setupFilters = (filterIdList, containerId, endpoint) => {
             const params = new URLSearchParams();
             filterIdList.forEach((filterId) => {
                 const el = document.querySelector('#' + filterId);
-                if (el && el.value) params.append(filterId.replace('filter-', ''), el.value);
+                if (el && el.value) params.append(filterId.replace('filter-', '').replace('auction-', '').replace('user-', ''), el.value);
             });
 
             try {
                 const response = await fetch(`${endpoint}?${params}`);
-                const list = await response.json();
-                document.querySelector('#' + containerId).innerHTML = list.html;
+                const result = await response.json();
+                const container = document.querySelector('#' + containerId);
+
+                // Use custom render function if provided
+                if (renderFn && result.data) {
+                    container.innerHTML = renderFn(result.data);
+                } else if (result.html) {
+                    container.innerHTML = result.html;
+                }
+
+                // Update pagination if exists
+                const paginationId = containerId.replace('-table-body', '-pagination');
+                const pagination = document.querySelector('#' + paginationId);
+                if (pagination && result.pagination) {
+                    pagination.dataset.totalPages = result.pagination.totalPages;
+                    pagination.dataset.currentPage = result.pagination.page;
+                    renderPagination(pagination, result.pagination.page, result.pagination.totalPages);
+                }
             } catch (error) {
                 console.error('Filter error:', error);
             }

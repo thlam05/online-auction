@@ -33,15 +33,19 @@ const renderCategoriesTable = (categories) => {
         `;
     }
     return categories.map(category => {
-        const prefix = category.level > 0 ? '<span class="text-gray-400">└─ </span>' : '';
-        const indent = '\u00a0\u00a0\u00a0\u00a0'.repeat(category.level || 0);
+        const isSearchResult = category.parent_name !== undefined;
+        const prefix = !isSearchResult && category.level > 0 ? '<span class="text-gray-400">└─ </span>' : '';
+        const indent = !isSearchResult ? '\u00a0\u00a0\u00a0\u00a0'.repeat(category.level || 0) : '';
+        const parentDisplay = isSearchResult
+            ? (category.parent_name || '<span class="text-gray-400">\u2014</span>')
+            : (category.parent_category ? category.parent_category.name : '<span class="text-gray-400">\u2014</span>');
         return `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
                     <span class="text-sm font-medium text-gray-900">${prefix}${indent}${category.name}</span>
                 </td>
                 <td class="ps-12 pe-6 py-4 text-sm text-gray-500">
-                    ${category.parent_category ? category.parent_category.name : '<span class="text-gray-400">\u2014</span>'}
+                    ${parentDisplay}
                 </td>
                 <td class="ps-12 pe-6 py-4">
                     <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${category.slug}</code>
@@ -77,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCategoriesTable,
         'blue'
     );
-    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data');
+    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data', renderCategoriesTable);
     setupPagination(
         'auctions-table-body',
         'auctions-pagination',

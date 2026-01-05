@@ -299,6 +299,84 @@ const auctionModel = {
                 db.raw("(SELECT json_agg(json_build_object('url', ai.url, 'is_main', ai.is_main, 'index', ai.index) ORDER BY ai.index) FROM auction_images ai WHERE ai.auction_id = a.id) as images")
             )
             .first();
+    },
+
+    // Admin methods
+    async findAuctionsForAdmin({ page = 1, limit = 10, search = '', categoryId = '', status = '' }) {
+        const offset = (page - 1) * limit;
+
+        let query = db("auctions as a")
+            .leftJoin("categories as c", "c.id", "a.category_id")
+            .leftJoin("users as u", "u.id", "a.seller_id")
+            .leftJoin("auction_images as ai", function () {
+                this.on("ai.auction_id", "=", "a.id")
+                    .andOn("ai.is_main", "=", db.raw("true"));
+            });
+
+        let countQuery = db("auctions as a")
+            .leftJoin("categories as c", "c.id", "a.category_id")
+            .leftJoin("users as u", "u.id", "a.seller_id");
+
+        // Search filter
+        if (search) {
+            query = query.where(function () {
+                this.where("a.name", "ilike", `%${search}%`)
+                    .orWhere("u.username", "ilike", `%${search}%`);
+            });
+            countQuery = countQuery.where(function () {
+                this.where("a.name", "ilike", `%${search}%`)
+                    .orWhere("u.username", "ilike", `%${search}%`);
+            });
+        }
+
+        // Category filter
+        if (categoryId) {
+            query = query.where("a.category_id", categoryId);
+            countQuery = countQuery.where("a.category_id", categoryId);
+        }
+
+        // Status filter
+        const now = new Date();
+        if (status === 'active') {
+            query = query.where("a.end_at", ">", now);
+            countQuery = countQuery.where("a.end_at", ">", now);
+        } else if (status === 'ended') {
+            query = query.where("a.end_at", "<=", now);
+            countQuery = countQuery.where("a.end_at", "<=", now);
+        }
+
+        const [{ count }] = await countQuery.count("a.id as count");
+        const total = parseInt(count);
+
+        const auctions = await query
+            .select(
+                "a.id",
+                "a.name",
+                "a.current_price",
+                "a.end_at",
+                "a.created_at",
+                "ai.url as main_image",
+                db.raw("json_build_object('id', c.id, 'name', c.name) as category"),
+                db.raw("json_build_object('id', u.id, 'username', u.username) as seller"),
+                db.raw("CASE WHEN a.end_at > NOW() THEN true ELSE false END as is_active")
+            )
+            .orderBy("a.created_at", "desc")
+            .limit(limit)
+            .offset(offset);
+
+        return {
+            auctions,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
+    },
+
+    deleteById(id) {
+        return db("auctions").where({ id }).del();
     }
 };
 
