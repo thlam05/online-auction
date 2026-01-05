@@ -115,3 +115,19 @@ export const sendBidSuccessToPreHighestBidder = async (auction, preBidder) => {
 
     return { info };
 }
+
+
+export const sendInformBlocked = async (auction, bidder) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: bidder.email,
+        subject: "Bạn đã bị người bán từ chối ra giá",
+        text: `Bạn không thể ra giá cho sản phẩm "${auction.name}"`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}

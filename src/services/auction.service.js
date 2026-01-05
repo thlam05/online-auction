@@ -189,12 +189,13 @@ const auctionService = {
         await bidModel.deleteBib(auctionBlock.user_id, auctionBlock.auction_id);
 
         const highestBidder = await bidModel.getHighestBidder(auctionBlock.auction_id);
-        const auction = await auctionModel.getAuctionById(auctionBlock.auction_id);
+        const auction = await auctionModel.findById(auctionBlock.auction_id);
 
         auction.current_price = highestBidder
             ? highestBidder.amount
             : auction.start_price;
-        auctionModel.update(auction);
+        await auctionModel.update(auction);
+        return auction;
     },
 
     async getSearchSuggestions(query, limit = 5) {

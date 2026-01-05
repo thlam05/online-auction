@@ -9,7 +9,7 @@ import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import auctionBlockModel from "../models/auction-block.model.js";
 import userModel from "../models/user.model.js";
-import { sendBidSuccessToBidder, sendBidSuccessToPreHighestBidder, sendBidSuccessToSeller } from "../utils/nodemailer.js";
+import { sendBidSuccessToBidder, sendBidSuccessToPreHighestBidder, sendBidSuccessToSeller, sendInformBlocked } from "../utils/nodemailer.js";
 
 const getPaginationData = (count, page, limit) => {
     const nPages = Math.ceil(+count / limit);
@@ -278,7 +278,7 @@ class AuctionController {
             const mailJobs = [];
             mailJobs.push(sendBidSuccessToSeller(auction, seller));
             mailJobs.push(sendBidSuccessToBidder(auction, user));
-            if (highestBidder.id != preBidder.id && preBidder.email) {
+            if (preBidder && highestBidder && highestBidder.id != preBidder.id && preBidder.email) {
                 mailJobs.push(sendBidSuccessToPreHighestBidder(auction, preBidder));
             }
             await Promise.all(mailJobs);
@@ -287,7 +287,7 @@ class AuctionController {
                 amount: b.amount,
                 created_at: b.created_at,
                 bidder_name: b.bidder_id === bidder_id
-                    ? req.session.passport.user.username
+                    ? user.username
                     : (highestBidder ? highestBidder.username : 'Unknown')
             }));
 
@@ -448,7 +448,10 @@ class AuctionController {
                 auction_id: id,
             }
 
-            await auctionService.handleBlockBidder(auctionBlock);
+            const auction = await auctionService.handleBlockBidder(auctionBlock);
+            const bidder = await userModel.findById(bidder_id);
+
+            await sendInformBlocked(auction, bidder);
 
             res.redirect(`/auctions/${id}`);
         } catch (err) {
