@@ -73,6 +73,61 @@ const renderCategoriesTable = (categories) => {
         `;
     }).join('');
 };
+const renderAuctionsTable = (auctions) => {
+    if (!auctions || auctions.length === 0) {
+        return `
+            <tr>
+                <td colspan="6" class="px-6 py-12 text-center">
+                    <p class="text-gray-500">Chưa có sản phẩm đấu giá nào</p>
+                </td>
+            </tr>
+        `;
+    }
+    return auctions.map(auction => {
+        const statusBadge = auction.is_active
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đang diễn ra</span>'
+            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Đã kết thúc</span>';
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <img src="${auction.main_image || '/images/placeholder.jpg'}" alt="${auction.name}"
+                            class="w-10 h-10 rounded-md object-cover bg-gray-100">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                                ${auction.name}
+                            </p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${auction.category?.name || 'N/A'}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                    ${auction.seller?.username || 'N/A'}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="text-sm font-semibold text-[#1447e6]">${formatCurrency(auction.current_price)} đ</span>
+                </td>
+                <td class="px-6 py-4">
+                    ${statusBadge}
+                </td>
+                <td class="px-6 py-4 text-sm text-center">
+                    ${createActionDropdown([
+            {
+                text: 'Xóa',
+                className: 'delete-auction w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-id="${auction.id}"`
+            }
+        ])}
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN').format(amount);
+};
 document.addEventListener('DOMContentLoaded', () => {
     setupPagination(
         'categories-table-body',
@@ -86,14 +141,15 @@ document.addEventListener('DOMContentLoaded', () => {
         'auctions-table-body',
         'auctions-pagination',
         '/admin/auctions/data',
-        null,
+        renderAuctionsTable,
         'blue'
     );
-    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data');
+    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data', renderAuctionsTable);
     setupFilters(
         ['filter-auction-category', 'filter-auction-status'],
         'auctions-table-body',
-        '/admin/auctions/data'
+        '/admin/auctions/data',
+        renderAuctionsTable
     );
     setupPagination(
         'users-table-body',
@@ -169,6 +225,16 @@ document.addEventListener('click', async (e) => {
         const confirmBtn = document.getElementById('confirm-delete-btn');
         confirmBtn.dataset.categoryId = categoryId;
         const modal = document.getElementById('modal-confirm-delete');
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+        return;
+    }
+    if (e.target.classList.contains('delete-auction')) {
+        const auctionId = e.target.dataset.id;
+        const confirmBtn = document.getElementById('confirm-delete-auction-btn');
+        confirmBtn.dataset.auctionId = auctionId;
+        const modal = document.getElementById('modal-confirm-delete-auction');
         if (window.HSOverlay) {
             window.HSOverlay.open(modal);
         }
@@ -278,6 +344,42 @@ if (confirmDeleteBtn) {
             }
             setTimeout(() => {
                 alert('Đã xảy ra lỗi khi xóa danh mục');
+            }, 300);
+        }
+    });
+}
+const confirmDeleteAuctionBtn = document.getElementById('confirm-delete-auction-btn');
+if (confirmDeleteAuctionBtn) {
+    confirmDeleteAuctionBtn.addEventListener('click', async () => {
+        const auctionId = confirmDeleteAuctionBtn.dataset.auctionId;
+        if (!auctionId) return;
+        try {
+            const response = await fetch(`/admin/auctions/${auctionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                const modal = document.getElementById('modal-confirm-delete-auction');
+                if (window.HSOverlay) {
+                    window.HSOverlay.close(modal);
+                }
+                setTimeout(() => {
+                    alert(result.error || 'Không thể xóa sản phẩm đấu giá');
+                }, 300);
+            }
+        } catch (error) {
+            console.error('Error deleting auction:', error);
+            const modal = document.getElementById('modal-confirm-delete-auction');
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+            setTimeout(() => {
+                alert('Đã xảy ra lỗi khi xóa sản phẩm đấu giá');
             }, 300);
         }
     });
