@@ -1,5 +1,6 @@
 <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
         <div class="mb-6">
             <nav class="flex items-center text-sm text-gray-500">
                 <a href="/" class="hover:text-gray-700">Trang chủ</a>
@@ -14,528 +15,195 @@
                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                         clip-rule="evenodd" />
                 </svg>
-                <span class="text-gray-900 font-medium">Hoàn tất đơn hàng</span>
+                <span class="text-gray-900 font-medium">Thanh toán</span>
             </nav>
         </div>
 
+        <!-- Header -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Hoàn tất đơn hàng</h1>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Thanh toán đơn hàng</h1>
             <p class="text-gray-600">
                 {{#if isSeller}}
-                Bạn là người bán - Hãy hoàn tất giao dịch với người thắng đấu giá
+                Bạn là người bán - Chờ người mua thanh toán và xác nhận hoàn tất
                 {{else}}
-                Chúc mừng bạn đã thắng đấu giá! Hãy hoàn tất thanh toán để nhận hàng
+                Chúc mừng bạn đã thắng đấu giá! Vui lòng thanh toán để hoàn tất giao dịch
                 {{/if}}
             </p>
         </div>
 
+        <!-- Status Badge -->
+        {{#if (eq orderStatus "completed")}}
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-green-900">Giao dịch hoàn tất</h3>
+                    <p class="text-green-700">Đơn hàng đã được thanh toán và hoàn tất thành công!</p>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- Product Info -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center flex-1">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-full {{#if (gte currentStep 1)}}bg-primary text-white{{else}}bg-gray-200 text-gray-500{{/if}} font-semibold">
-                        {{#if (gt currentStep 1)}}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        {{else}}
-                        1
-                        {{/if}}
-                    </div>
-                    <div class="ml-3">
-                        <p
-                            class="text-sm font-medium {{#if (eq currentStep 1)}}text-primary{{else}}text-gray-900{{/if}}">
-                            Thanh toán</p>
-                        <p class="text-xs text-gray-500">Người mua cung cấp hoá đơn</p>
-                    </div>
-                </div>
-                <div class="flex-1 h-1 mx-4 {{#if (gt currentStep 1)}}bg-primary{{else}}bg-gray-200{{/if}} rounded">
-                </div>
-                <div class="flex items-center flex-1">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-full {{#if (gte currentStep 2)}}bg-primary text-white{{else}}bg-gray-200 text-gray-500{{/if}} font-semibold">
-                        {{#if (gt currentStep 2)}}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        {{else}}
-                        2
-                        {{/if}}
-                    </div>
-                    <div class="ml-3">
-                        <p
-                            class="text-sm font-medium {{#if (eq currentStep 2)}}text-primary{{else}}text-gray-900{{/if}}">
-                            Xác nhận</p>
-                        <p class="text-xs text-gray-500">Người bán xác nhận & gửi hàng</p>
-                    </div>
-                </div>
-                <div class="flex-1 h-1 mx-4 {{#if (gt currentStep 2)}}bg-primary{{else}}bg-gray-200{{/if}} rounded">
-                </div>
-                <div class="flex items-center flex-1">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-full {{#if (gte currentStep 3)}}bg-primary text-white{{else}}bg-gray-200 text-gray-500{{/if}} font-semibold">
-                        {{#if (gt currentStep 3)}}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        {{else}}
-                        3
-                        {{/if}}
-                    </div>
-                    <div class="ml-3">
-                        <p
-                            class="text-sm font-medium {{#if (eq currentStep 3)}}text-primary{{else}}text-gray-900{{/if}}">
-                            Nhận hàng</p>
-                        <p class="text-xs text-gray-500">Người mua xác nhận nhận hàng</p>
-                    </div>
-                </div>
-                <div class="flex-1 h-1 mx-4 {{#if (gt currentStep 3)}}bg-primary{{else}}bg-gray-200{{/if}} rounded">
-                </div>
-                <div class="flex items-center flex-1">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-full {{#if (gte currentStep 4)}}bg-primary text-white{{else}}bg-gray-200 text-gray-500{{/if}} font-semibold">
-                        {{#if (gt currentStep 4)}}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        {{else}}
-                        4
-                        {{/if}}
-                    </div>
-                    <div class="ml-3">
-                        <p
-                            class="text-sm font-medium {{#if (eq currentStep 4)}}text-primary{{else}}text-gray-900{{/if}}">
-                            Đánh giá</p>
-                        <p class="text-xs text-gray-500">Đánh giá giao dịch</p>
+            <div class="flex items-start gap-4">
+                <img src="{{auction.main_image}}" alt="{{auction.name}}"
+                    class="w-24 h-24 rounded-lg object-cover bg-gray-100">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 mb-1">{{auction.name}}</h3>
+                    <p class="text-sm text-gray-500 mb-2">Mã đơn hàng: #ORD-{{auction.id}}</p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <span class="text-gray-500">Giá thắng:</span>
+                        <span class="text-xl font-bold text-primary">{{formatCurrency auction.current_price}} đ</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-start gap-4">
-                        <img src="{{auction.main_image}}" alt="{{auction.name}}"
-                            class="w-24 h-24 rounded-lg object-cover bg-gray-100">
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 mb-1">{{auction.name}}</h3>
-                            <p class="text-sm text-gray-500 mb-2">Mã đơn hàng: #ORD-{{auction.id}}</p>
-                            <div class="flex items-center gap-4 text-sm">
-                                <span class="text-gray-500">Giá thắng:</span>
-                                <span class="text-xl font-bold text-primary">{{formatCurrency auction.current_price}}
-                                    đ</span>
-                            </div>
-                        </div>
+        {{#unless (eq orderStatus "completed")}}
+        <!-- Payment Form -->
+        {{#if isWinner}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Gửi bằng chứng thanh toán</h3>
+
+            {{#if order.payment_proof}}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-yellow-900 font-medium">Đang chờ người bán xác nhận</p>
+                        <p class="text-yellow-700 text-sm">Bạn đã gửi bằng chứng thanh toán, vui lòng chờ người bán kiểm
+                            tra và xác nhận</p>
+                    </div>
+                </div>
+                <p class="text-sm text-yellow-800 mb-2">Ảnh đã gửi:</p>
+                <img src="{{order.payment_proof}}" alt="Payment proof"
+                    class="w-48 h-auto rounded-lg border border-yellow-300 cursor-pointer hover:opacity-80"
+                    onclick="window.open(this.src, '_blank')">
+            </div>
+            {{else}}
+            <div class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-medium text-blue-900 mb-2">Thông tin chuyển khoản</h4>
+                    <div class="space-y-1 text-sm text-blue-800">
+                        <p><span class="font-medium">Ngân hàng:</span> Vietcombank</p>
+                        <p><span class="font-medium">Số tài khoản:</span> 1234567890</p>
+                        <p><span class="font-medium">Chủ tài khoản:</span> {{auction.seller.username}}</p>
+                        <p><span class="font-medium">Số tiền:</span> <span
+                                class="font-bold text-blue-900">{{formatCurrency auction.current_price}} đ</span></p>
+                        <p><span class="font-medium">Nội dung:</span> ORD-{{auction.id}}</p>
                     </div>
                 </div>
 
-                {{#if (eq currentStep 1)}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        {{#if isWinner}}
-                        Bước 1: Thanh toán & Cung cấp địa chỉ giao hàng
-                        {{else}}
-                        Bước 1: Chờ người mua thanh toán
-                        {{/if}}
-                    </h3>
-
-                    {{#if isWinner}}
-                    <div class="space-y-4">
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <h4 class="font-medium text-blue-900 mb-2">Thông tin chuyển khoản</h4>
-                            <div class="space-y-1 text-sm text-blue-800">
-                                <p><span class="font-medium">Ngân hàng:</span> {{auction.seller.bank_name}}</p>
-                                <p><span class="font-medium">Số tài khoản:</span> {{auction.seller.bank_account}}</p>
-                                <p><span class="font-medium">Chủ tài khoản:</span> {{auction.seller.username}}</p>
-                                <p><span class="font-medium">Số tiền:</span> <span
-                                        class="font-bold text-blue-900">{{formatCurrency auction.current_price}}
-                                        đ</span></p>
-                                <p><span class="font-medium">Nội dung:</span> ORD-{{auction.id}}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ giao hàng</label>
-                            <textarea id="shipping-address" rows="3"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                placeholder="Nhập địa chỉ giao hàng đầy đủ..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại liên hệ</label>
-                            <input type="tel" id="phone-number"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                placeholder="Nhập số điện thoại...">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chụp hoá đơn chuyển
-                                khoản</label>
-                            <div
-                                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
-                                    viewBox="0 0 48 48">
-                                    <path
-                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <p class="mt-2 text-sm text-gray-600">Kéo thả ảnh vào đây hoặc click để chọn</p>
-                                <input type="file" id="payment-receipt" class="hidden" accept="image/*">
-                            </div>
-                        </div>
-
-                        <button type="button" id="submit-payment-btn"
-                            class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
-                            Gửi thông tin thanh toán
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chụp hoá đơn chuyển khoản *</label>
+                    <div id="upload-area"
+                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors cursor-pointer">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
+                            viewBox="0 0 48 48">
+                            <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">Kéo thả ảnh vào đây hoặc click để chọn</p>
+                        <input type="file" id="payment-proof" class="hidden" accept="image/*">
+                    </div>
+                    <div id="preview-container" class="hidden mt-4">
+                        <p class="text-sm text-gray-600 mb-2">Ảnh đã chọn:</p>
+                        <img id="preview-image" src="" alt="Preview" class="max-h-48 rounded-lg border border-gray-300">
+                        <button type="button" id="remove-image-btn"
+                            class="mt-2 text-sm text-red-600 hover:text-red-800">
+                            Xoá ảnh
                         </button>
                     </div>
-                    {{else}}
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-2">Đang chờ người mua thanh toán</h4>
-                        <p class="text-gray-500">Bạn sẽ nhận được thông báo khi người mua hoàn tất thanh toán</p>
-                    </div>
-                    {{/if}}
                 </div>
-                {{/if}}
 
-                {{#if (eq currentStep 2)}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        {{#if isSeller}}
-                        Bước 2: Xác nhận thanh toán & Gửi hàng
-                        {{else}}
-                        Bước 2: Chờ người bán xác nhận & gửi hàng
-                        {{/if}}
-                    </h3>
+                <button type="button" id="submit-payment-btn"
+                    class="w-full py-3 px-4 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Gửi bằng chứng thanh toán
+                </button>
+                </button>
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
 
-                    {{#if isSeller}}
-                    <div class="space-y-4">
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <h4 class="font-medium text-green-900 mb-2">Thông tin từ người mua</h4>
-                            <div class="space-y-2 text-sm text-green-800">
-                                <p><span class="font-medium">Địa chỉ giao hàng:</span> 123 Đường ABC, Quận 1, TP.HCM</p>
-                                <p><span class="font-medium">Số điện thoại:</span> 0901234567</p>
-                            </div>
-                            <div class="mt-3">
-                                <p class="font-medium text-green-900 mb-2">Hoá đơn chuyển khoản:</p>
-                                <img src="/images/placeholder.jpg" alt="Payment receipt"
-                                    class="w-48 h-auto rounded-lg border border-green-300">
-                            </div>
-                        </div>
+        <!-- Seller Confirmation -->
+        {{#if isSeller}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận thanh toán</h3>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mã vận đơn</label>
-                            <input type="text" id="tracking-number"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                placeholder="Nhập mã vận đơn...">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Đơn vị vận chuyển</label>
-                            <select id="shipping-carrier"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <option value="">Chọn đơn vị vận chuyển</option>
-                                <option value="ghn">Giao Hàng Nhanh</option>
-                                <option value="ghtk">Giao Hàng Tiết Kiệm</option>
-                                <option value="jt">J&T Express</option>
-                                <option value="viettel">Viettel Post</option>
-                                <option value="other">Khác</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh hoá đơn vận chuyển</label>
-                            <div
-                                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
-                                    viewBox="0 0 48 48">
-                                    <path
-                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <p class="mt-2 text-sm text-gray-600">Kéo thả ảnh vào đây hoặc click để chọn</p>
-                                <input type="file" id="shipping-receipt" class="hidden" accept="image/*">
-                            </div>
-                        </div>
-
-                        <button type="button" id="confirm-shipping-btn"
-                            class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
-                            Xác nhận đã gửi hàng
-                        </button>
-                    </div>
-                    {{else}}
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-2">Đang chờ người bán xác nhận & gửi hàng</h4>
-                        <p class="text-gray-500">Bạn sẽ nhận được thông báo khi đơn hàng được gửi đi</p>
-                    </div>
-                    {{/if}}
-                </div>
-                {{/if}}
-
-                {{#if (eq currentStep 3)}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        {{#if isWinner}}
-                        Bước 3: Xác nhận đã nhận hàng
-                        {{else}}
-                        Bước 3: Chờ người mua xác nhận nhận hàng
-                        {{/if}}
-                    </h3>
-
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                        <h4 class="font-medium text-blue-900 mb-2">Thông tin vận chuyển</h4>
-                        <div class="space-y-1 text-sm text-blue-800">
-                            <p><span class="font-medium">Đơn vị vận chuyển:</span> Giao Hàng Nhanh</p>
-                            <p><span class="font-medium">Mã vận đơn:</span> GHN123456789</p>
-                            <a href="#" class="text-blue-600 hover:underline">Theo dõi đơn hàng →</a>
-                        </div>
-                    </div>
-
-                    {{#if isWinner}}
-                    <div class="space-y-4">
-                        <p class="text-gray-600">Vui lòng xác nhận khi bạn đã nhận được hàng và kiểm tra sản phẩm.</p>
-                        <button type="button" id="confirm-received-btn"
-                            class="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                            Xác nhận đã nhận hàng
-                        </button>
-                    </div>
-                    {{else}}
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8 4m0 0l-8-4m8 4v10m0-10L4 7m8 4l8-4" />
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-2">Đơn hàng đang được giao</h4>
-                        <p class="text-gray-500">Chờ người mua xác nhận đã nhận hàng</p>
-                    </div>
-                    {{/if}}
-                </div>
-                {{/if}}
-
-                {{#if (eq currentStep 4)}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Bước 4: Đánh giá giao dịch</h3>
-
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Đánh giá của bạn</label>
-                            <div class="flex gap-4">
-                                <button type="button" id="rating-positive"
-                                    class="flex-1 py-4 px-6 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all group">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-10 h-10 text-gray-400 group-hover:text-green-500" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                                        </svg>
-                                        <span class="mt-2 font-medium text-gray-700 group-hover:text-green-600">+1 Tích
-                                            cực</span>
-                                    </div>
-                                </button>
-                                <button type="button" id="rating-negative"
-                                    class="flex-1 py-4 px-6 border-2 border-gray-200 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all group">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-10 h-10 text-gray-400 group-hover:text-red-500" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-                                        </svg>
-                                        <span class="mt-2 font-medium text-gray-700 group-hover:text-red-600">-1 Tiêu
-                                            cực</span>
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nhận xét (tùy chọn)</label>
-                            <textarea id="rating-comment" rows="3"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                placeholder="Chia sẻ trải nghiệm giao dịch của bạn..."></textarea>
-                        </div>
-
-                        <button type="button" id="submit-rating-btn"
-                            class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
-                            Gửi đánh giá
-                        </button>
-
-                        <p class="text-sm text-gray-500 text-center">
-                            Bạn có thể thay đổi đánh giá bất cứ lúc nào
-                        </p>
-                    </div>
-                </div>
-                {{/if}}
-
-                {{#if isSeller}}
-                <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-medium text-red-900 mb-1">Huỷ giao dịch</h4>
-                            <p class="text-sm text-red-700 mb-3">Nếu người mua không thanh toán hoặc có vấn đề phát
-                                sinh, bạn có thể huỷ giao dịch. Người mua sẽ nhận đánh giá -1.</p>
-                            <button type="button" id="cancel-order-btn"
-                                class="py-2 px-4 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-                                Huỷ giao dịch
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {{/if}}
+            {{#if order.payment_proof}}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-green-900 mb-2">Bằng chứng thanh toán từ người mua</h4>
+                <img src="{{order.payment_proof}}" alt="Payment proof"
+                    class="w-64 h-auto rounded-lg border border-green-300 cursor-pointer hover:opacity-80 mb-4"
+                    onclick="window.open(this.src, '_blank')">
             </div>
 
-            <div class="space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-semibold text-gray-900">
-                            {{#if isSeller}}
-                            Người mua
-                            {{else}}
-                            Người bán
-                            {{/if}}
-                        </h3>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Đang online
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div
-                            class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
-                            {{#if otherParty}}
-                            {{substring otherParty.username 0 1}}
-                            {{else}}
-                            ?
-                            {{/if}}
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-900">{{#if otherParty}}{{otherParty.username}}{{else}}Người
-                                dùng{{/if}}</p>
-                            <div class="flex items-center gap-1 text-sm">
-                                <span class="text-green-600 font-medium">+50</span>
-                                <span class="text-gray-400">/</span>
-                                <span class="text-red-600 font-medium">-2</span>
-                                <span class="text-gray-500 ml-1">(96% tích cực)</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="flex gap-3">
+                <button type="button" id="confirm-payment-btn"
+                    class="flex-1 py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Xác nhận đã nhận tiền
+                    </span>
+                </button>
+                <button type="button" id="reject-payment-btn"
+                    class="py-3 px-4 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Huỷ giao dịch
+                    </span>
+                </button>
+            </div>
+            {{else}}
+            <div class="text-center py-8">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
+                <h4 class="text-lg font-medium text-gray-900 mb-2">Chờ người mua thanh toán</h4>
+                <p class="text-gray-500">Bạn sẽ nhận được thông báo khi người mua gửi bằng chứng thanh toán</p>
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+        {{/unless}}
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col" style="height: 500px;">
-                    <div class="px-4 py-3 border-b border-gray-200">
-                        <h3 class="font-semibold text-gray-900">Tin nhắn</h3>
-                    </div>
-
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
-                        <div class="flex items-start gap-2">
-                            <div
-                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium flex-shrink-0">
-                                N
-                            </div>
-                            <div class="flex-1">
-                                <div class="bg-gray-100 rounded-2xl rounded-tl-none px-4 py-2 max-w-[80%] inline-block">
-                                    <p class="text-sm text-gray-800">Xin chào, cảm ơn bạn đã thắng đấu giá!</p>
-                                </div>
-                                <p class="text-xs text-gray-400 mt-1">10:30</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-2 flex-row-reverse">
-                            <div
-                                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                                B
-                            </div>
-                            <div class="flex-1 text-right">
-                                <div
-                                    class="bg-primary text-white rounded-2xl rounded-tr-none px-4 py-2 max-w-[80%] inline-block text-left">
-                                    <p class="text-sm">Cảm ơn bạn! Tôi sẽ thanh toán ngay.</p>
-                                </div>
-                                <p class="text-xs text-gray-400 mt-1">10:32</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-2">
-                            <div
-                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium flex-shrink-0">
-                                N
-                            </div>
-                            <div class="flex-1">
-                                <div class="bg-gray-100 rounded-2xl rounded-tl-none px-4 py-2 max-w-[80%] inline-block">
-                                    <p class="text-sm text-gray-800">Bạn có cần ship nhanh không? Tôi có thể gửi trong
-                                        hôm nay nếu thanh toán trước 14h.</p>
-                                </div>
-                                <p class="text-xs text-gray-400 mt-1">10:35</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-4 border-t border-gray-200">
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="chat-input"
-                                class="flex-1 px-4 py-2.5 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                placeholder="Nhập tin nhắn...">
-                            <button type="button" id="send-message-btn"
-                                class="p-2.5 bg-primary text-white rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+        <!-- Order Summary -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="font-semibold text-gray-900 mb-4">Tóm tắt đơn hàng</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Giá thắng</span>
+                    <span class="text-gray-900">{{formatCurrency auction.current_price}} đ</span>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">Tóm tắt đơn hàng</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Giá thắng</span>
-                            <span class="text-gray-900">{{formatCurrency auction.current_price}} đ</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Phí vận chuyển</span>
-                            <span class="text-gray-900">Tự thỏa thuận</span>
-                        </div>
-                        <div class="border-t border-gray-200 pt-3 flex justify-between">
-                            <span class="font-medium text-gray-900">Tổng cộng</span>
-                            <span class="font-bold text-primary text-lg">{{formatCurrency auction.current_price}}
-                                đ</span>
-                        </div>
-                    </div>
+                <div class="border-t border-gray-200 pt-3 flex justify-between">
+                    <span class="font-medium text-gray-900">Tổng cộng</span>
+                    <span class="font-bold text-primary text-lg">{{formatCurrency auction.current_price}} đ</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{{#section "script"}}
+{{#section "js"}}
 <script src="/js/payment/payment.js"></script>
 {{/section}}

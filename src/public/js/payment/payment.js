@@ -1,220 +1,276 @@
 document.addEventListener('DOMContentLoaded', () => {
-    initUploadAreas();
-    initRatingButtons();
-    initChat();
-    initActionButtons();
+    initUploadArea();
+    initButtons();
+    console.log('Payment page scripts initialized');
 });
-function initUploadAreas() {
-    const uploadAreas = document.querySelectorAll('.border-dashed');
-    uploadAreas.forEach(area => {
-        const input = area.querySelector('input[type="file"]');
-        if (input) {
-            area.addEventListener('click', () => input.click());
-            area.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                area.classList.add('border-primary', 'bg-primary/5');
-            });
-            area.addEventListener('dragleave', () => {
-                area.classList.remove('border-primary', 'bg-primary/5');
-            });
-            area.addEventListener('drop', (e) => {
-                e.preventDefault();
-                area.classList.remove('border-primary', 'bg-primary/5');
-                if (e.dataTransfer.files.length > 0) {
-                    input.files = e.dataTransfer.files;
-                    handleFileSelect(input, area);
-                }
-            });
-            input.addEventListener('change', () => handleFileSelect(input, area));
+
+function getAuctionId() {
+    const path = window.location.pathname;
+    // Match UUID format: /payment/:uuid
+    const match = path.match(/\/payment\/([a-f0-9-]+)/i);
+    return match ? match[1] : null;
+}
+
+let selectedFile = null;
+
+function initUploadArea() {
+    const uploadArea = document.getElementById('upload-area');
+    const input = document.getElementById('payment-proof');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+    const removeBtn = document.getElementById('remove-image-btn');
+
+    console.log('Init upload area:', { uploadArea, input, previewContainer });
+
+    if (!uploadArea || !input) {
+        console.error('Upload area elements not found!');
+        return;
+    }
+
+    // Click to select file
+    uploadArea.addEventListener('click', (e) => {
+        console.log('Upload area clicked');
+        input.click();
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('border-primary-500', 'bg-primary-50');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+        if (e.dataTransfer.files.length > 0) {
+            handleFileSelect(e.dataTransfer.files[0]);
         }
     });
-}
-function handleFileSelect(input, area) {
-    if (input.files.length > 0) {
-        const file = input.files[0];
-        const fileName = file.name;
-        const textElement = area.querySelector('p');
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                area.innerHTML = `
-                    <img src="${e.target.result}" class="max-h-48 mx-auto rounded-lg">
-                    <p class="mt-2 text-sm text-gray-600">${fileName}</p>
-                    <input type="file" class="hidden" accept="image/*">
-                `;
-                const newInput = area.querySelector('input[type="file"]');
-                newInput.files = input.files;
-                newInput.addEventListener('change', () => handleFileSelect(newInput, area));
-            };
-            reader.readAsDataURL(file);
-        } else {
-            textElement.textContent = fileName;
+
+    // File input change
+    input.addEventListener('change', () => {
+        console.log('File selected:', input.files);
+        if (input.files.length > 0) {
+            handleFileSelect(input.files[0]);
         }
-    }
-}
-function initRatingButtons() {
-    const ratingPositive = document.getElementById('rating-positive');
-    const ratingNegative = document.getElementById('rating-negative');
-    if (ratingPositive && ratingNegative) {
-        ratingPositive.addEventListener('click', () => {
-            ratingPositive.classList.add('border-green-500', 'bg-green-50', 'selected');
-            ratingPositive.querySelector('.text-gray-400')?.classList.replace('text-gray-400', 'text-green-500');
-            ratingPositive.querySelector('.text-gray-700')?.classList.replace('text-gray-700', 'text-green-600');
-            ratingNegative.classList.remove('border-red-500', 'bg-red-50', 'selected');
-            ratingNegative.querySelector('.text-red-500')?.classList.replace('text-red-500', 'text-gray-400');
-            ratingNegative.querySelector('.text-red-600')?.classList.replace('text-red-600', 'text-gray-700');
-        });
-        ratingNegative.addEventListener('click', () => {
-            ratingNegative.classList.add('border-red-500', 'bg-red-50', 'selected');
-            ratingNegative.querySelector('.text-gray-400')?.classList.replace('text-gray-400', 'text-red-500');
-            ratingNegative.querySelector('.text-gray-700')?.classList.replace('text-gray-700', 'text-red-600');
-            ratingPositive.classList.remove('border-green-500', 'bg-green-50', 'selected');
-            ratingPositive.querySelector('.text-green-500')?.classList.replace('text-green-500', 'text-gray-400');
-            ratingPositive.querySelector('.text-green-600')?.classList.replace('text-green-600', 'text-gray-700');
+    });
+
+    // Remove image button
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            console.log('Remove image clicked');
+            selectedFile = null;
+            input.value = '';
+            if (previewContainer) previewContainer.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
         });
     }
-}
-function initChat() {
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-message-btn');
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatInput && sendBtn && chatMessages) {
-        const sendMessage = () => {
-            const message = chatInput.value.trim();
-            if (!message) return;
-            const userInitial = document.body.dataset.userInitial || 'B';
-            const now = new Date();
-            const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            const messageHtml = `
-                <div class="flex items-start gap-2 flex-row-reverse">
-                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                        ${userInitial}
-                    </div>
-                    <div class="flex-1 text-right">
-                        <div class="bg-primary text-white rounded-2xl rounded-tr-none px-4 py-2 max-w-[80%] inline-block text-left">
-                            <p class="text-sm">${escapeHtml(message)}</p>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">${time}</p>
-                    </div>
-                </div>
-            `;
-            chatMessages.insertAdjacentHTML('beforeend', messageHtml);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            chatInput.value = '';
-        };
-        sendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage();
+
+    function handleFileSelect(file) {
+        console.log('Handle file select:', file);
+        if (!file.type.startsWith('image/')) {
+            if (typeof NotificationModal !== 'undefined') {
+                NotificationModal.warning('Vui lòng chọn file ảnh', 'Lỗi định dạng');
+            } else {
+                alert('Vui lòng chọn file ảnh');
             }
-        });
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+            return;
+        }
+
+        selectedFile = file;
+        console.log('Selected file set:', selectedFile);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            console.log('File loaded, showing preview');
+            if (previewImage) {
+                previewImage.src = e.target.result;
+            }
+            if (previewContainer) {
+                previewContainer.classList.remove('hidden');
+            }
+            uploadArea.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
     }
 }
-function initActionButtons() {
+
+function initButtons() {
+    const auctionId = getAuctionId();
+    if (!auctionId) return;
+
+    // Buyer: Submit payment proof
     const submitPaymentBtn = document.getElementById('submit-payment-btn');
     if (submitPaymentBtn) {
         submitPaymentBtn.addEventListener('click', async () => {
-            const shippingAddress = document.getElementById('shipping-address')?.value.trim();
-            const phoneNumber = document.getElementById('phone-number')?.value.trim();
-            const paymentReceipt = document.getElementById('payment-receipt')?.files[0];
-            if (!shippingAddress) {
-                NotificationModal.show('warning', 'Vui lòng nhập địa chỉ giao hàng');
+            console.log('Submit button clicked, selectedFile:', selectedFile);
+
+            if (!selectedFile) {
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.warning('Vui lòng tải lên ảnh hoá đơn chuyển khoản', 'Thiếu thông tin');
+                } else {
+                    alert('Vui lòng tải lên ảnh hoá đơn chuyển khoản');
+                }
                 return;
             }
-            if (!phoneNumber) {
-                NotificationModal.show('warning', 'Vui lòng nhập số điện thoại');
-                return;
-            }
-            if (!paymentReceipt) {
-                NotificationModal.show('warning', 'Vui lòng tải lên ảnh hoá đơn chuyển khoản');
-                return;
-            }
+
             setButtonLoading(submitPaymentBtn, true);
-            setTimeout(() => {
+
+            try {
+                const formData = new FormData();
+                formData.append('payment_proof', selectedFile);
+
+                console.log('Sending request to:', `/payment/${auctionId}/submit-payment`);
+                console.log('FormData file:', selectedFile.name, selectedFile.size);
+
+                const res = await fetch(`/payment/${auctionId}/submit-payment`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+                console.log('Response:', data);
+
+                if (data.success) {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.success('Đã gửi bằng chứng thanh toán!', 'Thành công');
+                    }
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.error(data.message || 'Có lỗi xảy ra', 'Lỗi');
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra');
+                    }
+                    setButtonLoading(submitPaymentBtn, false);
+                }
+            } catch (err) {
+                console.error('Error submitting payment:', err);
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Có lỗi xảy ra', 'Lỗi');
+                } else {
+                    alert('Có lỗi xảy ra');
+                }
                 setButtonLoading(submitPaymentBtn, false);
-                NotificationModal.show('success', 'Đã gửi thông tin thanh toán!');
-            }, 1500);
+            }
         });
     }
-    const confirmShippingBtn = document.getElementById('confirm-shipping-btn');
-    if (confirmShippingBtn) {
-        confirmShippingBtn.addEventListener('click', async () => {
-            const trackingNumber = document.getElementById('tracking-number')?.value.trim();
-            const shippingCarrier = document.getElementById('shipping-carrier')?.value;
-            if (!trackingNumber) {
-                NotificationModal.show('warning', 'Vui lòng nhập mã vận đơn');
-                return;
+
+    // Seller: Confirm payment
+    const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
+    if (confirmPaymentBtn) {
+        confirmPaymentBtn.addEventListener('click', async () => {
+            let confirmed = true;
+            if (typeof ConfirmModal !== 'undefined') {
+                confirmed = await ConfirmModal.show(
+                    'Xác nhận đã nhận tiền?',
+                    'Bạn xác nhận đã nhận đủ tiền từ người mua và muốn hoàn tất đơn hàng?',
+                    'Xác nhận',
+                    'Huỷ'
+                );
+            } else {
+                confirmed = confirm('Bạn xác nhận đã nhận đủ tiền từ người mua?');
             }
-            if (!shippingCarrier) {
-                NotificationModal.show('warning', 'Vui lòng chọn đơn vị vận chuyển');
-                return;
-            }
-            setButtonLoading(confirmShippingBtn, true);
-            setTimeout(() => {
-                setButtonLoading(confirmShippingBtn, false);
-                NotificationModal.show('success', 'Đã xác nhận gửi hàng!');
-            }, 1500);
-        });
-    }
-    const confirmReceivedBtn = document.getElementById('confirm-received-btn');
-    if (confirmReceivedBtn) {
-        confirmReceivedBtn.addEventListener('click', async () => {
-            const confirmed = await ConfirmModal.show(
-                'Xác nhận nhận hàng?',
-                'Bạn đã nhận được hàng và kiểm tra sản phẩm?',
-                'Xác nhận',
-                'Huỷ'
-            );
+
             if (!confirmed) return;
-            setButtonLoading(confirmReceivedBtn, true);
-            setTimeout(() => {
-                setButtonLoading(confirmReceivedBtn, false);
-                NotificationModal.show('success', 'Đã xác nhận nhận hàng!');
-            }, 1500);
-        });
-    }
-    const submitRatingBtn = document.getElementById('submit-rating-btn');
-    if (submitRatingBtn) {
-        submitRatingBtn.addEventListener('click', async () => {
-            const isPositive = document.getElementById('rating-positive')?.classList.contains('selected');
-            const isNegative = document.getElementById('rating-negative')?.classList.contains('selected');
-            const comment = document.getElementById('rating-comment')?.value.trim();
-            if (!isPositive && !isNegative) {
-                NotificationModal.show('warning', 'Vui lòng chọn đánh giá');
-                return;
+
+            setButtonLoading(confirmPaymentBtn, true);
+
+            try {
+                const res = await fetch(`/payment/${auctionId}/confirm-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.success('Đã hoàn tất đơn hàng!', 'Thành công');
+                    }
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.error(data.message || 'Có lỗi xảy ra', 'Lỗi');
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra');
+                    }
+                    setButtonLoading(confirmPaymentBtn, false);
+                }
+            } catch (err) {
+                console.error('Error confirming payment:', err);
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Có lỗi xảy ra', 'Lỗi');
+                } else {
+                    alert('Có lỗi xảy ra');
+                }
+                setButtonLoading(confirmPaymentBtn, false);
             }
-            setButtonLoading(submitRatingBtn, true);
-            setTimeout(() => {
-                setButtonLoading(submitRatingBtn, false);
-                NotificationModal.show('success', 'Đã gửi đánh giá!');
-            }, 1500);
         });
     }
-    const cancelOrderBtn = document.getElementById('cancel-order-btn');
-    if (cancelOrderBtn) {
-        cancelOrderBtn.addEventListener('click', async () => {
-            const confirmed = await ConfirmModal.show(
-                'Huỷ giao dịch?',
-                'Người mua sẽ nhận đánh giá -1. Bạn có chắc muốn huỷ giao dịch này?',
-                'Huỷ giao dịch',
-                'Quay lại'
-            );
+
+    // Seller: Reject/Cancel payment
+    const rejectPaymentBtn = document.getElementById('reject-payment-btn');
+    if (rejectPaymentBtn) {
+        rejectPaymentBtn.addEventListener('click', async () => {
+            let confirmed = true;
+            if (typeof ConfirmModal !== 'undefined') {
+                confirmed = await ConfirmModal.show(
+                    'Huỷ giao dịch?',
+                    'Bạn có chắc muốn huỷ giao dịch này? Người mua sẽ được đánh giá -1 điểm.',
+                    'Huỷ giao dịch',
+                    'Quay lại'
+                );
+            } else {
+                confirmed = confirm('Bạn có chắc muốn huỷ giao dịch này?');
+            }
+
             if (!confirmed) return;
-            setButtonLoading(cancelOrderBtn, true);
-            setTimeout(() => {
-                setButtonLoading(cancelOrderBtn, false);
-                NotificationModal.show('success', 'Đã huỷ giao dịch!');
-            }, 1500);
+
+            setButtonLoading(rejectPaymentBtn, true);
+
+            try {
+                const res = await fetch(`/payment/${auctionId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.success('Đã huỷ giao dịch', 'Thành công');
+                    }
+                    setTimeout(() => window.location.href = `/auctions/${auctionId}`, 1500);
+                } else {
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.error(data.message || 'Có lỗi xảy ra', 'Lỗi');
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra');
+                    }
+                    setButtonLoading(rejectPaymentBtn, false);
+                }
+            } catch (err) {
+                console.error('Error canceling order:', err);
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Có lỗi xảy ra', 'Lỗi');
+                } else {
+                    alert('Có lỗi xảy ra');
+                }
+                setButtonLoading(rejectPaymentBtn, false);
+            }
         });
     }
 }
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+
 function setButtonLoading(button, isLoading) {
     if (isLoading) {
         button.disabled = true;

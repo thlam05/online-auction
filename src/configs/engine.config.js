@@ -89,6 +89,19 @@ const configEngine = (app) => {
                 if (auction.seller_id != user.id) return false;
                 return true;
             },
+            isWinnerOfAuction(user, auction) {
+                if (!auction.highest_bidder) return false;
+                return auction.highest_bidder == user.id;
+            },
+            canAccessPayment(user, auction) {
+                // User can access payment if auction is over and they are seller or winner
+                const isOver = new Date(auction.end_at) <= new Date();
+                if (!isOver) return false;
+                if (!auction.highest_bidder) return false;
+                const isSeller = auction.seller_id == user.id;
+                const isWinner = auction.highest_bidder == user.id;
+                return isSeller || isWinner;
+            },
             isOver(end_date) {
                 const date = new Date(end_date);
                 if (date <= new Date()) return true;
@@ -178,6 +191,13 @@ const configEngine = (app) => {
             formatCurrency(value) {
                 if (!value) return "0";
                 return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
+            formatTime(date) {
+                if (!date) return "";
+                const d = new Date(date);
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
             }
         }
     }));

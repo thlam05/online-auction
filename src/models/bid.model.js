@@ -58,7 +58,10 @@ const bidModel = {
             .join("users AS u", "u.id", "b.bidder_id")
             .where("b.auction_id", auction_id)
             .select("b.*", "u.username as bidder_name")
-            .orderBy("b.amount", "desc")
+            .orderBy([
+                { column: "b.amount", order: "desc" },
+                { column: "b.created_at", order: "desc" }
+            ])
     },
 
     getBidByUserId(user_id) {

@@ -142,32 +142,34 @@ const auctionModel = {
     },
 
     baseAuctionQueryFull() {
+        // Subquery to get the latest (by created_at) highest bid for each auction
+        const latestHighestBids = db("bids")
+            .select(
+                db.raw("DISTINCT ON (auction_id) auction_id"),
+                "bidder_id",
+                "amount"
+            )
+            .orderBy("auction_id")
+            .orderBy("amount", "desc")
+            .orderBy("created_at", "desc")
+            .as("latest_bids");
+
         return db("auctions as a")
             .leftJoin("categories as c", "c.id", "a.category_id")
             .leftJoin("users as u", "u.id", "a.seller_id")
             .leftJoin("auction_images as ai", function () {
                 this.on("ai.auction_id", "a.id").andOn("ai.is_main", db.raw("true"));
             })
-            .leftJoin(
-                db("bids")
-                    .select("auction_id", db.raw("MAX(amount) as max_amount"))
-                    .groupBy("auction_id")
-                    .as("max_bids"),
-                "max_bids.auction_id",
-                "a.id"
-            )
-            .leftJoin("bids as highest_bid", function () {
-                this.on("highest_bid.auction_id", "a.id")
-                    .andOn("highest_bid.amount", "max_bids.max_amount");
-            })
-            .leftJoin("users as bidder", "bidder.id", "highest_bid.bidder_id")
+            .leftJoin(latestHighestBids, "latest_bids.auction_id", "a.id")
+            .leftJoin("users as bidder", "bidder.id", "latest_bids.bidder_id")
             .select(
                 "a.*",
                 db.raw("json_build_object('id', c.id, 'name', c.name, 'parent_category_id', c.parent_category_id) as category"),
                 db.raw("json_build_object('id', u.id, 'username', u.username, 'email', u.email) as seller"),
                 db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
                 db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
-            );
+            )
+            .orderBy("a.created_at", "desc");
     },
 
     findAllWithRelations() {

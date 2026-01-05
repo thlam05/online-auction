@@ -96,15 +96,17 @@ const bidService = {
         if (auction.buy_now_price && auction.buy_now_price > 0 && auction.current_price >= auction.buy_now_price) {
             auction.end_at = new Date(); // End auction now
             buyNowTriggered = true;
-        } else {
-            // Auto extend time logic
-            const time = new Date(auction.end_at);
+        } else if (auction.auto_renew) {
+            // Auto extend time logic - only if auto_renew is enabled
+            // If bid is placed within 5 minutes before end, extend by 10 minutes
+            const endTime = new Date(auction.end_at);
             const now = new Date();
-            const diffMs = now - time;
+            const diffMs = endTime - now; // positive = auction still running
             const diffMinutes = diffMs / (1000 * 60);
 
-            if (diffMinutes <= 5 && diffMinutes >= 0) {
-                auction.end_at = new Date(time.getTime() + 10 * 60 * 1000);
+            // If less than 5 minutes remaining (0 < diffMinutes <= 5)
+            if (diffMinutes > 0 && diffMinutes <= 5) {
+                auction.end_at = new Date(endTime.getTime() + 10 * 60 * 1000);
             }
         }
         await auctionModel.update(auction);

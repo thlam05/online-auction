@@ -21,30 +21,46 @@
 {{#section "js"}}
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
-    const quill = new Quill('#description-editor', {
-        theme: 'snow',
-        readOnly: true
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const quill = new Quill('#description-editor', {
+            theme: 'snow',
+            readOnly: true,
+            modules: {
+                toolbar: false
+            }
+        });
 
-    const newQuill = new Quill('#new-description-editor', {
-        theme: 'snow',
-    });
+        const newQuill = new Quill('#new-description-editor', {
+            theme: 'snow',
+            placeholder: 'Thêm mô tả bổ sung tại đây...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
 
-    const form = document.querySelector("#form-edit-auction");
+        const form = document.querySelector("#form-edit-auction");
 
-    form.onsubmit = function (event) {
-        event.preventDefault();
+        form.onsubmit = function (event) {
+            event.preventDefault();
 
-        const htmlDes = newQuill.root.innerHTML;
-        const description = form.querySelector("#description-hidden");
-        description.value = htmlDes;
+            const htmlDes = newQuill.root.innerHTML;
+            const description = form.querySelector("#description-hidden");
+            description.value = htmlDes;
 
-        if (description.value == "" || description.value == "<p>Thêm mô tả bổ sung tại đây...</p>") {
-            return;
+            if (description.value == "" || description.value == "<p><br></p>") {
+                return;
+            }
+
+            form.submit();
         }
-
-        form.submit();
-    }
+    });
 </script>
 {{/section}}
 
@@ -87,7 +103,7 @@
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Thêm mô tả bổ sung</label>
                 <div id="new-description-editor">
-                    <p>Thêm mô tả bổ sung tại đây...</p>
+
                 </div>
                 <input type="text" hidden name="description" id="description-hidden">
                 <p class="text-xs text-gray-500 mt-2">Mô tả bổ sung sẽ được thêm vào sau mô tả hiện tại</p>

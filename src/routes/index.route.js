@@ -13,6 +13,7 @@ const route = (app) => {
     app.use("/home", HomeRouter);
     app.use("/auth", AuthRouter);
     app.use("/auctions", AuctionRouter);
+    app.use("/api/auctions", AuctionRouter);
     app.use("/user", ensureAuthenticated, UserRouter);
     app.use("/bids", BidRouter);
     app.use("/watch-list", ensureAuthenticated, WatchListRouter);

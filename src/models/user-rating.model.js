@@ -5,6 +5,16 @@ const userRatingModel = {
         return db("user_ratings").insert(rating).returning("*");
     },
 
+    update(id, data) {
+        return db("user_ratings").where({ id }).update(data).returning("*");
+    },
+
+    findByRaterAndAuction(rater_id, auction_id) {
+        return db("user_ratings")
+            .where({ rater_id, auction_id })
+            .first();
+    },
+
     getListRatedById(user_id) {
         return db("user_ratings").where({ rater_id: user_id });
     },

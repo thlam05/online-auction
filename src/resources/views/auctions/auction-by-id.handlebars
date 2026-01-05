@@ -1,6 +1,33 @@
 {{#section "js"}}
-<script src="/js/shared/currency-formatter.js"></script>
 <script>
+    // Currency formatter utility
+    const CurrencyFormatter = {
+        format: function (value) {
+            const numbers = value.toString().replace(/\D/g, '');
+            if (!numbers) return '';
+            return numbers.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        },
+        unformat: function (value) {
+            return value.toString().replace(/\s/g, '');
+        },
+        applyToInput: function (input) {
+            if (!input) return;
+            input.addEventListener('input', function (e) {
+                const cursorPosition = this.selectionStart;
+                const oldLength = this.value.length;
+                const formatted = CurrencyFormatter.format(this.value);
+                this.value = formatted;
+                const diff = formatted.length - oldLength;
+                if (input.setSelectionRange) {
+                    input.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+                }
+            });
+            if (input.value) {
+                input.value = CurrencyFormatter.format(input.value);
+            }
+        }
+    };
+
     const remaininTimes = document.querySelector(".remaining-time");
 
     function formatRemainingTime(ms) {
@@ -412,23 +439,14 @@
 
     }
 
-    // Buy Now button handler
     const btnBuyNow = document.querySelector("#btn-buy-now");
     if (btnBuyNow) {
-        btnBuyNow.onclick = async function () {
+        btnBuyNow.addEventListener('click', async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
             const auction_id = this.dataset.auctionId;
-            const buyNowPrice = Number(this.dataset.buyNowPrice);
 
-            const confirmed = await ConfirmModal.show(
-                'Xác nhận mua ngay',
-                `Bạn có chắc muốn mua ngay sản phẩm này với giá ${buyNowPrice.toLocaleString('vi-VN')} đ?`,
-                'Mua ngay',
-                'Huỷ'
-            );
-
-            if (!confirmed) return;
-
-            // Show loading
             const originalHTML = this.innerHTML;
             this.disabled = true;
             this.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -446,23 +464,29 @@
 
                 const data = await res.json();
 
-                if (data.success) {
-                    NotificationModal.show('success', data.message);
-                    setTimeout(() => {
-                        window.location.href = data.redirectUrl;
-                    }, 1500);
+                if (data.success && data.redirectUrl) {
+                    window.location.replace(data.redirectUrl);
+                    return;
                 } else {
-                    NotificationModal.show('error', data.message);
+                    if (typeof NotificationModal !== 'undefined') {
+                        NotificationModal.error(data.message || 'Không thể mua ngay', 'Lỗi');
+                    } else {
+                        alert(data.message || 'Không thể mua ngay');
+                    }
                     this.disabled = false;
                     this.innerHTML = originalHTML;
                 }
             } catch (err) {
-                console.error(err);
-                NotificationModal.show('error', 'Có lỗi xảy ra, vui lòng thử lại');
+                console.error('Buy now error:', err);
+                if (typeof NotificationModal !== 'undefined') {
+                    NotificationModal.error('Có lỗi xảy ra, vui lòng thử lại', 'Lỗi');
+                } else {
+                    alert('Có lỗi xảy ra, vui lòng thử lại');
+                }
                 this.disabled = false;
                 this.innerHTML = originalHTML;
             }
-        }
+        });
     }
 
     document.querySelectorAll('[data-tab-target]').forEach(button => {
@@ -723,6 +747,18 @@
                             Theo dõi
                         </button>
                     </div>
+
+                    {{!-- Payment button for ended auctions --}}
+                    {{#if (canAccessPayment authUser auction)}}
+                    <a href="/payment/{{auction.id}}"
+                        class="w-full mt-3 py-3.5 px-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-green-500/25">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Thanh toán & Giao dịch
+                    </a>
+                    {{/if}}
                 </div>
                 {{/if}}
             </div>
