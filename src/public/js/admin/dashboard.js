@@ -1,4 +1,39 @@
 import { setupPagination, setupSearch, setupFilters } from '../shared/pagination.js';
+
+const createSkeletonRow = (columns) => {
+    const cells = Array(columns).fill(0).map((_, i) => {
+        if (i === columns - 1) {
+            return `<td class="px-6 py-4"><div class="h-8 w-8 bg-gray-200 rounded-md animate-pulse mx-auto"></div></td>`;
+        }
+        return `<td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse" style="width: ${60 + Math.random() * 30}%"></div></td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+};
+
+const renderCategoriesSkeleton = () => {
+    return Array(5).fill(0).map(() => createSkeletonRow(4)).join('');
+};
+
+const renderAuctionsSkeleton = () => {
+    return Array(5).fill(0).map(() => {
+        return `
+            <tr>
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-200 rounded-md animate-pulse"></div>
+                        <div class="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                    </div>
+                </td>
+                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-20"></div></td>
+                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div></td>
+                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-20"></div></td>
+                <td class="px-6 py-4"><div class="h-6 bg-gray-200 rounded-full animate-pulse w-20"></div></td>
+                <td class="px-6 py-4"><div class="h-8 w-8 bg-gray-200 rounded-md animate-pulse mx-auto"></div></td>
+            </tr>
+        `;
+    }).join('');
+};
+
 const createActionDropdown = (buttons) => {
     const buttonsHtml = buttons.map(btn => `
         <button type="button" 
@@ -134,22 +169,25 @@ document.addEventListener('DOMContentLoaded', () => {
         'categories-pagination',
         '/admin/categories/data',
         renderCategoriesTable,
-        'blue'
+        'blue',
+        renderCategoriesSkeleton
     );
-    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data', renderCategoriesTable);
+    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data', renderCategoriesTable, 100, renderCategoriesSkeleton);
     setupPagination(
         'auctions-table-body',
         'auctions-pagination',
         '/admin/auctions/data',
         renderAuctionsTable,
-        'blue'
+        'blue',
+        renderAuctionsSkeleton
     );
-    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data', renderAuctionsTable);
+    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data', renderAuctionsTable, 100, renderAuctionsSkeleton);
     setupFilters(
         ['filter-auction-category', 'filter-auction-status'],
         'auctions-table-body',
         '/admin/auctions/data',
-        renderAuctionsTable
+        renderAuctionsTable,
+        renderAuctionsSkeleton
     );
     setupPagination(
         'users-table-body',

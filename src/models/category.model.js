@@ -71,31 +71,22 @@ const categoryModel = {
             .first();
     },
 
-    // Full-text search for categories
+
     async searchCategories(searchTerm) {
         if (!searchTerm || searchTerm.trim() === '') {
             return this.findAll();
         }
 
-        // Normalize Vietnamese text: remove diacritics
-        const normalizedSearch = searchTerm
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd')
-            .trim();
 
-        // Use ILIKE for case-insensitive search with pattern matching
-        // This works well for Vietnamese without needing full FTS extension
         return db("categories")
-            .where(function () {
-                this.where('name', 'ilike', `%${normalizedSearch}%`)
-                    .orWhere('slug', 'ilike', `%${normalizedSearch}%`)
-                    .orWhereRaw(
-                        `unaccent(lower(name)) ILIKE unaccent(lower(?))`,
-                        [`%${searchTerm}%`]
-                    );
-            });
+            .whereRaw(
+                `unaccent(lower(name)) ILIKE unaccent(lower(?))`,
+                [`%${searchTerm.trim()}%`]
+            )
+            .orWhereRaw(
+                `unaccent(lower(slug)) ILIKE unaccent(lower(?))`,
+                [`%${searchTerm.trim()}%`]
+            );
     }
 }
 

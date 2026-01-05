@@ -46,7 +46,7 @@ export const renderPagination = (paginationElement, currentPage, totalPages, the
     html += `<button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" data-page="next" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
     container.innerHTML = html;
 }
-export const setupPagination = (containerId, paginationId, endpoint, onUpdate, theme = 'blue') => {
+export const setupPagination = (containerId, paginationId, endpoint, onUpdate, theme = 'blue', skeletonFn = null) => {
     const pagination = document.querySelector('#' + paginationId);
     if (!pagination) return;
     const totalPages = parseInt(pagination.dataset.totalPages) || 1;
@@ -68,9 +68,12 @@ export const setupPagination = (containerId, paginationId, endpoint, onUpdate, t
             return;
         }
         try {
+            const container = document.querySelector('#' + containerId);
+            if (skeletonFn) {
+                container.innerHTML = skeletonFn();
+            }
             const response = await fetch(`${endpoint}?page=${currentPage}`);
             const result = await response.json();
-            const container = document.querySelector('#' + containerId);
             if (onUpdate && result.data) {
                 container.innerHTML = onUpdate(result.data);
             } else if (result.html) {
@@ -92,7 +95,7 @@ export const setupPagination = (containerId, paginationId, endpoint, onUpdate, t
         }
     });
 }
-export const setupSearch = (inputId, containerId, endpoint, renderFn = null, debounceTime = 100) => {
+export const setupSearch = (inputId, containerId, endpoint, renderFn = null, debounceTime = 100, skeletonFn = null) => {
     const input = document.querySelector('#' + inputId);
     if (!input) return;
     let timeout;
@@ -100,9 +103,12 @@ export const setupSearch = (inputId, containerId, endpoint, renderFn = null, deb
         clearTimeout(timeout);
         timeout = setTimeout(async () => {
             try {
+                const container = document.querySelector('#' + containerId);
+                if (skeletonFn) {
+                    container.innerHTML = skeletonFn();
+                }
                 const response = await fetch(`${endpoint}?search=${encodeURIComponent(e.target.value)}`);
                 const result = await response.json();
-                const container = document.querySelector('#' + containerId);
                 if (renderFn && result.data) {
                     container.innerHTML = renderFn(result.data);
                 } else if (result.html) {
@@ -124,7 +130,7 @@ export const setupSearch = (inputId, containerId, endpoint, renderFn = null, deb
         }, debounceTime);
     });
 }
-export const setupFilters = (filterIdList, containerId, endpoint, renderFn = null) => {
+export const setupFilters = (filterIdList, containerId, endpoint, renderFn = null, skeletonFn = null) => {
     filterIdList.forEach((id) => {
         const filter = document.querySelector('#' + id);
         if (!filter) return;
@@ -135,9 +141,12 @@ export const setupFilters = (filterIdList, containerId, endpoint, renderFn = nul
                 if (el && el.value) params.append(filterId.replace('filter-', '').replace('auction-', '').replace('user-', ''), el.value);
             });
             try {
+                const container = document.querySelector('#' + containerId);
+                if (skeletonFn) {
+                    container.innerHTML = skeletonFn();
+                }
                 const response = await fetch(`${endpoint}?${params}`);
                 const result = await response.json();
-                const container = document.querySelector('#' + containerId);
                 if (renderFn && result.data) {
                     container.innerHTML = renderFn(result.data);
                 } else if (result.html) {
