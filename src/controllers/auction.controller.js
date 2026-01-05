@@ -267,12 +267,11 @@ class AuctionController {
 
             const highestBidder = await bidModel.getHighestBidder(id);
 
-            const newBidsForHistory = result.newBids.map(b => ({
-                amount: b.amount,
-                created_at: b.created_at,
-                bidder_name: b.bidder_id === bidder_id
-                    ? req.session.passport.user.username
-                    : (highestBidder ? highestBidder.username : 'Unknown')
+            const latestBids = await bidModel.getBidHistory(id);
+            const newBidsForHistory = latestBids.slice(0, result.newBids.length).map(bid => ({
+                amount: bid.amount,
+                created_at: bid.created_at,
+                bidder_name: bid.bidder_name
             }));
 
             return res.json({
@@ -287,6 +286,32 @@ class AuctionController {
                     } : null
                 },
                 newBids: newBidsForHistory
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // POST - /auctions/:id/buy-now
+    async buyNow(req, res, next) {
+        try {
+            const { id } = req.params;
+            const bidder_id = req.session.passport.user.id;
+
+            const result = await bidService.buyNow(id, bidder_id);
+
+            if (!result.success) {
+                return res.json({
+                    success: false,
+                    error: result.error,
+                    message: result.message
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: result.message,
+                redirectUrl: `/payment/${id}`
             });
         } catch (err) {
             next(err);

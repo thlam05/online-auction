@@ -400,8 +400,10 @@
                 }
 
                 const data = await res.json();
-                this.innerHTML = `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
-                this.classList.add("bg-green-50", "text-green-600", "border-green-300");
+                this.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Đã thêm`;
+                this.classList.remove("border-gray-300", "text-gray-700", "hover:bg-gray-50");
+                this.classList.add("bg-gray-100", "text-gray-500", "border-gray-200", "cursor-not-allowed");
+                this.disabled = true;
             } catch (err) {
                 console.error(err);
                 alert("Không thể thêm vào danh sách theo dõi");
@@ -409,6 +411,60 @@
         }
 
     }
+
+    // Buy Now button handler
+    const btnBuyNow = document.querySelector("#btn-buy-now");
+    if (btnBuyNow) {
+        btnBuyNow.onclick = async function () {
+            const auction_id = this.dataset.auctionId;
+            const buyNowPrice = Number(this.dataset.buyNowPrice);
+
+            const confirmed = await ConfirmModal.show(
+                'Xác nhận mua ngay',
+                `Bạn có chắc muốn mua ngay sản phẩm này với giá ${buyNowPrice.toLocaleString('vi-VN')} đ?`,
+                'Mua ngay',
+                'Huỷ'
+            );
+
+            if (!confirmed) return;
+
+            // Show loading
+            const originalHTML = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+
+            try {
+                const res = await fetch(`/auctions/${auction_id}/buy-now`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    NotificationModal.show('success', data.message);
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl;
+                    }, 1500);
+                } else {
+                    NotificationModal.show('error', data.message);
+                    this.disabled = false;
+                    this.innerHTML = originalHTML;
+                }
+            } catch (err) {
+                console.error(err);
+                NotificationModal.show('error', 'Có lỗi xảy ra, vui lòng thử lại');
+                this.disabled = false;
+                this.innerHTML = originalHTML;
+            }
+        }
+    }
+
     document.querySelectorAll('[data-tab-target]').forEach(button => {
         button.addEventListener('click', () => {
             const target = button.dataset.tabTarget;
@@ -486,7 +542,7 @@
                     Đăng ngày: {{formatDate auction.start_at}}
                 </p>
 
-                <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="grid {{#if auction.buy_now_price}}grid-cols-3{{else}}grid-cols-2{{/if}} gap-3 mb-5">
                     <div class="bg-gray-50 rounded-xl p-3 text-center">
                         <span class="block text-xs text-gray-500 mb-1">Giá hiện tại</span>
                         <span class="block text-lg font-bold text-primary-500 auction-current-price">{{formatNumber
@@ -499,11 +555,13 @@
                             auction.bid_step}}<sup class="text-xs">đ</sup></span>
                     </div>
 
+                    {{#if auction.buy_now_price}}
                     <div class="bg-gray-50 rounded-xl p-3 text-center">
                         <span class="block text-xs text-gray-500 mb-1">Mua ngay</span>
                         <span class="block text-lg font-bold text-green-600">{{formatNumber auction.buy_now_price}}<sup
                                 class="text-xs">đ</sup></span>
                     </div>
+                    {{/if}}
                 </div>
 
                 <div class="space-y-3 mb-5">
@@ -636,10 +694,14 @@
 
                     {{/if}}
 
-                    <div class="grid grid-cols-2 gap-3 mt-3">
-                        <button
+                    <div
+                        class="{{#if auction.buy_now_price}}{{#unless (isOver auction.end_at)}}grid grid-cols-2{{else}}grid grid-cols-1{{/unless}}{{else}}grid grid-cols-1{{/if}} gap-3 mt-3">
+                        {{#if auction.buy_now_price}}
+                        {{#unless (isOver auction.end_at)}}
+                        <button id="btn-buy-now"
                             class="py-3 px-4 border border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2"
-                            {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}>
+                            data-auction-id="{{auction.id}}" data-buy-now-price="{{auction.buy_now_price}}" {{#unless
+                            isAuthenticated}}onclick="redirect(); return false;" {{/unless}}>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
@@ -647,6 +709,8 @@
                             </svg>
                             Mua ngay
                         </button>
+                        {{/unless}}
+                        {{/if}}
                         <button id="btn-add-watchlist"
                             class="py-3 px-4 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition flex items-center justify-center gap-2"
                             {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}

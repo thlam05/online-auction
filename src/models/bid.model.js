@@ -62,11 +62,19 @@ const bidModel = {
     },
 
     getBidByUserId(user_id) {
-        return db("bids as b")
-            .join("auctions as a", "a.id", "b.auction_id")
-            .where("b.bidder_id", user_id)
-            .select("a.*", "b.max_price as max_price")
-            .orderBy("b.created_at", "desc")
+        return db("auctions as a")
+            .join(
+                db("bids")
+                    .select("auction_id")
+                    .max("max_price as max_price")
+                    .where("bidder_id", user_id)
+                    .groupBy("auction_id")
+                    .as("b"),
+                "a.id",
+                "b.auction_id"
+            )
+            .select("a.*", "b.max_price")
+            .orderBy("a.end_at", "desc");
     },
 
     deleteBib(bidder_id, auction_id) {

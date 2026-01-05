@@ -165,6 +165,19 @@ const configEngine = (app) => {
             },
             less(a, b) {
                 return a < b;
+            },
+            gte(a, b) {
+                return a >= b;
+            },
+            gt(a, b) {
+                return a > b;
+            },
+            eq(a, b) {
+                return a === b;
+            },
+            formatCurrency(value) {
+                if (!value) return "0";
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
         }
     }));
