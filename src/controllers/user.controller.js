@@ -5,6 +5,7 @@ import bidService from "../services/bid.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import userService from "../services/user.service.js";
 import pendingUserModel from "../models/pending-user.model.js";
+import userModel from "../models/user.model.js";
 
 class UserController {
     getProfileInformation(req, res, next) {
@@ -211,6 +212,24 @@ class UserController {
             }
             const newRating = await userRatingService.createOne(user_rating);
             res.json(newRating);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async getOtherUserReviews(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { listReviews, rating } = await userRatingService.getRatings(id);
+            const isOther = true;
+            const user = await userModel.findById(id);
+
+            res.render("user/other-reviews", {
+                listReviews,
+                rating,
+                isOther,
+                user
+            });
         } catch (err) {
             next(err);
         }
