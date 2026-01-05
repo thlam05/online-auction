@@ -303,7 +303,7 @@
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            NotificationModal.error('Có lỗi xảy ra. Vui lòng thử lại.');
         }
     }
 
@@ -374,7 +374,7 @@
                     }
                 } catch (error) {
                     console.error('Error sending reply:', error);
-                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    NotificationModal.error('Có lỗi xảy ra. Vui lòng thử lại.');
                 }
             }
         })
@@ -404,7 +404,7 @@
                 this.classList.add("bg-green-50", "text-green-600", "border-green-300");
             } catch (err) {
                 console.error(err);
-                alert("Không thể thêm vào danh sách theo dõi");
+                NotificationModal.error("Không thể thêm vào danh sách theo dõi");
             }
         }
 

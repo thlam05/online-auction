@@ -26,6 +26,9 @@ const configEngine = (app) => {
             equal: function (a, b) {
                 return a === b;
             },
+            eq: function (a, b) {
+                return a === b;
+            },
             substring: function (str, start, end) {
                 if (!str) return '';
                 return str.substring(start, end);
@@ -63,6 +66,10 @@ const configEngine = (app) => {
             formatNumber: function (n) {
                 if (!n) return "0";
                 return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
+            formatCurrency(value) {
+                const number = Number(value) || 0;
+                return new Intl.NumberFormat('vi-VN').format(number);
             },
             maskName: function (name) {
                 if (!name) return "";
