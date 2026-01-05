@@ -61,6 +61,11 @@ const auctionModel = {
             .orderBy("a.created_at", "desc")
             .limit(5);
     },
+    findExpired() {
+        return db("auctions")
+            .where("end_at", "<=", new Date())
+            .andWhere("is_informed", false)
+    },
     countAllAuctions() {
         return db("auctions").count("id as count").first();
     },

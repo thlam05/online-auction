@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import { authenticate } from "./middlewares/authenticate.js";
 import { errorHandler, errorNotFoundHandler } from "./middlewares/error-handler.js";
 import db from "./configs/db.config.js";
+import { handleEndedAuction } from "./utils/cron.js";
 
 const app = express();
 const port = config.port;
@@ -22,6 +23,8 @@ app.use(passport.initialize());
 configEngine(app);
 
 configSession(app);
+
+handleEndedAuction();
 
 app.use(authenticate);
 
