@@ -193,7 +193,7 @@ class AuthController {
     async verifyPassword(req, res, next) {
         try {
             const { password } = req.body;
-            const user = req.session.passport.user;
+            const user = req.user;
             if (user && bcrypt.compareSync(password, user.password)) {
                 return res.json({ valid: true });
             }

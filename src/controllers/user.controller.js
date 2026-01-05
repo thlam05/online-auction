@@ -63,10 +63,10 @@ class UserController {
     async updateProfileInformation(req, res, next) {
         try {
             const { email, username, birthday, address } = req.body;
-            const result = await userService.updateProfileInformation(req.session.passport.user, { email, username, birthday, address });
+            const result = await userService.updateProfileInformation(req.user, { email, username, birthday, address });
             if (result.status == 0 || result.status == 3) {
-                req.session.passport.user.username = username;
-                req.session.passport.user.address = address;
+                req.user.username = username;
+                req.user.address = address;
 
                 if (result.status == 3) {
                     return res.json({
@@ -84,9 +84,9 @@ class UserController {
     async changePassword(req, res, next) {
         try {
             const { currentPassword, password, confirmPassword } = req.body;
-            const result = await userService.updatePassword(req.session.passport.user, { currentPassword, password, confirmPassword });
-            req.session.passport.user.password = result.data.password;
-            req.session.passport.user.updated_at = result.data.updated_at;
+            const result = await userService.updatePassword(req.user, { currentPassword, password, confirmPassword });
+            req.user.password = result.data.password;
+            req.user.updated_at = result.data.updated_at;
             res.json(result);
         }
         catch (err) {

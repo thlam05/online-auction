@@ -8,6 +8,8 @@ import bidModel from "../models/bid.model.js";
 import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import auctionBlockModel from "../models/auction-block.model.js";
+import userModel from "../models/user.model.js";
+import { sendBidSuccessToBidder, sendBidSuccessToPreHighestBidder, sendBidSuccessToSeller } from "../utils/nodemailer.js";
 
 const getPaginationData = (count, page, limit) => {
     const nPages = Math.ceil(+count / limit);
@@ -239,6 +241,8 @@ class AuctionController {
             const data = { auction_id: id, max_price: Number(max_price), bidder_id };
             const expectedCurrentPrice = expected_price ? Number(expected_price) : null;
 
+            const preBidder = await bidModel.getHighestBidder(id);
+
             const result = await bidService.createBid(data, expectedCurrentPrice);
 
             if (!result.success) {
@@ -266,6 +270,18 @@ class AuctionController {
             }
 
             const highestBidder = await bidModel.getHighestBidder(id);
+
+            const auction = result.auction;
+            const seller = await userModel.findById(auction.seller_id);
+            const user = req.user;
+
+            const mailJobs = [];
+            mailJobs.push(sendBidSuccessToSeller(auction, seller));
+            mailJobs.push(sendBidSuccessToBidder(auction, user));
+            if (highestBidder.id != preBidder.id && preBidder.email) {
+                mailJobs.push(sendBidSuccessToPreHighestBidder(auction, preBidder));
+            }
+            await Promise.all(mailJobs);
 
             const newBidsForHistory = result.newBids.map(b => ({
                 amount: b.amount,
