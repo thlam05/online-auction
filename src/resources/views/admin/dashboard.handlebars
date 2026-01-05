@@ -281,8 +281,7 @@
                                 class="appearance-none py-2.5 ps-4 pe-10 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
                                 <option value="">Tất cả trạng thái</option>
                                 <option value="pending">Chờ duyệt nâng cấp</option>
-                                <option value="approved">Đã duyệt</option>
-                                <option value="rejected">Đã từ chối</option>
+                                <option value="approved">Đã là Seller</option>
                             </select>
                             <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
                                 <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
@@ -375,39 +374,44 @@
                                 {{else if (eq this.upgrade_status "approved")}}
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Đã duyệt
-                                </span>
-                                {{else if (eq this.upgrade_status "rejected")}}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Đã từ chối
+                                    Đã là Seller
                                 </span>
                                 {{else}}
                                 <span class="text-gray-400 text-sm">—</span>
                                 {{/if}}
                             </td>
                             <td class="px-6 py-4 text-sm text-center">
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="view-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Xem chi tiết
+                                </button>
+                                <button type="button"
+                                    class="edit-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Chỉnh sửa
+                                </button>
                                 {{#if (eq this.upgrade_status "pending")}}
-                                {{#> action-dropdown}}
                                 <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
-                                    data-user-id="{{this.id}}" data-action="approve">
-                                    Duyệt
+                                    class="approve-user w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Duyệt nâng cấp
                                 </button>
                                 <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
-                                    data-user-id="{{this.id}}" data-action="reject">
-                                    Từ chối
+                                    class="reject-user w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Từ chối nâng cấp
                                 </button>
-                                {{/action-dropdown}}
-                                {{else}}
-                                {{#> action-dropdown}}
-                                <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors">
-                                    Xem
-                                </button>
-                                {{/action-dropdown}}
                                 {{/if}}
+                                {{#unless (eq this.permission 2)}}
+                                <button type="button"
+                                    class="delete-user w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Xóa
+                                </button>
+                                {{/unless}}
+                                {{/action-dropdown}}
                             </td>
                         </tr>
                         {{else}}
@@ -780,6 +784,190 @@
                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Gỡ bỏ sản phẩm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal View User -->
+    <div id="modal-view-user"
+        class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
+        role="dialog" tabindex="-1">
+        <div
+            class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+            <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
+                <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800">Thông tin người dùng</h3>
+                    <button type="button"
+                        class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                        data-hs-overlay="#modal-view-user">
+                        <span class="sr-only">Close</span>
+                        <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="view-user-loading" class="flex items-center justify-center py-8">
+                    <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent text-blue-600 rounded-full"
+                        role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="view-user-content" class="p-4 space-y-4" style="display: none;">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Tên người dùng</label>
+                            <p id="view-user-username" class="text-gray-900 font-medium">—</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                            <p id="view-user-email" class="text-gray-900">—</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Vai trò</label>
+                            <div id="view-user-role">—</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Ngày sinh</label>
+                            <p id="view-user-birthday" class="text-gray-900">—</p>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Địa chỉ</label>
+                            <p id="view-user-address" class="text-gray-900">—</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Ngày tạo</label>
+                            <p id="view-user-created" class="text-gray-900">—</p>
+                        </div>
+                    </div>
+                    <div id="view-user-pending"></div>
+                </div>
+                <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                    <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                        data-hs-overlay="#modal-view-user">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit User -->
+    <div id="modal-edit-user"
+        class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
+        role="dialog" tabindex="-1">
+        <div
+            class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+            <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
+                <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800">Chỉnh sửa người dùng</h3>
+                    <button type="button"
+                        class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                        data-hs-overlay="#modal-edit-user">
+                        <span class="sr-only">Close</span>
+                        <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="edit-user-loading" class="flex items-center justify-center py-8">
+                    <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent text-blue-600 rounded-full"
+                        role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="edit-user-form" class="p-4 space-y-4" style="display: none;">
+                    <input type="hidden" id="edit-user-id">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tên người dùng</label>
+                        <input type="text" id="edit-user-username"
+                            class="py-2.5 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="edit-user-email"
+                            class="py-2.5 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
+                        <select id="edit-user-permission"
+                            class="py-2.5 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="0">Bidder</option>
+                            <option value="1">Seller</option>
+                            <option value="2">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="edit-user-footer"
+                    class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200"
+                    style="display: none;">
+                    <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                        data-hs-overlay="#modal-edit-user">
+                        Hủy
+                    </button>
+                    <button type="button" id="save-user-btn"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700">
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete User -->
+    <div id="modal-confirm-delete-user"
+        class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
+        role="dialog" tabindex="-1">
+        <div
+            class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+            <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
+                <div class="flex justify-between items-center py-3 px-4 border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800">Xác nhận xóa người dùng</h3>
+                    <button type="button"
+                        class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                        data-hs-overlay="#modal-confirm-delete-user">
+                        <span class="sr-only">Close</span>
+                        <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 overflow-y-auto">
+                    <div class="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
+                        <svg class="w-10 h-10 text-red-500 shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h4 class="font-medium text-red-800">Bạn có chắc chắn muốn xóa người dùng này?</h4>
+                            <p class="text-sm text-red-600 mt-1">Hành động này không thể hoàn tác. Tất cả dữ liệu liên
+                                quan đến người dùng sẽ bị xóa.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200">
+                    <button type="button"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                        data-hs-overlay="#modal-confirm-delete-user">
+                        Hủy
+                    </button>
+                    <button type="button" id="confirm-delete-user-btn"
+                        class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Xóa người dùng
                     </button>
                 </div>
             </div>

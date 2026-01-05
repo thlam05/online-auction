@@ -100,6 +100,11 @@ const userService = {
     async getUserById(id) {
         const user = await userModel.findById(id);
 
+        // If user not found (e.g., deleted), return null
+        if (!user) {
+            return null;
+        }
+
         const { rating } = await userRatingService.getRatings(id);
 
         user.rating = rating;

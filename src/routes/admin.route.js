@@ -17,4 +17,11 @@ router.get('/auctions/data', adminController.getAuctionsData);
 router.get('/auctions/:id', adminController.getAuctionById);
 router.delete('/auctions/:id', adminController.deleteAuction);
 
+router.get('/users/data', adminController.getUsersData);
+router.get('/users/:id', adminController.getUserById);
+router.put('/users/:id', adminController.updateUser);
+router.delete('/users/:id', adminController.deleteUser);
+router.post('/users/approve', adminController.approveUpgrade);
+router.post('/users/reject', adminController.rejectUpgrade);
+
 export default router;

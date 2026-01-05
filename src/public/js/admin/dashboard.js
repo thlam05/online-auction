@@ -34,6 +34,107 @@ const renderAuctionsSkeleton = () => {
     }).join('');
 };
 
+const renderUsersSkeleton = () => {
+    return Array(5).fill(0).map(() => createSkeletonRow(5)).join('');
+};
+
+const renderUsersTable = (users) => {
+    if (!users || users.length === 0) {
+        return `
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center">
+                    <p class="text-gray-500">Chưa có người dùng nào</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    return users.map(user => {
+        let roleBadge = '';
+        if (user.permission === 2) {
+            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Admin</span>';
+        } else if (user.permission === 1) {
+            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Seller</span>';
+        } else {
+            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Bidder</span>';
+        }
+
+        let statusBadge = '';
+        if (user.upgrade_status === 'pending') {
+            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" /></svg>Chờ duyệt</span>';
+        } else if (user.upgrade_status === 'approved') {
+            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đã là Seller</span>';
+        } else {
+            statusBadge = '<span class="text-gray-400 text-sm">—</span>';
+        }
+
+        let actions = [
+            {
+                text: 'Xem chi tiết',
+                className: 'view-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            },
+            {
+                text: 'Chỉnh sửa',
+                className: 'edit-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            }
+        ];
+
+        // Add approve/reject buttons if pending
+        if (user.upgrade_status === 'pending') {
+            actions.push(
+                {
+                    text: 'Duyệt nâng cấp',
+                    className: 'approve-user w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `data-user-id="${user.id}"`
+                },
+                {
+                    text: 'Từ chối nâng cấp',
+                    className: 'reject-user w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `data-user-id="${user.id}"`
+                }
+            );
+        }
+
+        // Add delete button (not for admins)
+        if (user.permission !== 2) {
+            actions.push({
+                text: 'Xóa',
+                className: 'delete-user w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            });
+        }
+
+        const actionDropdown = createActionDropdown(actions);
+
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-[#1447e6]/10 text-[#1447e6] flex items-center justify-center text-sm font-semibold">
+                            ${user.username.substring(0, 1).toUpperCase()}
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">${user.username}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${user.email}
+                </td>
+                <td class="px-6 py-4">
+                    ${roleBadge}
+                </td>
+                <td class="px-6 py-4">
+                    ${statusBadge}
+                </td>
+                <td class="px-6 py-4 text-sm text-center">
+                    ${actionDropdown}
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
 const createActionDropdown = (buttons) => {
     const buttonsHtml = buttons.map(btn => `
         <button type="button" 
@@ -193,14 +294,17 @@ document.addEventListener('DOMContentLoaded', () => {
         'users-table-body',
         'users-pagination',
         '/admin/users/data',
-        null,
-        'blue'
+        renderUsersTable,
+        'blue',
+        renderUsersSkeleton
     );
-    setupSearch('search-users', 'users-table-body', '/admin/users/data');
+    setupSearch('search-users', 'users-table-body', '/admin/users/data', renderUsersTable, 100, renderUsersSkeleton);
     setupFilters(
         ['filter-user-role', 'filter-user-status'],
         'users-table-body',
-        '/admin/users/data'
+        '/admin/users/data',
+        renderUsersTable,
+        renderUsersSkeleton
     );
 });
 document.addEventListener('click', async (e) => {
@@ -278,6 +382,214 @@ document.addEventListener('click', async (e) => {
         }
         return;
     }
+
+    if (e.target.classList.contains('approve-user')) {
+        const userId = e.target.dataset.userId;
+        const confirmed = await ConfirmModal.show({
+            title: 'Xác nhận duyệt',
+            message: 'Bạn có chắc chắn muốn duyệt nâng cấp tài khoản này?',
+            confirmText: 'Duyệt',
+            cancelText: 'Hủy',
+            type: 'success'
+        });
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/admin/users/approve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId })
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                NotificationModal.error(result.error || 'Không thể duyệt nâng cấp tài khoản');
+            }
+        } catch (error) {
+            console.error('Error approving user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi duyệt nâng cấp tài khoản');
+        }
+        return;
+    }
+
+    if (e.target.classList.contains('reject-user')) {
+        const userId = e.target.dataset.userId;
+        const confirmed = await ConfirmModal.show({
+            title: 'Xác nhận từ chối',
+            message: 'Bạn có chắc chắn muốn từ chối nâng cấp tài khoản này?',
+            confirmText: 'Từ chối',
+            cancelText: 'Hủy',
+            type: 'danger'
+        });
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/admin/users/reject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId })
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                NotificationModal.error(result.error || 'Không thể từ chối nâng cấp tài khoản');
+            }
+        } catch (error) {
+            console.error('Error rejecting user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi từ chối nâng cấp tài khoản');
+        }
+        return;
+    }
+
+    // View user details
+    if (e.target.classList.contains('view-user')) {
+        const userId = e.target.dataset.userId;
+        const modal = document.getElementById('modal-view-user');
+        const loadingEl = document.getElementById('view-user-loading');
+        const contentEl = document.getElementById('view-user-content');
+
+        // Open modal immediately
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+
+        // Show loading state
+        if (loadingEl) loadingEl.style.display = 'flex';
+        if (contentEl) contentEl.style.display = 'none';
+
+        // Fetch data
+        try {
+            const response = await fetch(`/admin/users/${userId}`);
+            const data = await response.json();
+            if (data.success) {
+                const user = data.user;
+                document.getElementById('view-user-username').textContent = user.username || '—';
+                document.getElementById('view-user-email').textContent = user.email || '—';
+                document.getElementById('view-user-address').textContent = user.address || '—';
+                document.getElementById('view-user-birthday').textContent = user.birthday ? new Date(user.birthday).toLocaleDateString('vi-VN') : '—';
+                document.getElementById('view-user-created').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : '—';
+
+                const roleEl = document.getElementById('view-user-role');
+                if (user.permission === 2) {
+                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Admin</span>';
+                } else if (user.permission === 1) {
+                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Seller</span>';
+                } else {
+                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Bidder</span>';
+                }
+
+                const pendingEl = document.getElementById('view-user-pending');
+                if (user.pending_request) {
+                    pendingEl.innerHTML = `
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                            <p class="text-sm font-medium text-yellow-800 mb-1">Yêu cầu nâng cấp đang chờ duyệt</p>
+                            <p class="text-sm text-yellow-700">${user.pending_request.message || 'Không có lý do'}</p>
+                            <p class="text-xs text-yellow-600 mt-1">Gửi lúc: ${new Date(user.pending_request.created_at).toLocaleString('vi-VN')}</p>
+                        </div>
+                    `;
+                } else {
+                    pendingEl.innerHTML = '';
+                }
+
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (contentEl) contentEl.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin người dùng');
+            // Close modal on error
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+        }
+        return;
+    }
+
+    // Edit user
+    if (e.target.classList.contains('edit-user')) {
+        const userId = e.target.dataset.userId;
+        const modal = document.getElementById('modal-edit-user');
+        const loadingEl = document.getElementById('edit-user-loading');
+        const formEl = document.getElementById('edit-user-form');
+        const footerEl = document.getElementById('edit-user-footer');
+
+        // Open modal immediately
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+
+        // Show loading state
+        if (loadingEl) loadingEl.style.display = 'flex';
+        if (formEl) formEl.style.display = 'none';
+        if (footerEl) footerEl.style.display = 'none';
+
+        // Fetch data
+        try {
+            const response = await fetch(`/admin/users/${userId}`);
+            const data = await response.json();
+            if (data.success) {
+                const user = data.user;
+                document.getElementById('edit-user-id').value = user.id;
+                document.getElementById('edit-user-username').value = user.username || '';
+                document.getElementById('edit-user-email').value = user.email || '';
+                document.getElementById('edit-user-permission').value = user.permission;
+
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (formEl) formEl.style.display = 'block';
+                if (footerEl) footerEl.style.display = 'flex';
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin người dùng');
+            // Close modal on error
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+        }
+        return;
+    }
+
+    // Delete user
+    if (e.target.classList.contains('delete-user')) {
+        const userId = e.target.dataset.userId;
+        const confirmed = await ConfirmModal.show({
+            title: 'Xác nhận xóa người dùng',
+            message: 'Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.',
+            confirmText: 'Xóa',
+            cancelText: 'Hủy',
+            type: 'danger'
+        });
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                NotificationModal.success('Đã xóa người dùng thành công');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                NotificationModal.error(result.error || 'Không thể xóa người dùng');
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi xóa người dùng');
+        }
+        return;
+    }
+
     if (e.target.classList.contains('edit-category')) {
         const categoryId = e.target.dataset.id;
         const loadingEl = document.getElementById('edit-category-loading');
@@ -319,7 +631,7 @@ document.addEventListener('click', async (e) => {
             loadingEl.style.display = 'none';
             formEl.style.display = 'block';
             footerEl.style.display = 'flex';
-            alert('Đã xảy ra lỗi khi tải thông tin danh mục');
+            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin danh mục');
         }
     }
 });
@@ -342,11 +654,11 @@ if (formEditCategory) {
             if (result.success) {
                 window.location.reload();
             } else {
-                alert(result.error || 'Không thể cập nhật danh mục');
+                NotificationModal.error(result.error || 'Không thể cập nhật danh mục');
             }
         } catch (error) {
             console.error('Error updating category:', error);
-            alert('Đã xảy ra lỗi khi cập nhật danh mục');
+            NotificationModal.error('Đã xảy ra lỗi khi cập nhật danh mục');
         }
     });
 }
@@ -371,7 +683,7 @@ if (confirmDeleteBtn) {
                     window.HSOverlay.close(modal);
                 }
                 setTimeout(() => {
-                    alert(result.error || 'Không thể xóa danh mục');
+                    NotificationModal.error(result.error || 'Không thể xóa danh mục');
                 }, 300);
             }
         } catch (error) {
@@ -381,7 +693,7 @@ if (confirmDeleteBtn) {
                 window.HSOverlay.close(modal);
             }
             setTimeout(() => {
-                alert('Đã xảy ra lỗi khi xóa danh mục');
+                NotificationModal.error('Đã xảy ra lỗi khi xóa danh mục');
             }, 300);
         }
     });
@@ -407,7 +719,7 @@ if (confirmDeleteAuctionBtn) {
                     window.HSOverlay.close(modal);
                 }
                 setTimeout(() => {
-                    alert(result.error || 'Không thể xóa sản phẩm đấu giá');
+                    NotificationModal.error(result.error || 'Không thể xóa sản phẩm đấu giá');
                 }, 300);
             }
         } catch (error) {
@@ -417,8 +729,43 @@ if (confirmDeleteAuctionBtn) {
                 window.HSOverlay.close(modal);
             }
             setTimeout(() => {
-                alert('Đã xảy ra lỗi khi xóa sản phẩm đấu giá');
+                NotificationModal.error('Đã xảy ra lỗi khi xóa sản phẩm đấu giá');
             }, 300);
+        }
+    });
+}
+
+// Save user edit
+const saveUserBtn = document.getElementById('save-user-btn');
+if (saveUserBtn) {
+    saveUserBtn.addEventListener('click', async () => {
+        const userId = document.getElementById('edit-user-id').value;
+        const username = document.getElementById('edit-user-username').value;
+        const email = document.getElementById('edit-user-email').value;
+        const permission = document.getElementById('edit-user-permission').value;
+
+        if (!username || !email) {
+            NotificationModal.warning('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email, permission })
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                NotificationModal.error(result.error || 'Không thể cập nhật người dùng');
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            NotificationModal.error('Đã xảy ra lỗi khi cập nhật người dùng');
         }
     });
 }

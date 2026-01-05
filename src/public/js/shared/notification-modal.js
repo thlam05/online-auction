@@ -96,4 +96,91 @@ const NotificationModal = {
   }
 };
 
+const ConfirmModal = {
+  show: function (options) {
+    const {
+      title = 'Xác nhận',
+      message = 'Bạn có chắc chắn muốn thực hiện hành động này?',
+      confirmText = 'Xác nhận',
+      cancelText = 'Hủy',
+      type = 'warning' // 'warning', 'danger', 'info'
+    } = options;
+
+    return new Promise((resolve) => {
+      const titleElement = document.getElementById('confirm-modal-label');
+      if (titleElement) {
+        titleElement.textContent = title;
+      }
+
+      const messageElement = document.getElementById('confirm-modal-message');
+      if (messageElement) {
+        messageElement.textContent = message;
+      }
+
+      const confirmBtn = document.getElementById('confirm-modal-confirm-btn');
+      const cancelBtn = document.getElementById('confirm-modal-cancel-btn');
+
+      if (confirmBtn) {
+        confirmBtn.textContent = confirmText;
+
+        // Apply styling based on type
+        confirmBtn.className = 'py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-none disabled:opacity-50 disabled:pointer-events-none';
+        if (type === 'danger') {
+          confirmBtn.className += ' bg-red-600 text-white hover:bg-red-700 focus:bg-red-700';
+        } else if (type === 'warning') {
+          confirmBtn.className += ' bg-yellow-500 text-white hover:bg-yellow-600 focus:bg-yellow-600';
+        } else {
+          confirmBtn.className += ' bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700';
+        }
+      }
+
+      if (cancelBtn) {
+        cancelBtn.textContent = cancelText;
+      }
+
+      const modalElement = document.getElementById('confirm-modal');
+      if (!modalElement) {
+        resolve(false);
+        return;
+      }
+
+      // Remove old event listeners by cloning
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      // Add new event listeners
+      newConfirmBtn.addEventListener('click', () => {
+        if (window.HSOverlay) {
+          window.HSOverlay.close(modalElement);
+        }
+        resolve(true);
+      });
+
+      newCancelBtn.addEventListener('click', () => {
+        if (window.HSOverlay) {
+          window.HSOverlay.close(modalElement);
+        }
+        resolve(false);
+      });
+
+      // Open modal
+      if (window.HSOverlay && typeof window.HSOverlay.open === 'function') {
+        window.HSOverlay.open(modalElement);
+      } else {
+        if (window.HSStaticMethods && typeof window.HSStaticMethods.autoInit === 'function') {
+          window.HSStaticMethods.autoInit();
+        }
+        setTimeout(() => {
+          if (window.HSOverlay && typeof window.HSOverlay.open === 'function') {
+            window.HSOverlay.open(modalElement);
+          }
+        }, 100);
+      }
+    });
+  }
+};
+
 window.NotificationModal = NotificationModal;
+window.ConfirmModal = ConfirmModal;

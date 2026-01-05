@@ -2,6 +2,8 @@ import categoryService from '../services/category.service.js';
 import categoryModel from '../models/category.model.js';
 import auctionService from '../services/auction.service.js';
 import auctionModel from '../models/auction.model.js';
+import userModel from '../models/user.model.js';
+import pendingUserModel from '../models/pending-user.model.js';
 export const getDashboard = async (req, res) => {
     try {
         const allCategoriesFlat = await categoryModel.findAll();
@@ -39,6 +41,7 @@ export const getDashboard = async (req, res) => {
             })
         );
         const auctionsResult = await auctionModel.findAuctionsForAdmin({ page: 1, limit: 10 });
+        const usersResult = await userModel.findUsersForAdmin({ page: 1, limit: 10 });
         res.render('admin/dashboard', {
             layout: 'admin-layout',
             title: 'Quản trị hệ thống',
@@ -47,7 +50,8 @@ export const getDashboard = async (req, res) => {
             categoriesPages: result.pagination.totalPages,
             auctions: auctionsResult.auctions,
             auctionsPages: auctionsResult.pagination.totalPages,
-            usersPages: 1
+            users: usersResult.users,
+            usersPages: usersResult.pagination.totalPages
         });
     } catch (error) {
         console.error('Error in getDashboard:', error);
@@ -217,6 +221,171 @@ export const deleteAuction = async (req, res) => {
         res.status(400).json({
             success: false,
             error: error.message || 'Không thể xóa sản phẩm đấu giá'
+        });
+    }
+};
+
+export const getUsersData = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const role = req.query.role || '';
+        const status = req.query.status || '';
+
+        const result = await userModel.findUsersForAdmin({
+            page,
+            limit,
+            search,
+            role,
+            status
+        });
+
+        res.json({
+            data: result.users,
+            pagination: result.pagination
+        });
+    } catch (error) {
+        console.error('Error in getUsersData:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const approveUpgrade = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        await userModel.updateOne(userId, { permission: 1 });
+        await pendingUserModel.deleteByUserId(userId);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error in approveUpgrade:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể duyệt nâng cấp tài khoản'
+        });
+    }
+};
+
+export const rejectUpgrade = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        await pendingUserModel.deleteByUserId(userId);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error in rejectUpgrade:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể từ chối nâng cấp tài khoản'
+        });
+    }
+};
+
+export const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await userModel.findById(id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Không tìm thấy người dùng'
+            });
+        }
+
+        // Get pending upgrade request if exists
+        const pendingRequest = await pendingUserModel.findByUserId(id);
+
+        res.json({
+            success: true,
+            user: {
+                ...user,
+                pending_request: pendingRequest
+            }
+        });
+    } catch (error) {
+        console.error('Error in getUserById:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Đã xảy ra lỗi khi tải thông tin người dùng'
+        });
+    }
+};
+
+export const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email, permission } = req.body;
+
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Không tìm thấy người dùng'
+            });
+        }
+
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+        if (permission !== undefined) updateData.permission = parseInt(permission);
+        updateData.updated_at = new Date();
+
+        const result = await userModel.updateOne(id, updateData);
+
+        // If user is upgraded to seller, remove any pending request
+        if (parseInt(permission) === 1) {
+            await pendingUserModel.deleteByUserId(id);
+        }
+
+        res.json({
+            success: true,
+            user: result[0] || result
+        });
+    } catch (error) {
+        console.error('Error in updateUser:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể cập nhật người dùng'
+        });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Không tìm thấy người dùng'
+            });
+        }
+
+        // Don't allow deleting admin users
+        if (user.permission === 2) {
+            return res.status(400).json({
+                success: false,
+                error: 'Không thể xóa tài khoản quản trị viên'
+            });
+        }
+
+        // Delete related records first
+        await pendingUserModel.deleteByUserId(id);
+
+        // Delete the user
+        await userModel.deleteOne(id);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error in deleteUser:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message || 'Không thể xóa người dùng'
         });
     }
 };

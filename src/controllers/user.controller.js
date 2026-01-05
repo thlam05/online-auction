@@ -4,6 +4,7 @@ import auctionService from "../services/auction.service.js";
 import bidService from "../services/bid.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import userService from "../services/user.service.js";
+import pendingUserModel from "../models/pending-user.model.js";
 
 class UserController {
     getProfileInformation(req, res, next) {
@@ -96,8 +97,67 @@ class UserController {
 
     async showUpgrageSeller(req, res, next) {
         try {
+            const user = req.session.passport.user;
+
+            // Check if user is already a seller
+            if (user.permission === 1) {
+                return res.render("user/upgradeSeller", {
+                    layout: "user-layout",
+                    isAlreadySeller: true
+                });
+            }
+
+            // Check if there's a pending request
+            const pendingRequest = await pendingUserModel.findByUserId(user.id);
+
             res.render("user/upgradeSeller", {
-                layout: "user-layout"
+                layout: "user-layout",
+                hasPendingRequest: !!pendingRequest,
+                pendingRequest: pendingRequest
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    async requestUpgradeSeller(req, res, next) {
+        try {
+            const user = req.session.passport.user;
+            const { reason } = req.body;
+
+            // Check if user is already a seller
+            if (user.permission === 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Bạn đã là người bán rồi"
+                });
+            }
+
+            // Check if there's already a pending request
+            const existingRequest = await pendingUserModel.findByUserId(user.id);
+            if (existingRequest) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Bạn đã có yêu cầu đang chờ xử lý"
+                });
+            }
+
+            // Create new pending request
+            const expiredAt = new Date();
+            expiredAt.setDate(expiredAt.getDate() + 7); // Expires in 7 days
+
+            await pendingUserModel.createOne({
+                user_id: user.id,
+                email: user.email,
+                message: reason,
+                redirect_to: 'upgrade-seller',
+                created_at: new Date(),
+                expired_at: expiredAt
+            });
+
+            return res.json({
+                success: true,
+                message: "Yêu cầu nâng cấp đã được gửi thành công"
             });
         } catch (err) {
             next(err);
