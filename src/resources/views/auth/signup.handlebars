@@ -78,6 +78,87 @@
         });
     }
 
+    function markError(input) {
+        input.classList.add("border-red-500");
+        input.classList.remove("border-green-500");
+    }
+
+    function markSuccess(input) {
+        input.classList.remove("border-red-500");
+        input.classList.add("border-green-500");
+    }
+
+    const formSignUp = document.querySelector("#signup-form");
+    if (formSignUp) {
+        formSignUp.onsubmit = function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(formSignUp);
+            const data = Object.fromEntries(formData.entries());
+
+            let isValid = true;
+
+            const emailInput = document.querySelector("#signup-email");
+            const usernameInput = document.querySelector("#signup-username");
+            const addressInput = document.querySelector("#signup-address");
+            const birthdayInput = document.querySelector("#signup-birthday");
+            const passwordInput = document.querySelector("#signup-password");
+            const passwordConfirmInput = document.querySelector("#signup-password-confirm");
+
+            // EMAIL
+            if (!data.email) {
+                markError(emailInput);
+                isValid = false;
+            } else {
+                markSuccess(emailInput);
+            }
+
+            // USERNAME
+            if (!data.username || data.username.trim().length < 2) {
+                markError(usernameInput);
+                isValid = false;
+            } else {
+                markSuccess(usernameInput);
+            }
+
+            // ADDRESS
+            if (!data.address) {
+                markError(addressInput);
+                isValid = false;
+            } else {
+                markSuccess(addressInput);
+            }
+
+            // BIRTHDAY
+            if (!data.birthday) {
+                markError(birthdayInput);
+                isValid = false;
+            } else {
+                markSuccess(birthdayInput);
+            }
+
+            // PASSWORD
+            if (!data.password) {
+                markError(passwordInput);
+                isValid = false;
+            } else {
+                markSuccess(passwordInput);
+            }
+
+            // PASSWORD CONFIRM
+            if (!data.passwordConfirm || data.password !== data.passwordConfirm) {
+                markError(passwordConfirmInput);
+                isValid = false;
+            } else {
+                markSuccess(passwordConfirmInput);
+            }
+
+            if (!isValid) return;
+
+            formSignUp.submit();
+        };
+    }
+
 </script>
 {{/section}}
 
@@ -100,13 +181,13 @@
     <div class="space-y-2">
         <label for="signup-email" class="text-sm font-medium">Email</label>
         <input type="email" class="form-input" id="signup-email" name="email" value="{{data.email}}"
-            placeholder="name@example.com" required>
+            placeholder="name@example.com">
     </div>
 
     <div class="space-y-2">
         <label for="signup-username" class="text-sm font-medium">Họ và tên</label>
         <input type="text" class="form-input" id="signup-username" name="username" value="{{data.username}}"
-            placeholder="Nguyễn Văn A" required>
+            placeholder="Nguyễn Văn A">
     </div>
 
     <div class="space-y-2">
@@ -124,7 +205,7 @@
         <label for="signup-password" class="text-sm font-medium">Mật khẩu</label>
         <div class="relative">
             <input type="password" class="form-input pr-10" id="signup-password" name="password"
-                value="{{data.password}}" placeholder="••••••••" required>
+                value="{{data.password}}" placeholder="••••••••">
             <button type="button"
                 class="show-password-btn absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +222,7 @@
         <label for="signup-password-confirm" class="text-sm font-medium">Xác nhận mật khẩu</label>
         <div class="relative">
             <input type="password" class="form-input pr-10" id="signup-password-confirm" name="passwordConfirm"
-                placeholder="••••••••" required>
+                placeholder="••••••••">
             <button type="button"
                 class="show-password-confirm-btn absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
