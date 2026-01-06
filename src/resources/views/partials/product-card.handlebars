@@ -1,10 +1,15 @@
 <a href="/auctions/{{this.id}}"
-    class="product-card group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col h-full">
+    class="product-card relative group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col h-full">
     <div class="relative overflow-hidden bg-white">
         <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}"
             class="product-card-img group-hover:scale-105 transition-transform duration-300"
             onerror="this.onerror=null; this.src='/images/placeholder.webp';">
     </div>
+    {{#if (isNewAuction this.created_at)}}
+    <div class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
+        MỚI
+    </div>
+    {{/if}}
     <div class="product-card-body flex flex-col flex-1">
         <h3 class="product-card-title">{{this.name}}</h3>
         <div class="space-y-2 text-sm {{#if this.showBidder}}mb-4{{else}}mb-4{{/if}}">
@@ -15,7 +20,7 @@
             {{#if this.showBidder}}
             <div class="flex justify-between items-center">
                 <span class="text-gray-500">Người đặt:</span>
-                <span class="text-gray-700 font-medium">{{this.highestBidder.username}}</span>
+                <span class="text-gray-700 font-medium">{{maskUsername this.highestBidder.username}}</span>
             </div>
             {{/if}}
             {{#if this.showDate}}

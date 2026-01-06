@@ -150,11 +150,11 @@ class AuctionController {
 
             if (auction.seller && auction.seller.id) {
                 const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.seller.id);
-                auction.seller.rating = rating;
+                auction.seller.rating = t_rating;
             }
             if (auction.highestBidder && auction.highestBidder.id) {
                 const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.highestBidder.id);
-                auction.highestBidder.rating = rating;
+                auction.highestBidder.rating = t_rating;
             }
 
             res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders, bidderBlocked });
@@ -451,13 +451,13 @@ class AuctionController {
             const page = req.query.page || 1;
             const offset = (page - 1) * limit;
 
-            const curCategory = await categoryModel.findCategoryBySlug(category);
+            const curCategory = await categoryModel.findBySlug(category);
             if (!curCategory) {
                 return res.status(404).json({ error: 'Category not found' });
             }
 
-            const { count } = await auctionModel.countByCategoryID(curCategory.id);
-            const auctions = await auctionService.getAuctionsByCategoryID(curCategory.id, limit, offset);
+            const { count } = await auctionModel.countAllAuctionsByCat(curCategory.id);
+            const auctions = await auctionService.getAuctionByCatId(curCategory.id, limit, offset);
 
             auctions.forEach(auction => {
                 auction.showBidder = true;
@@ -490,7 +490,10 @@ class AuctionController {
             const page = req.query.page || 1;
             const offset = (page - 1) * limit;
 
-            const { auctions, count } = await auctionModel.searchAuctions(query, limit, offset);
+            // const { auctions, count } = await auctionModel.searchAuctions(query, limit, offset);
+
+            const auctions = await auctionService.getAuctionByQuery(query, limit, offset);
+            const count = await auctionService.countAuctionByQuery(query);
 
             auctions.forEach(auction => {
                 auction.showBidder = true;

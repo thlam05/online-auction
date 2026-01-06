@@ -17,7 +17,10 @@
         const seconds = Math.floor(diff / 1000);
 
         if (days > 0) {
-            return `${days} ngày ${hours} giờ ${minutes} phút`;
+            let str = `${days} ngày `;
+            if (hours > 0) str += ` ${hours} giờ `;
+            if (minutes > 0) str += ` ${minutes} phút`;
+            return str;
         }
 
         let str = "";
@@ -34,14 +37,11 @@
             const now = new Date();
             const diff = end - now;
             element.textContent = formatRemainingTime(diff);
-
-            if (diff > 0 && diff < 3600000) {
-                element.classList.add('text-primary-500', 'animate-pulse', 'font-bold');
-            }
         })
     }
 
     updateRemainingTime();
+
     setInterval(updateRemainingTime, 1000);
 </script>
 <script type="module" src="/js/user/auctions.js"></script>

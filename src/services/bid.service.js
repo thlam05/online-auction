@@ -171,6 +171,8 @@ const bidService = {
             auctions.map(async (auction) => {
                 const mainImage = await auctionImageModel.findMainByAuctionId(auction.id);
                 auction.mainImage = mainImage;
+                const highestBidder = await bidModel.getHighestBidder(auction.id);
+                auction.highestBidder = highestBidder;
             })
         );
         return auctions;

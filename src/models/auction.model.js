@@ -211,7 +211,7 @@ const auctionModel = {
             .limit(5);
     },
     findAuctionsByQueryWithRelations(tsquery, limit, offset, sortQuery) {
-        return this.baseAuctionQuerySimple()
+        return this.baseAuctionQueryFull()
             .whereRaw("a.fts @@ to_tsquery(?)", [tsquery])
             .orderBy(...sortQuery)
             .limit(limit)

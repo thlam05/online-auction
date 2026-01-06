@@ -67,7 +67,13 @@
                     class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     alt="{{this.name}}" onerror="this.onerror=null; this.src='/images/placeholder.webp';">
             </div>
-            <div class="p-4">
+            <div class="p-4 relative">
+                {{#if (equal ../authUser.id this.highestBidder.id)}}
+                <div
+                    class="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow">
+                    Đang giữ giá
+                </div>
+                {{/if}}
                 <h3 class="font-medium text-gray-900 line-clamp-1 mb-3">{{this.name}}</h3>
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">

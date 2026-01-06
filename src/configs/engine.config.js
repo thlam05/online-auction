@@ -203,6 +203,28 @@ const configEngine = (app) => {
                 const hours = String(d.getHours()).padStart(2, '0');
                 const minutes = String(d.getMinutes()).padStart(2, '0');
                 return `${hours}:${minutes}`;
+            },
+            and(a, b) {
+                return a && b;
+            },
+            maskUsername(str) {
+                if (!str || str.length <= 2) return str;
+
+                const chars = str.split("");
+
+                for (let i = 1; i < chars.length; i += 2) {
+                    chars[i] = "*";
+                }
+
+                return chars.join("");
+            },
+            isNewAuction(createdAt) {
+                if (!createdAt) return false;
+
+                const createdTime = new Date(createdAt).getTime();
+                const now = Date.now();
+
+                return (now - createdTime) <= 30 * 60 * 1000; // 30p
             }
         }
     }));
