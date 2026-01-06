@@ -69,6 +69,7 @@ const configEngine = (app) => {
             },
             add: function (a, b) {
                 return Number(a) + Number(b);
+            },
             formatCurrency(value) {
                 const number = Number(value) || 0;
                 return new Intl.NumberFormat('vi-VN').format(number);
