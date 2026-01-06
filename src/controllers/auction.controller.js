@@ -116,16 +116,14 @@ class AuctionController {
                 })
             );
 
-            if (auction.seller) {
+            if (auction.seller && auction.seller.id) {
                 const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.seller.id);
                 auction.seller.rating = rating;
             }
-            if (auction.highestBidder) {
+            if (auction.highestBidder && auction.highestBidder.id) {
                 const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.highestBidder.id);
                 auction.highestBidder.rating = rating;
             }
-
-            console.log(rating);
 
             res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders, bidderBlocked });
         } catch (err) {
