@@ -37,12 +37,13 @@
             }
         });
 
-        // Format number with thousands separator
+        // Format number with comma separators (for input display)
         function formatNumber(value) {
             const num = value.replace(/\D/g, '');
             return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
+        // Remove formatting to get raw number
         function unformatNumber(value) {
             return value.replace(/,/g, '');
         }

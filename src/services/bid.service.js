@@ -1,6 +1,7 @@
 import auctionModel from "../models/auction.model.js";
 import bidModel from "../models/bid.model.js";
-import auctionImageModel from "../models/auction-image.model.js"
+import auctionImageModel from "../models/auction-image.model.js";
+import { formatCurrency } from "../utils/format.js";
 
 const bidService = {
     async createBid(bid, expectedCurrentPrice = null) {
@@ -21,7 +22,7 @@ const bidService = {
             return {
                 success: false,
                 error: 'BID_TOO_LOW',
-                message: `Giá đặt phải tối thiểu ${minBid.toLocaleString('vi-VN')} VNĐ`,
+                message: `Giá đặt phải tối thiểu ${formatCurrency(minBid)} VNĐ`,
                 currentPrice: auction.current_price,
                 auction
             };

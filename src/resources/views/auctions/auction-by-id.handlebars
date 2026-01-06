@@ -116,8 +116,10 @@
         return end <= now;
     }
 
+    // Format number as Vietnamese currency (with dot separators)
     function formatNumberVN(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        const number = Number(num) || 0;
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
     function maskName(name) {

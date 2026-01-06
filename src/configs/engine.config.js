@@ -1,5 +1,6 @@
 import { engine } from "express-handlebars";
 import expressHandlebarsSections from "express-handlebars-sections";
+import { formatCurrency } from "../utils/format.js";
 
 const configEngine = (app) => {
     app.engine("handlebars", engine({
@@ -64,14 +65,13 @@ const configEngine = (app) => {
                 return parts.join(" ");
             },
             formatNumber: function (n) {
-                if (!n) return "0";
-                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                return formatCurrency(n);
             },
             add: function (a, b) {
                 return Number(a) + Number(b);
+            },
             formatCurrency(value) {
-                const number = Number(value) || 0;
-                return new Intl.NumberFormat('vi-VN').format(number);
+                return formatCurrency(value);
             },
             maskName: function (name) {
                 if (!name) return "";
@@ -196,10 +196,6 @@ const configEngine = (app) => {
             },
             eq(a, b) {
                 return a === b;
-            },
-            formatCurrency(value) {
-                if (!value) return "0";
-                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             },
             formatTime(date) {
                 if (!date) return "";

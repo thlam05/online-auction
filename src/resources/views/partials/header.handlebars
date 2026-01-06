@@ -195,10 +195,12 @@
                         if (data.suggestions && data.suggestions.length > 0) {
                             let html = '<div class="py-2">';
                             data.suggestions.forEach(item => {
+                                // Format price with dot separators
+                                const formattedPrice = (item.current_price || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                                 html += `
                                     <a href="/auctions/${item.id}" class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition">
                                         <span class="text-sm text-gray-900">${item.name}</span>
-                                        <span class="text-xs text-primary-500 font-medium">${item.current_price.toLocaleString('vi-VN')} ₫</span>
+                                        <span class="text-xs text-primary-500 font-medium">${formattedPrice} ₫</span>
                                     </a>
                                 `;
                             });
