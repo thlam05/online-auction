@@ -26,6 +26,9 @@ const configEngine = (app) => {
             equal: function (a, b) {
                 return a === b;
             },
+            eq: function (a, b) {
+                return a === b;
+            },
             substring: function (str, start, end) {
                 if (!str) return '';
                 return str.substring(start, end);
@@ -66,6 +69,9 @@ const configEngine = (app) => {
             },
             add: function (a, b) {
                 return Number(a) + Number(b);
+            formatCurrency(value) {
+                const number = Number(value) || 0;
+                return new Intl.NumberFormat('vi-VN').format(number);
             },
             maskName: function (name) {
                 if (!name) return "";

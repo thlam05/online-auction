@@ -39,7 +39,7 @@
                             </th>
                             <th scope="col"
                                 class="ps-12 pe-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                Danh mục cha
+                                Danh mục
                             </th>
                             <th scope="col"
                                 class="ps-12 pe-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -227,7 +227,8 @@
                             <td class="px-6 py-4 text-sm text-center">
                                 {{#> action-dropdown}}
                                 <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors">
+                                    class="delete-auction w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-id="{{this.id}}">
                                     Xóa
                                 </button>
                                 {{/action-dropdown}}
@@ -289,8 +290,7 @@
                                 class="appearance-none py-2.5 ps-4 pe-10 flex text-nowrap w-full cursor-pointer bg-white border border-gray-200 rounded-lg text-start text-sm focus:outline-none focus:ring-2 focus:ring-[#1447e6] transition-all">
                                 <option value="">Tất cả trạng thái</option>
                                 <option value="pending">Chờ duyệt nâng cấp</option>
-                                <option value="approved">Đã duyệt</option>
-                                <option value="rejected">Đã từ chối</option>
+                                <option value="approved">Đã là Seller</option>
                             </select>
                             <div class="absolute top-1/2 end-3 -translate-y-1/2 pointer-events-none">
                                 <svg class="shrink-0 size-4 text-gray-500" width="24" height="24" viewBox="0 0 24 24"
@@ -383,39 +383,44 @@
                                 {{else if (eq this.upgrade_status "approved")}}
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Đã duyệt
-                                </span>
-                                {{else if (eq this.upgrade_status "rejected")}}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    Đã từ chối
+                                    Đã là Seller
                                 </span>
                                 {{else}}
                                 <span class="text-gray-400 text-sm">—</span>
                                 {{/if}}
                             </td>
                             <td class="px-6 py-4 text-sm text-center">
+                                {{#> action-dropdown}}
+                                <button type="button"
+                                    class="view-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Xem chi tiết
+                                </button>
+                                <button type="button"
+                                    class="edit-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Chỉnh sửa
+                                </button>
                                 {{#if (eq this.upgrade_status "pending")}}
-                                {{#> action-dropdown}}
                                 <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors"
-                                    data-user-id="{{this.id}}" data-action="approve">
-                                    Duyệt
+                                    class="approve-user w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Duyệt nâng cấp
                                 </button>
                                 <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
-                                    data-user-id="{{this.id}}" data-action="reject">
-                                    Từ chối
+                                    class="reject-user w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Từ chối nâng cấp
                                 </button>
-                                {{/action-dropdown}}
-                                {{else}}
-                                {{#> action-dropdown}}
-                                <button type="button"
-                                    class="w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors">
-                                    Xem
-                                </button>
-                                {{/action-dropdown}}
                                 {{/if}}
+                                {{#unless (eq this.permission 2)}}
+                                <button type="button"
+                                    class="delete-user w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    data-user-id="{{this.id}}">
+                                    Xóa
+                                </button>
+                                {{/unless}}
+                                {{/action-dropdown}}
                             </td>
                         </tr>
                         {{else}}
@@ -440,7 +445,7 @@
 
     <div id="modal-view-category"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-        role="dialog" tabindex="-1" aria-labelledby="modal-view-category-label">
+        role="dialog" tabindex="-1">
         <div
             class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-2xl sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
             <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
@@ -448,7 +453,7 @@
                     <h3 id="modal-view-category-label" class="font-bold text-gray-800">Chi tiết danh mục</h3>
                     <button type="button"
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                        aria-label="Close" data-hs-overlay="#modal-view-category">
+                        data-hs-overlay="#modal-view-category">
                         <span class="sr-only">Close</span>
                         <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -476,7 +481,7 @@
 
     <div id="modal-add-category"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-        role="dialog" tabindex="-1" aria-labelledby="modal-add-category-label">
+        role="dialog" tabindex="-1">
         <div
             class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-2xl sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
             <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
@@ -484,7 +489,7 @@
                     <h3 id="modal-add-category-label" class="font-bold text-gray-800">Thêm danh mục mới</h3>
                     <button type="button"
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                        aria-label="Close" data-hs-overlay="#modal-add-category">
+                        data-hs-overlay="#modal-add-category">
                         <span class="sr-only">Close</span>
                         <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -493,24 +498,35 @@
                         </svg>
                     </button>
                 </div>
-                <form action="/admin/categories" method="POST">
+                <form id="form-add-category">
                     <div class="p-4 overflow-y-auto">
                         <div class="space-y-4">
                             <div>
                                 <label for="category-name" class="block text-sm font-medium mb-2">Tên danh mục</label>
                                 <input type="text" id="category-name" name="name"
                                     class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]"
-                                    placeholder="Nhập tên danh mục" required>
+                                    placeholder="Nhập tên danh mục" autocomplete="off" required>
                             </div>
                             <div>
-                                <label for="category-parent" class="block text-sm font-medium mb-2">Danh mục cha</label>
-                                <select id="category-parent" name="parent_category_id"
-                                    class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]">
-                                    <option value="">Không có (Danh mục gốc)</option>
-                                    {{#each allCategories}}
-                                    <option value="{{this.id}}">{{this.name}}</option>
-                                    {{/each}}
-                                </select>
+                                <label for="category-parent" class="block text-sm font-medium mb-2">Danh mục</label>
+                                <div class="relative">
+                                    <select id="category-parent" name="parent_category_id"
+                                        class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6] appearance-none">
+                                        <option value="">Không có (Danh mục gốc)</option>
+                                        {{#each allCategories}}
+                                        {{#if (eq this.level 0)}}
+                                        <option value="{{this.id}}">{{this.name}}</option>
+                                        {{/if}}
+                                        {{/each}}
+                                    </select>
+                                    <div class="absolute inset-y-0 end-0 flex items-center pointer-events-none pe-3">
+                                        <svg class="shrink-0 size-4 text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -520,7 +536,7 @@
                             data-hs-overlay="#modal-add-category">
                             Hủy
                         </button>
-                        <button type="submit"
+                        <button type="submit" id="add-category-btn"
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#1447e6] text-white hover:bg-[#0d2f8c] focus:outline-none focus:bg-[#0d2f8c]">
                             Thêm danh mục
                         </button>
@@ -532,7 +548,7 @@
 
     <div id="modal-edit-category"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-        role="dialog" tabindex="-1" aria-labelledby="modal-edit-category-label">
+        role="dialog" tabindex="-1">
         <div
             class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-2xl sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
             <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
@@ -540,7 +556,7 @@
                     <h3 id="modal-edit-category-label" class="font-bold text-gray-800">Chỉnh sửa danh mục</h3>
                     <button type="button"
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                        aria-label="Close" data-hs-overlay="#modal-edit-category">
+                        data-hs-overlay="#modal-edit-category">
                         <span class="sr-only">Close</span>
                         <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -562,18 +578,29 @@
                                     mục</label>
                                 <input type="text" id="edit-category-name" name="name"
                                     class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]"
-                                    placeholder="Nhập tên danh mục" required>
+                                    placeholder="Nhập tên danh mục" autocomplete="off" required>
                             </div>
                             <div>
                                 <label for="edit-category-parent" class="block text-sm font-medium mb-2">Danh mục
                                     cha</label>
-                                <select id="edit-category-parent" name="parent_category_id"
-                                    class="py-3 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6]">
-                                    <option value="">Không có (Danh mục gốc)</option>
-                                    {{#each allCategories}}
-                                    <option value="{{this.id}}">{{this.name}}</option>
-                                    {{/each}}
-                                </select>
+                                <div class="relative">
+                                    <select id="edit-category-parent" name="parent_category_id"
+                                        class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-[#1447e6] focus:ring-[#1447e6] appearance-none">
+                                        <option value="">Không có (Danh mục gốc)</option>
+                                        {{#each allCategories}}
+                                        {{#if (eq this.level 0)}}
+                                        <option value="{{this.id}}">{{this.name}}</option>
+                                        {{/if}}
+                                        {{/each}}
+                                    </select>
+                                    <div class="absolute inset-y-0 end-0 flex items-center pointer-events-none pe-3">
+                                        <svg class="shrink-0 size-4 text-gray-500" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -584,7 +611,7 @@
                             data-hs-overlay="#modal-edit-category">
                             Hủy
                         </button>
-                        <button type="submit"
+                        <button type="submit" id="edit-category-btn"
                             class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#1447e6] text-white hover:bg-[#0d2f8c] focus:outline-none focus:bg-[#0d2f8c]">
                             Lưu thay đổi
                         </button>
@@ -596,7 +623,7 @@
 
     <div id="modal-confirm-delete"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-        role="dialog" tabindex="-1" aria-labelledby="modal-confirm-delete-label">
+        role="dialog" tabindex="-1">
         <div
             class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
             <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
@@ -604,7 +631,7 @@
                     <h3 id="modal-confirm-delete-label" class="font-bold text-gray-800">Xác nhận xóa</h3>
                     <button type="button"
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                        aria-label="Close" data-hs-overlay="#modal-confirm-delete">
+                        data-hs-overlay="#modal-confirm-delete">
                         <span class="sr-only">Close</span>
                         <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -650,7 +677,7 @@
 
     <div id="modal-confirm-delete"
         class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-        role="dialog" tabindex="-1" aria-labelledby="modal-confirm-delete-label">
+        role="dialog" tabindex="-1">
         <div
             class="hs-overlay-animation-target ease-in-out transition-all duration-200 sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
             <div class="w-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm pointer-events-auto">
@@ -658,7 +685,7 @@
                     <h3 id="modal-confirm-delete-label" class="font-bold text-gray-800">Xác nhận xóa</h3>
                     <button type="button"
                         class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                        aria-label="Close" data-hs-overlay="#modal-confirm-delete">
+                        data-hs-overlay="#modal-confirm-delete">
                         <span class="sr-only">Close</span>
                         <svg class="shrink-0 size-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

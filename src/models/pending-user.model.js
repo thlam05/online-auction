@@ -28,6 +28,10 @@ const pendingUserModel = {
 
     deleteByEmail(email) {
         return db("pending_users").where({ email: email }).del();
+    },
+
+    deleteByUserId(user_id) {
+        return db("pending_users").where({ user_id: user_id }).del();
     }
 };
 

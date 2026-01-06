@@ -10,9 +10,12 @@ router.get("/profile", userController.getProfileInformation);
 router.get("/reviews", userController.getReviews);
 router.get("/watch-list", userController.getWatchList);
 router.get("/upgrade-seller", userController.showUpgrageSeller);
+router.post("/upgrade-seller", userController.requestUpgradeSeller);
 router.get("/auctions", isSeller, userController.getMyAuctions);
 router.get("/auctions-won", userController.getWinAutions);
 router.get("/bids", userController.getBids);
+router.get("/:id/reviews", userController.getOtherUserReviews);
+
 router.post("/ratings/:id", userController.addRating);
 router.patch("/profile", userController.updateProfileInformation);
 router.patch("/password", userController.changePassword);

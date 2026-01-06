@@ -8,6 +8,8 @@ import bidModel from "../models/bid.model.js";
 import userService from "../services/user.service.js";
 import userRatingService from "../services/user-rating.service.js";
 import auctionBlockModel from "../models/auction-block.model.js";
+import userModel from "../models/user.model.js";
+import { sendBidSuccessToBidder, sendBidSuccessToPreHighestBidder, sendBidSuccessToSeller, sendInformBlocked } from "../utils/nodemailer.js";
 
 const getPaginationData = (count, page, limit) => {
     const nPages = Math.ceil(+count / limit);
@@ -281,6 +283,8 @@ class AuctionController {
             const data = { auction_id: id, max_price: Number(max_price), bidder_id };
             const expectedCurrentPrice = expected_price ? Number(expected_price) : null;
 
+            const preBidder = await bidModel.getHighestBidder(id);
+
             const result = await bidService.createBid(data, expectedCurrentPrice);
 
             if (!result.success) {
@@ -513,7 +517,10 @@ class AuctionController {
                 auction_id: id,
             }
 
-            await auctionService.handleBlockBidder(auctionBlock);
+            const auction = await auctionService.handleBlockBidder(auctionBlock);
+            const bidder = await userModel.findById(bidder_id);
+
+            await sendInformBlocked(auction, bidder);
 
             res.redirect(`/auctions/${id}`);
         } catch (err) {

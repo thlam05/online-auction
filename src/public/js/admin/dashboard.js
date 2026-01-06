@@ -38,15 +38,19 @@ const renderCategoriesTable = (categories) => {
         `;
     }
     return categories.map(category => {
-        const prefix = category.level > 0 ? '<span class="text-gray-400">└─ </span>' : '';
-        const indent = '\u00a0\u00a0\u00a0\u00a0'.repeat(category.level || 0);
+        const isSearchResult = category.parent_name !== undefined;
+        const prefix = !isSearchResult && category.level > 0 ? '<span class="text-gray-400">└─ </span>' : '';
+        const indent = !isSearchResult ? '\u00a0\u00a0\u00a0\u00a0'.repeat(category.level || 0) : '';
+        const parentDisplay = isSearchResult
+            ? (category.parent_name || '<span class="text-gray-400">\u2014</span>')
+            : (category.parent_category ? category.parent_category.name : '<span class="text-gray-400">\u2014</span>');
         return `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
                     <span class="text-sm font-medium text-gray-900">${prefix}${indent}${category.name}</span>
                 </td>
                 <td class="ps-12 pe-6 py-4 text-sm text-gray-500">
-                    ${category.parent_category ? category.parent_category.name : '<span class="text-gray-400">\u2014</span>'}
+                    ${parentDisplay}
                 </td>
                 <td class="ps-12 pe-6 py-4">
                     <code class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${category.slug}</code>
@@ -74,7 +78,6 @@ const renderCategoriesTable = (categories) => {
         `;
     }).join('');
 };
-
 const renderAuctionsTable = (auctions) => {
     if (!auctions || auctions.length === 0) {
         return `
@@ -240,7 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'categories-pagination',
         '/admin/categories/data',
         renderCategoriesTable,
-        'blue'
+        'blue',
+        renderCategoriesSkeleton
     );
     setupSearch('search-categories', 'categories-pagination');
 
@@ -303,7 +307,7 @@ document.addEventListener('click', async (e) => {
                             <code class="inline-block text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md font-mono">${category.slug}</code>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-900 mb-2">Danh mục cha</label>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Danh mục</label>
                             <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${category.parent_category ? category.parent_category.name : 'Không có'}</span>
                         </div>
                         <div>
@@ -381,10 +385,72 @@ document.addEventListener('click', async (e) => {
             loadingEl.style.display = 'none';
             formEl.style.display = 'block';
             footerEl.style.display = 'flex';
-            alert('Đã xảy ra lỗi khi tải thông tin danh mục');
+            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin danh mục');
         }
     }
 });
+
+
+const formAddCategory = document.getElementById('form-add-category');
+if (formAddCategory) {
+    formAddCategory.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('category-name').value;
+        const parent_category_id = document.getElementById('category-parent').value;
+        const submitBtn = document.getElementById('add-category-btn');
+
+        if (!name) {
+            NotificationModal.warning('Vui lòng nhập tên danh mục');
+            return;
+        }
+
+
+        const originalHTML = submitBtn.innerHTML;
+        const originalDisabled = submitBtn.disabled;
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        submitBtn.innerHTML = `
+            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Đang thêm...
+        `;
+
+        try {
+            const response = await fetch('/admin/categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, parent_category_id: parent_category_id || null })
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+
+                submitBtn.disabled = originalDisabled;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.innerHTML = originalHTML;
+
+                NotificationModal.error(result.error || 'Không thể thêm danh mục');
+            }
+        } catch (error) {
+            console.error('Error adding category:', error);
+
+
+            submitBtn.disabled = originalDisabled;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitBtn.innerHTML = originalHTML;
+
+            NotificationModal.error('Đã xảy ra lỗi khi thêm danh mục');
+        }
+    });
+}
+
+
 const formEditCategory = document.getElementById('form-edit-category');
 if (formEditCategory) {
     formEditCategory.addEventListener('submit', async (e) => {
@@ -392,6 +458,23 @@ if (formEditCategory) {
         const categoryId = document.getElementById('edit-category-id').value;
         const name = document.getElementById('edit-category-name').value;
         const parent_category_id = document.getElementById('edit-category-parent').value;
+        const submitBtn = document.getElementById('edit-category-btn');
+
+
+        const originalHTML = submitBtn.innerHTML;
+        const originalDisabled = submitBtn.disabled;
+
+        // Set loading state
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        submitBtn.innerHTML = `
+            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Đang lưu...
+        `;
+
         try {
             const response = await fetch(`/admin/categories/${categoryId}`, {
                 method: 'PUT',
@@ -404,11 +487,22 @@ if (formEditCategory) {
             if (result.success) {
                 window.location.reload();
             } else {
-                alert(result.error || 'Không thể cập nhật danh mục');
+
+                submitBtn.disabled = originalDisabled;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.innerHTML = originalHTML;
+
+                NotificationModal.error(result.error || 'Không thể cập nhật danh mục');
             }
         } catch (error) {
             console.error('Error updating category:', error);
-            alert('Đã xảy ra lỗi khi cập nhật danh mục');
+
+
+            submitBtn.disabled = originalDisabled;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitBtn.innerHTML = originalHTML;
+
+            NotificationModal.error('Đã xảy ra lỗi khi cập nhật danh mục');
         }
     });
 }
@@ -417,6 +511,22 @@ if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', async () => {
         const categoryId = confirmDeleteBtn.dataset.categoryId;
         if (!categoryId) return;
+
+
+        const originalHTML = confirmDeleteBtn.innerHTML;
+        const originalDisabled = confirmDeleteBtn.disabled;
+
+
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        confirmDeleteBtn.innerHTML = `
+            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Đang xóa...
+        `;
+
         try {
             const response = await fetch(`/admin/categories/${categoryId}`, {
                 method: 'DELETE',
@@ -428,28 +538,101 @@ if (confirmDeleteBtn) {
             if (result.success) {
                 window.location.reload();
             } else {
+
+                confirmDeleteBtn.disabled = originalDisabled;
+                confirmDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                confirmDeleteBtn.innerHTML = originalHTML;
+
                 const modal = document.getElementById('modal-confirm-delete');
                 if (window.HSOverlay) {
                     window.HSOverlay.close(modal);
                 }
                 setTimeout(() => {
-                    alert(result.error || 'Không thể xóa danh mục');
+                    NotificationModal.error(result.error || 'Không thể xóa danh mục');
                 }, 300);
             }
         } catch (error) {
             console.error('Error deleting category:', error);
+
+
+            confirmDeleteBtn.disabled = originalDisabled;
+            confirmDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            confirmDeleteBtn.innerHTML = originalHTML;
+
             const modal = document.getElementById('modal-confirm-delete');
             if (window.HSOverlay) {
                 window.HSOverlay.close(modal);
             }
             setTimeout(() => {
-                alert('Đã xảy ra lỗi khi xóa danh mục');
+                NotificationModal.error('Đã xảy ra lỗi khi xóa danh mục');
+            }, 300);
+        }
+    });
+}
+const confirmDeleteAuctionBtn = document.getElementById('confirm-delete-auction-btn');
+if (confirmDeleteAuctionBtn) {
+    confirmDeleteAuctionBtn.addEventListener('click', async () => {
+        const auctionId = confirmDeleteAuctionBtn.dataset.auctionId;
+        if (!auctionId) return;
+
+
+        const originalHTML = confirmDeleteAuctionBtn.innerHTML;
+        const originalDisabled = confirmDeleteAuctionBtn.disabled;
+
+
+        confirmDeleteAuctionBtn.disabled = true;
+        confirmDeleteAuctionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        confirmDeleteAuctionBtn.innerHTML = `
+            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Đang xóa...
+        `;
+
+        try {
+            const response = await fetch(`/admin/auctions/${auctionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+
+                confirmDeleteAuctionBtn.disabled = originalDisabled;
+                confirmDeleteAuctionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                confirmDeleteAuctionBtn.innerHTML = originalHTML;
+
+                const modal = document.getElementById('modal-confirm-delete-auction');
+                if (window.HSOverlay) {
+                    window.HSOverlay.close(modal);
+                }
+                setTimeout(() => {
+                    NotificationModal.error(result.error || 'Không thể xóa sản phẩm đấu giá');
+                }, 300);
+            }
+        } catch (error) {
+            console.error('Error deleting auction:', error);
+
+
+            confirmDeleteAuctionBtn.disabled = originalDisabled;
+            confirmDeleteAuctionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            confirmDeleteAuctionBtn.innerHTML = originalHTML;
+
+            const modal = document.getElementById('modal-confirm-delete-auction');
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+            setTimeout(() => {
+                NotificationModal.error('Đã xảy ra lỗi khi xóa sản phẩm đấu giá');
             }, 300);
         }
     });
 }
 
-// Form thêm người dùng
 const formAddUser = document.getElementById('form-add-user');
 if (formAddUser) {
     formAddUser.addEventListener('submit', async (e) => {
@@ -480,20 +663,16 @@ if (formAddUser) {
     });
 }
 
-// User action handlers
 document.addEventListener('click', async (e) => {
-    // View user
     if (e.target.classList.contains('view-user')) {
         const userId = e.target.dataset.userId;
         const modal = document.getElementById('modal-view-user');
         const content = document.getElementById('view-user-content');
 
-        // Open modal
         if (window.HSOverlay) {
             window.HSOverlay.open(modal);
         }
 
-        // Show loading
         content.innerHTML = `
             <div class="flex items-center justify-center py-8">
                 <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full" style="color: #1447e6"></div>
@@ -613,7 +792,6 @@ document.addEventListener('click', async (e) => {
         return;
     }
 
-    // Delete user
     if (e.target.classList.contains('delete-user')) {
         const userId = e.target.dataset.userId;
         const confirmBtn = document.getElementById('confirm-delete-user-btn');
@@ -626,7 +804,6 @@ document.addEventListener('click', async (e) => {
         return;
     }
 
-    // Approve upgrade
     if (e.target.classList.contains('approve-upgrade')) {
         const userId = e.target.dataset.userId;
         if (confirm('Bạn có chắc chắn muốn duyệt nâng cấp cho người dùng này?')) {
@@ -652,7 +829,6 @@ document.addEventListener('click', async (e) => {
         return;
     }
 
-    // Reject upgrade
     if (e.target.classList.contains('reject-upgrade')) {
         const userId = e.target.dataset.userId;
         if (confirm('Bạn có chắc chắn muốn từ chối nâng cấp cho người dùng này?')) {
@@ -679,7 +855,6 @@ document.addEventListener('click', async (e) => {
     }
 }, true);
 
-// Confirm delete user button
 const confirmDeleteUserBtn = document.getElementById('confirm-delete-user-btn');
 if (confirmDeleteUserBtn) {
     confirmDeleteUserBtn.addEventListener('click', async () => {
@@ -718,7 +893,6 @@ if (confirmDeleteUserBtn) {
     });
 }
 
-// Form edit user
 const formEditUser = document.getElementById('form-edit-user');
 if (formEditUser) {
     formEditUser.addEventListener('submit', async (e) => {

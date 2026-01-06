@@ -69,8 +69,25 @@ const categoryModel = {
                 db.raw("json_build_object('id', p.id, 'name', p.name) as parent_category")
             )
             .first();
+    },
+
+
+    async searchCategories(searchTerm) {
+        if (!searchTerm || searchTerm.trim() === '') {
+            return this.findAll();
+        }
+
+
+        return db("categories")
+            .whereRaw(
+                `unaccent(lower(name)) ILIKE unaccent(lower(?))`,
+                [`%${searchTerm.trim()}%`]
+            )
+            .orWhereRaw(
+                `unaccent(lower(slug)) ILIKE unaccent(lower(?))`,
+                [`%${searchTerm.trim()}%`]
+            );
     }
 }
 
 export default categoryModel;
-

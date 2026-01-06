@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/', adminController.getDashboard);
 
+// Categories
 router.get('/categories/data', adminController.getCategoriesData);
 router.get('/categories/:id', adminController.getCategoryById);
 router.post('/categories', adminController.createCategory);

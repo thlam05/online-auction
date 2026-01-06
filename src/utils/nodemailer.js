@@ -57,3 +57,122 @@ export const sendInformMessage = async (toEmail, auction) => {
 
     return { info };
 }
+
+
+function createTransport() {
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: config.googleAppEmail,
+            pass: config.googleAppPassword,
+        },
+    });
+
+    return transporter;
+}
+
+export const sendBidSuccessToSeller = async (auction, seller) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: seller.email,
+        subject: "Có người ra giá cho sản phẩm của bạn",
+        text: `Sản phẩm "${auction.name}" vừa được ra giá thành công.\nGiá mới: ${auction.current_price} VNĐ.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+export const sendBidSuccessToBidder = async (auction, bidder) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: bidder.email,
+        subject: "Ra giá thành công",
+        text: `Bạn đã ra giá thành công cho sản phẩm "${auction.name}".\nGiá của bạn: ${auction.current_price} VNĐ.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+export const sendBidSuccessToPreHighestBidder = async (auction, preBidder) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: preBidder.email,
+        subject: "Bạn đã bị vượt giá",
+        text: `Giá của bạn cho sản phẩm "${auction.name}" đã bị vượt.\nGiá mới hiện tại: ${auction.current_price} VNĐ.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+
+export const sendInformBlocked = async (auction, bidder) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: bidder.email,
+        subject: "Bạn đã bị người bán từ chối ra giá",
+        text: `Bạn không thể ra giá cho sản phẩm "${auction.name}"`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+export const sendAuctionEndedNoBidToSeller = async (auction, seller) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: seller.email,
+        subject: "Đấu giá kết thúc – Không có người mua",
+        text: `Phiên đấu giá cho sản phẩm "${auction.name}" đã kết thúc nhưng không có người mua.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+export const sendAuctionEndedToSeller = async (auction, seller) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: seller.email,
+        subject: "Đấu giá kết thúc thành công",
+        text: `Sản phẩm "${auction.name}" đã được bán thành công.\nGiá chốt: ${auction.current_price} VNĐ.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}
+
+export const sendAuctionEndedToWinner = async (auction, bidder) => {
+    const transporter = createTransport();
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: bidder.email,
+        subject: "Chúc mừng bạn đã thắng đấu giá",
+        text: `Bạn đã thắng đấu giá sản phẩm "${auction.name}".\nGiá cuối cùng: ${auction.current_price} VNĐ.\nVui lòng tiến hành thanh toán.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+}

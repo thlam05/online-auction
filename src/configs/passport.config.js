@@ -71,6 +71,12 @@ passport.deserializeUser(async (user, cb) => {
     process.nextTick(async () => {
         try {
             const fullUser = await userService.getUserById(user.id);
+
+            // If user not found (e.g., deleted), invalidate session
+            if (!fullUser) {
+                return cb(null, false);
+            }
+
             return cb(null, fullUser);
         } catch (err) {
             return cb(err);

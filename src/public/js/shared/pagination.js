@@ -1,10 +1,7 @@
 export const renderPagination = (paginationElement, currentPage, totalPages, theme = 'blue') => {
     const container = paginationElement.querySelector('div, nav') || paginationElement;
     if (!container) return;
-
     let html = '';
-
-
     const colors = {
         blue: {
             active: 'bg-[#1447e6] text-white',
@@ -17,33 +14,22 @@ export const renderPagination = (paginationElement, currentPage, totalPages, the
             text: 'text-gray-700'
         }
     };
-
     const activeColor = colors[theme].active;
     const hoverColor = colors[theme].hover;
     const textColor = colors[theme].text;
-
-
     html += `<button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 rounded-lg ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" data-page="prev" ${currentPage === 1 ? 'disabled' : ''}>«</button>`;
-
-
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-
     if (endPage - startPage < maxVisiblePages - 1) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-
-
     if (startPage > 1) {
         html += `<button class="px-3 py-1 text-sm ${textColor} ${hoverColor} rounded-md" data-page="1">1</button>`;
         if (startPage > 2) {
             html += `<span class="px-2 text-gray-400">...</span>`;
         }
     }
-
-
     for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
             html += `<button class="px-3 py-1 text-sm ${activeColor} rounded-md" data-page="${i}">${i}</button>`;
@@ -51,18 +37,13 @@ export const renderPagination = (paginationElement, currentPage, totalPages, the
             html += `<button class="px-3 py-1 text-sm ${textColor} ${hoverColor} rounded-md" data-page="${i}">${i}</button>`;
         }
     }
-
-
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
             html += `<span class="px-2 text-gray-400">...</span>`;
         }
         html += `<button class="px-3 py-1 text-sm ${textColor} ${hoverColor} rounded-md" data-page="${totalPages}">${totalPages}</button>`;
     }
-
-
     html += `<button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" data-page="next" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
-
     container.innerHTML = html;
 }
 
@@ -136,7 +117,6 @@ export const setupPagination = (containerId, paginationId, endpoint, renderFn, t
     pagination.addEventListener('click', async (e) => {
         const button = e.target.closest('button');
         if (!button || button.disabled) return;
-
         const page = button.dataset.page;
         if (page === 'prev' && currentPage > 1) {
             currentPage--;
