@@ -127,7 +127,7 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Thông tin sản phẩm</h2>
                     <div class="flex gap-6">
                         <div class="flex-shrink-0">
-                            <img src="/uploads/{{auction.main_image}}" alt="{{auction.name}}"
+                            <img src="{{auction.main_image}}" alt="{{auction.name}}"
                                 class="w-32 h-32 object-cover rounded-xl border border-gray-200">
                         </div>
                         <div class="flex-1">
@@ -184,14 +184,13 @@
                         <!-- Payment Proof Image -->
                         <div class="mb-6">
                             <div class="max-w-md mx-auto border border-gray-200 rounded-xl overflow-hidden">
-                                <img src="/uploads/{{order.payment_proof}}" alt="Bằng chứng thanh toán"
-                                    class="w-full h-auto">
+                                <img src="{{order.payment_proof}}" alt="Bằng chứng thanh toán" class="w-full h-auto">
                             </div>
                         </div>
 
                         <!-- Confirmation Buttons -->
                         <div class="flex gap-4 justify-center">
-                            <form method="POST" action="/payment/confirm" class="inline-block">
+                            <form method="POST" action="/payment/{{auction.id}}/confirm-payment" class="inline-block">
                                 <input type="hidden" name="auction_id" value="{{auction.id}}">
                                 <input type="hidden" name="confirmed" value="true">
                                 <button type="submit"
@@ -204,7 +203,7 @@
                                     Xác nhận thanh toán
                                 </button>
                             </form>
-                            <form method="POST" action="/payment/confirm" class="inline-block">
+                            <form method="POST" action="/payment/{{auction.id}}/confirm-payment" class="inline-block">
                                 <input type="hidden" name="auction_id" value="{{auction.id}}">
                                 <input type="hidden" name="confirmed" value="false">
                                 <button type="submit"
@@ -245,8 +244,7 @@
 
                         <!-- Show Uploaded Image -->
                         <div class="max-w-md mx-auto border border-gray-200 rounded-xl overflow-hidden">
-                            <img src="/uploads/{{order.payment_proof}}" alt="Bằng chứng thanh toán"
-                                class="w-full h-auto">
+                            <img src="{{order.payment_proof}}" alt="Bằng chứng thanh toán" class="w-full h-auto">
                         </div>
                     </div>
                     {{else}}
@@ -284,32 +282,31 @@
                         </div>
 
                         <!-- Upload Form -->
-                        <form method="POST" action="/payment/upload-proof" enctype="multipart/form-data">
+                        <form method="POST" action="/payment/{{auction.id}}/submit-payment"
+                            enctype="multipart/form-data">
                             <input type="hidden" name="auction_id" value="{{auction.id}}">
 
                             <div class="mb-6">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Bằng chứng thanh toán <span class="text-red-500">*</span>
                                 </label>
-                                <div
-                                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-500 transition-colors duration-200">
+                                <div id="upload-area"
+                                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-500 transition-colors duration-200 cursor-pointer">
                                     <input type="file" name="payment_proof" id="payment_proof" accept="image/*"
-                                        class="hidden" required onchange="previewImage(event)">
-                                    <label for="payment_proof" class="cursor-pointer">
-                                        <div id="preview-container" class="hidden mb-4">
-                                            <img id="preview-image" src="" alt="Preview"
-                                                class="max-w-full max-h-64 mx-auto rounded-lg">
-                                        </div>
-                                        <div id="upload-placeholder">
-                                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            <p class="text-gray-600 mb-2">Nhấp để chọn ảnh hoặc kéo thả vào đây</p>
-                                            <p class="text-sm text-gray-500">PNG, JPG tối đa 5MB</p>
-                                        </div>
-                                    </label>
+                                        class="hidden" required>
+                                    <div id="preview-container" class="hidden mb-4">
+                                        <img id="preview-image" src="" alt="Preview"
+                                            class="max-w-full max-h-64 mx-auto rounded-lg">
+                                    </div>
+                                    <div id="upload-placeholder">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="text-gray-600 mb-2">Nhấp để chọn ảnh hoặc kéo thả vào đây</p>
+                                        <p class="text-sm text-gray-500">PNG, JPG tối đa 5MB</p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -350,25 +347,6 @@
 
                         <!-- Action Buttons -->
                         <div class="flex gap-4 justify-center flex-wrap">
-                            {{#if isSeller}}
-                            <a href="/user/messages?user_id={{winner.id}}"
-                                class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                Nhắn tin cho người mua
-                            </a>
-                            {{else}}
-                            <a href="/user/messages?user_id={{seller.id}}"
-                                class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                Nhắn tin cho người bán
-                            </a>
-                            {{/if}}
                             <a href="/"
                                 class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,6 +356,62 @@
                                 Về trang chủ
                             </a>
                         </div>
+                    </div>
+                </div>
+                {{/unless}}
+
+                <!-- Chat Box -->
+                {{#unless (eq orderStatus 'completed')}}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-3">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Trao đổi với {{#if isSeller}}người mua{{else}}người bán{{/if}}
+                        </h3>
+                    </div>
+
+                    <!-- Messages Container -->
+                    <div id="chat-messages" class="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                        {{#each messages}}
+                        <div data-message-id="{{this.id}}"
+                            class="flex {{#if (eq this.sender_id ../order.seller_id)}}justify-start{{else}}justify-end{{/if}}">
+                            <div
+                                class="max-w-[75%] {{#if (eq this.sender_id ../order.seller_id)}}bg-white{{else}}bg-primary-500 text-white{{/if}} rounded-2xl px-4 py-2 shadow-sm">
+                                <p
+                                    class="text-xs {{#if (eq this.sender_id ../order.seller_id)}}text-gray-500{{else}}text-primary-100{{/if}} mb-1">
+                                    {{this.sender_name}}
+                                </p>
+                                <p class="text-sm">{{this.content}}</p>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="text-center text-gray-400 text-sm py-8">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Chưa có tin nhắn nào
+                        </div>
+                        {{/each}}
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="p-4 border-t border-gray-200 bg-white">
+                        <form id="chat-form" class="flex gap-2">
+                            <input type="text" id="chat-input" placeholder="Nhập tin nhắn..."
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <button type="submit"
+                                class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-full transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {{/unless}}
@@ -446,10 +480,10 @@
                         <h3 class="text-sm font-semibold text-gray-900 mb-3">Thông tin liên hệ</h3>
                         <div class="space-y-2 text-sm text-gray-600">
                             {{#if isSeller}}
-                            <p><span class="font-medium text-gray-900">Người mua:</span> {{winner.fullname}}</p>
+                            <p><span class="font-medium text-gray-900">Người mua:</span> {{winner.username}}</p>
                             <p><span class="font-medium text-gray-900">Email:</span> {{winner.email}}</p>
                             {{else}}
-                            <p><span class="font-medium text-gray-900">Người bán:</span> {{seller.fullname}}</p>
+                            <p><span class="font-medium text-gray-900">Người bán:</span> {{seller.username}}</p>
                             <p><span class="font-medium text-gray-900">Email:</span> {{seller.email}}</p>
                             {{/if}}
                         </div>
@@ -472,6 +506,57 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Cancel Order Button (Seller Only) -->
+                    {{#if isSeller}}
+                    {{#unless (eq orderStatus 'completed')}}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="openCancelModal()"
+                            class="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Huỷ giao dịch
+                        </button>
+                        <p class="text-xs text-gray-500 mt-2 text-center">
+                            Người mua sẽ nhận đánh giá -1 khi bạn huỷ giao dịch
+                        </p>
+                    </div>
+                    {{/unless}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCancelModal()"></div>
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Xác nhận huỷ giao dịch</h3>
+                <p class="text-gray-600 mb-6">
+                    Bạn có chắc chắn muốn huỷ giao dịch này? Người mua sẽ nhận <span
+                        class="font-semibold text-red-600">đánh giá -1</span> vì không hoàn thành thanh toán.
+                </p>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeCancelModal()"
+                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors duration-200">
+                        Không, quay lại
+                    </button>
+                    <button type="button" onclick="confirmCancelOrder()"
+                        class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors duration-200">
+                        Xác nhận huỷ
+                    </button>
                 </div>
             </div>
         </div>
@@ -479,6 +564,10 @@
 </div>
 
 <script>
+    const auctionId = '{{auction.id}}';
+    const currentUserId = '{{order.seller_id}}';
+    const sellerId = '{{order.seller_id}}';
+
     function previewImage(event) {
         const file = event.target.files[0];
         if (file) {
@@ -492,8 +581,156 @@
         }
     }
 
-    // Set progress bar width from data attribute
+    // Add click handler for upload area
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('payment_proof');
+
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', previewImage);
+    }
+
+    // Cancel Modal Functions
+    function openCancelModal() {
+        document.getElementById('cancel-modal').classList.remove('hidden');
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancel-modal').classList.add('hidden');
+    }
+
+    async function confirmCancelOrder() {
+        try {
+            const response = await fetch(`/payment/${auctionId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Đã huỷ giao dịch thành công');
+                window.location.href = '/';
+            } else {
+                alert(result.message || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi huỷ giao dịch');
+        }
+
+        closeCancelModal();
+    }
+
+    // Chat Functions
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = chatInput.value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch(`/payment/${auctionId}/send-message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    appendMessage(result.message);
+                    chatInput.value = '';
+                    scrollToBottom();
+                } else {
+                    alert(result.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi gửi tin nhắn');
+            }
+        });
+    }
+
+    function appendMessage(msg) {
+        const isSeller = msg.sender_id === sellerId;
+        const messageHtml = `
+            <div class="flex ${isSeller ? 'justify-start' : 'justify-end'}" data-message-id="${msg.id}">
+                <div class="max-w-[75%] ${isSeller ? 'bg-white' : 'bg-primary-500 text-white'} rounded-2xl px-4 py-2 shadow-sm">
+                    <p class="text-xs ${isSeller ? 'text-gray-500' : 'text-primary-100'} mb-1">
+                        ${msg.sender_name}
+                    </p>
+                    <p class="text-sm">${msg.content}</p>
+                </div>
+            </div>
+        `;
+
+        // Remove empty state if exists
+        const emptyState = chatMessages.querySelector('.text-center');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+    }
+
+    function scrollToBottom() {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    // Track existing message IDs
+    let existingMessageIds = new Set();
+
+    // Initialize existing messages
+    if (chatMessages) {
+        chatMessages.querySelectorAll('[data-message-id]').forEach(el => {
+            existingMessageIds.add(el.getAttribute('data-message-id'));
+        });
+    }
+
+    // Auto-refresh messages every 3 seconds (faster response)
+    setInterval(async () => {
+        if (!chatMessages) return;
+
+        try {
+            const response = await fetch(`/payment/${auctionId}/messages`);
+            const result = await response.json();
+
+            if (result.success && result.messages) {
+                // Only append new messages instead of re-rendering all
+                const newMessages = result.messages.filter(msg => !existingMessageIds.has(msg.id));
+
+                if (newMessages.length > 0) {
+                    newMessages.forEach(msg => {
+                        appendMessage(msg);
+                        existingMessageIds.add(msg.id);
+                    });
+                    scrollToBottom();
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing messages:', error);
+        }
+    }, 3000); // Reduced from 10000ms to 3000ms
+
+    // Scroll to bottom on page load
     document.addEventListener('DOMContentLoaded', function () {
+        scrollToBottom();
+
         const progressBar = document.querySelector('[data-progress]');
         if (progressBar) {
             const progress = progressBar.getAttribute('data-progress');

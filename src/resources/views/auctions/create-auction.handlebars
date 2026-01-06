@@ -37,6 +37,38 @@
             }
         });
 
+        // Format number with thousands separator
+        function formatNumber(value) {
+            const num = value.replace(/\D/g, '');
+            return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function unformatNumber(value) {
+            return value.replace(/,/g, '');
+        }
+
+        // Add formatting to price inputs
+        const priceInputs = ['#starting-step-product', '#price-step-product', '#cost-buy-now-product'];
+        priceInputs.forEach(selector => {
+            const input = document.querySelector(selector);
+            if (input) {
+                // Change type to text for formatting
+                input.type = 'text';
+
+                input.addEventListener('input', function (e) {
+                    const cursorPosition = e.target.selectionStart;
+                    const oldLength = e.target.value.length;
+                    const formatted = formatNumber(e.target.value);
+                    e.target.value = formatted;
+
+                    // Adjust cursor position after formatting
+                    const newLength = formatted.length;
+                    const diff = newLength - oldLength;
+                    e.target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+                });
+            }
+        });
+
         const form = document.querySelector("#form-create-auction");
 
         function removeClassInvalid(event) {
@@ -74,16 +106,24 @@
             subImage.onclick = removeClassInvalid;
 
             const startingPrice = form.querySelector("#starting-step-product");
-            if (!startingPrice.value || Number(startingPrice.value) < 0) {
+            const startingPriceValue = unformatNumber(startingPrice.value);
+            if (!startingPriceValue || Number(startingPriceValue) < 0) {
                 isValid = false;
                 startingPrice.classList.add("border-red-500");
+            } else {
+                // Set unformatted value for submission
+                startingPrice.value = startingPriceValue;
             }
             startingPrice.oninput = removeClassInvalid;
 
             const priceStep = form.querySelector("#price-step-product");
-            if (!priceStep.value || Number(priceStep.value) < 0) {
+            const priceStepValue = unformatNumber(priceStep.value);
+            if (!priceStepValue || Number(priceStepValue) < 0) {
                 isValid = false;
                 priceStep.classList.add("border-red-500");
+            } else {
+                // Set unformatted value for submission
+                priceStep.value = priceStepValue;
             }
             priceStep.oninput = removeClassInvalid;
 
@@ -93,6 +133,12 @@
                 duration.classList.add("border-red-500");
             }
             duration.oninput = removeClassInvalid;
+
+            // Handle buy now price (optional field)
+            const costBuyNow = form.querySelector("#cost-buy-now-product");
+            if (costBuyNow.value) {
+                costBuyNow.value = unformatNumber(costBuyNow.value);
+            }
 
             if (isValid == false) {
                 return;

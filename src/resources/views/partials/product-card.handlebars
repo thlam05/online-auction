@@ -1,11 +1,11 @@
 <a href="/auctions/{{this.id}}"
-    class="product-card group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col">
+    class="product-card group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col h-full">
     <div class="relative overflow-hidden bg-white">
         <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}"
             class="product-card-img group-hover:scale-105 transition-transform duration-300"
             onerror="this.onerror=null; this.src='/images/placeholder.webp';">
     </div>
-    <div class="product-card-body">
+    <div class="product-card-body flex flex-col flex-1">
         <h3 class="product-card-title">{{this.name}}</h3>
         <div class="space-y-2 text-sm {{#if this.showBidder}}mb-4{{else}}mb-4{{/if}}">
             <div class="flex justify-between items-center">
@@ -31,7 +31,7 @@
         </div>
 
         <span
-            class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors">
+            class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors mt-auto">
             Đấu giá ngay
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
