@@ -724,6 +724,26 @@
 
                 {{#if isAuthenticated}}
                 <div class="border-t border-gray-200 pt-5">
+                    {{#if (isSellerOfAuction authUser auction)}}
+                    <div class="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-700">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+
+                            <div>
+                                <p class="font-semibold text-sm">
+                                    Đây là sản phẩm của bạn
+                                </p>
+                                <p class="text-sm mt-1 text-yellow-600">
+                                    Bạn không thể tham gia đấu giá hoặc mua sản phẩm của chính mình.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
                     {{#if rating}}
                     {{#if (less rating 80)}}
                     <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
@@ -797,14 +817,16 @@
                     {{/if}}
 
                     {{/if}}
+                    {{/if}}
 
                     <div
                         class="{{#if auction.buy_now_price}}{{#unless (isOver auction.end_at)}}grid grid-cols-2{{else}}grid grid-cols-1{{/unless}}{{else}}grid grid-cols-1{{/if}} gap-3 mt-3">
                         {{#if auction.buy_now_price}}
                         {{#unless (isOver auction.end_at)}}
                         <button id="btn-buy-now"
-                            class="py-3 px-4 border border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2"
-                            data-auction-id="{{auction.id}}" data-buy-now-price="{{auction.buy_now_price}}" {{#unless
+                            class="py-3 px-4 border border-green-500 text-green-600 hover:bg-green-50 font-semibold rounded-xl transition flex items-center justify-center gap-2 {{#if (isSellerOfAuction authUser auction)}}opacity-50 cursor-not-allowed{{/if}}"
+                            data-auction-id="{{auction.id}}" data-buy-now-price="{{auction.buy_now_price}}" {{#if
+                            (isSellerOfAuction authUser auction)}}disabled{{/if}} {{#unless
                             isAuthenticated}}onclick="redirect(); return false;" {{/unless}}>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -816,9 +838,9 @@
                         {{/unless}}
                         {{/if}}
                         <button id="btn-add-watchlist"
-                            class="py-3 px-4 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition flex items-center justify-center gap-2"
-                            {{#unless isAuthenticated}}onclick="redirect()" {{/unless}}
-                            data-auction-id="{{auction.id}}">
+                            class="py-3 px-4 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition flex items-center justify-center gap-2 {{#if (isSellerOfAuction authUser auction)}}opacity-50 cursor-not-allowed{{/if}}"
+                            {{#if (isSellerOfAuction authUser auction)}}disabled{{/if}} {{#unless
+                            isAuthenticated}}onclick="redirect()" {{/unless}} data-auction-id="{{auction.id}}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
