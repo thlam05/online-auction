@@ -19,6 +19,7 @@ const auctionService = {
             bid_step: Number(data.priceStep),
             start_at: new Date(Date.now()),
             end_at: new Date(Date.now() + data.duration * 60 * 60 * 1000),
+            auto_renew: data.auto_renew === 'true' || data.auto_renew === 'on' || data.auto_renew === true,
             created_at: new Date(Date.now()),
             updated_at: new Date(Date.now())
         }

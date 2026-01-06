@@ -37,7 +37,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const { count } = await auctionModel.countAllAuctions();
-            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
+            const { nPages, pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctions(limit, offset);
             const empty = auctions.length == 0;
@@ -48,7 +48,16 @@ class AuctionController {
                 auction.showTags = true;
             });
 
-            res.render("auctions/all-auctions", { empty, categories, auctions, pageNumbers, prevPage, nextPage });
+            res.render("auctions/all-auctions", {
+                empty,
+                categories,
+                auctions,
+                pageNumbers,
+                prevPage,
+                nextPage,
+                totalPages: nPages,
+                currentPage: +page
+            });
         } catch (err) {
             next(err);
         }
@@ -66,7 +75,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionsByCatId(category.id);
-            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
+            const { nPages, pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByCatId(category.id, limit, offset);
 
@@ -77,7 +86,17 @@ class AuctionController {
                 auction.showDate = true;
             });
 
-            res.render("auctions/auctions-by-category", { empty, curCategory: category, categories, auctions, pageNumbers, prevPage, nextPage });
+            res.render("auctions/auctions-by-category", {
+                empty,
+                curCategory: category,
+                categories,
+                auctions,
+                pageNumbers,
+                prevPage,
+                nextPage,
+                totalPages: nPages,
+                currentPage: +page
+            });
         } catch (err) {
             next(err);
         }
@@ -88,6 +107,19 @@ class AuctionController {
         try {
             const { id } = req.params;
             const auction = await auctionService.getAuctionById(id);
+            if (auction && res.locals.isAuthenticated) {
+                const auctionEnded = new Date(auction.end_at) <= new Date();
+
+                if (auctionEnded) {
+                    const userId = res.locals.authUser.id;
+                    const winner = await bidModel.getHighestBidder(id);
+
+                    if (winner && (auction.seller_id === userId || winner.id === userId)) {
+                        return res.redirect(`/payment/${id}`);
+                    }
+                }
+            }
+
             const messages = await messageService.getAllMessageByAuctionId(id);
             const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
             const bidHistories = await bidModel.getBidHistory(id);
@@ -146,7 +178,7 @@ class AuctionController {
             const offset = (page - 1) * limit;
 
             const count = await auctionService.countAuctionByQuery(q);
-            const { pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
+            const { nPages, pageNumbers, prevPage, nextPage } = getPaginationData(count, page, limit);
 
             const auctions = await auctionService.getAuctionByQuery(q, limit, offset, sort);
 
@@ -160,7 +192,17 @@ class AuctionController {
 
             const qSearch = q.trim().split(/\s+/).join("+");
 
-            res.render("auctions/search", { empty, categories, auctions, pageNumbers, prevPage, nextPage, qSearch });
+            res.render("auctions/search", {
+                empty,
+                categories,
+                auctions,
+                pageNumbers,
+                prevPage,
+                nextPage,
+                qSearch,
+                totalPages: nPages,
+                currentPage: +page
+            });
         } catch (err) {
             next(err);
         }
@@ -271,24 +313,11 @@ class AuctionController {
 
             const highestBidder = await bidModel.getHighestBidder(id);
 
-            const auction = result.auction;
-            const seller = await userModel.findById(auction.seller_id);
-            const user = req.user;
-
-            const mailJobs = [];
-            mailJobs.push(sendBidSuccessToSeller(auction, seller));
-            mailJobs.push(sendBidSuccessToBidder(auction, user));
-            if (preBidder && highestBidder && highestBidder.id != preBidder.id && preBidder.email) {
-                mailJobs.push(sendBidSuccessToPreHighestBidder(auction, preBidder));
-            }
-            await Promise.all(mailJobs);
-
-            const newBidsForHistory = result.newBids.map(b => ({
-                amount: b.amount,
-                created_at: b.created_at,
-                bidder_name: b.bidder_id === bidder_id
-                    ? user.username
-                    : (highestBidder ? highestBidder.username : 'Unknown')
+            const latestBids = await bidModel.getBidHistory(id);
+            const newBidsForHistory = latestBids.slice(0, result.newBids.length).map(bid => ({
+                amount: bid.amount,
+                created_at: bid.created_at,
+                bidder_name: bid.bidder_name
             }));
 
             return res.json({
@@ -303,6 +332,32 @@ class AuctionController {
                     } : null
                 },
                 newBids: newBidsForHistory
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // POST - /auctions/:id/buy-now
+    async buyNow(req, res, next) {
+        try {
+            const { id } = req.params;
+            const bidder_id = req.session.passport.user.id;
+
+            const result = await bidService.buyNow(id, bidder_id);
+
+            if (!result.success) {
+                return res.json({
+                    success: false,
+                    error: result.error,
+                    message: result.message
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: result.message,
+                redirectUrl: `/payment/${id}`
             });
         } catch (err) {
             next(err);
@@ -364,12 +419,16 @@ class AuctionController {
 
             const totalPages = Math.ceil(+count / limit);
 
-            // Render product cards HTML
-            const html = auctions.map(auction => {
-                return `<!-- Product card HTML would go here -->`;
-            }).join('');
-
-            res.json({ html, totalPages, currentPage: +page });
+            // Render using Handlebars
+            res.render('partials/auction-cards', {
+                layout: false,
+                auctions
+            }, (err, html) => {
+                if (err) {
+                    return next(err);
+                }
+                res.json({ html, totalPages, currentPage: +page });
+            });
         } catch (err) {
             next(err);
         }
@@ -399,11 +458,16 @@ class AuctionController {
 
             const totalPages = Math.ceil(+count / limit);
 
-            const html = auctions.map(auction => {
-                return `<!-- Product card HTML would go here -->`;
-            }).join('');
-
-            res.json({ html, totalPages, currentPage: +page });
+            // Render using Handlebars
+            res.render('partials/auction-cards', {
+                layout: false,
+                auctions
+            }, (err, html) => {
+                if (err) {
+                    return next(err);
+                }
+                res.json({ html, totalPages, currentPage: +page });
+            });
         } catch (err) {
             next(err);
         }
@@ -427,11 +491,16 @@ class AuctionController {
 
             const totalPages = Math.ceil(+count / limit);
 
-            const html = auctions.map(auction => {
-                return `<!-- Product card HTML would go here -->`;
-            }).join('');
-
-            res.json({ html, totalPages, currentPage: +page });
+            // Render using Handlebars
+            res.render('partials/auction-cards', {
+                layout: false,
+                auctions
+            }, (err, html) => {
+                if (err) {
+                    return next(err);
+                }
+                res.json({ html, totalPages, currentPage: +page });
+            });
         } catch (err) {
             next(err);
         }

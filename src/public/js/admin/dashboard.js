@@ -1,138 +1,7 @@
 import { setupPagination, setupSearch, setupFilters } from '../shared/pagination.js';
 
-const createSkeletonRow = (columns) => {
-    const cells = Array(columns).fill(0).map((_, i) => {
-        if (i === columns - 1) {
-            return `<td class="px-6 py-4"><div class="h-8 w-8 bg-gray-200 rounded-md animate-pulse mx-auto"></div></td>`;
-        }
-        return `<td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse" style="width: ${60 + Math.random() * 30}%"></div></td>`;
-    }).join('');
-    return `<tr>${cells}</tr>`;
-};
-
-const renderCategoriesSkeleton = () => {
-    return Array(5).fill(0).map(() => createSkeletonRow(4)).join('');
-};
-
-const renderAuctionsSkeleton = () => {
-    return Array(5).fill(0).map(() => {
-        return `
-            <tr>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gray-200 rounded-md animate-pulse"></div>
-                        <div class="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
-                    </div>
-                </td>
-                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-20"></div></td>
-                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div></td>
-                <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse w-20"></div></td>
-                <td class="px-6 py-4"><div class="h-6 bg-gray-200 rounded-full animate-pulse w-20"></div></td>
-                <td class="px-6 py-4"><div class="h-8 w-8 bg-gray-200 rounded-md animate-pulse mx-auto"></div></td>
-            </tr>
-        `;
-    }).join('');
-};
-
-const renderUsersSkeleton = () => {
-    return Array(5).fill(0).map(() => createSkeletonRow(5)).join('');
-};
-
-const renderUsersTable = (users) => {
-    if (!users || users.length === 0) {
-        return `
-            <tr>
-                <td colspan="5" class="px-6 py-12 text-center">
-                    <p class="text-gray-500">Chưa có người dùng nào</p>
-                </td>
-            </tr>
-        `;
-    }
-
-    return users.map(user => {
-        let roleBadge = '';
-        if (user.permission === 2) {
-            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Admin</span>';
-        } else if (user.permission === 1) {
-            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Seller</span>';
-        } else {
-            roleBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Bidder</span>';
-        }
-
-        let statusBadge = '';
-        if (user.upgrade_status === 'pending') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" /></svg>Chờ duyệt</span>';
-        } else if (user.upgrade_status === 'approved') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đã là Seller</span>';
-        } else {
-            statusBadge = '<span class="text-gray-400 text-sm">—</span>';
-        }
-
-        let actions = [
-            {
-                text: 'Xem chi tiết',
-                className: 'view-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
-                attributes: `data-user-id="${user.id}"`
-            },
-            {
-                text: 'Chỉnh sửa',
-                className: 'edit-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
-                attributes: `data-user-id="${user.id}"`
-            }
-        ];
-
-
-        if (user.upgrade_status === 'pending') {
-            actions.push(
-                {
-                    text: 'Duyệt nâng cấp',
-                    className: 'approve-user w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors',
-                    attributes: `data-user-id="${user.id}"`
-                },
-                {
-                    text: 'Từ chối nâng cấp',
-                    className: 'reject-user w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors',
-                    attributes: `data-user-id="${user.id}"`
-                }
-            );
-        }
-
-
-        if (user.permission !== 2) {
-            actions.push({
-                text: 'Xóa',
-                className: 'delete-user w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
-                attributes: `data-user-id="${user.id}"`
-            });
-        }
-
-        const actionDropdown = createActionDropdown(actions);
-
-        return `
-            <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-[#1447e6]/10 text-[#1447e6] flex items-center justify-center text-sm font-semibold">
-                            ${user.username.substring(0, 1).toUpperCase()}
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">${user.username}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                    ${user.email}
-                </td>
-                <td class="px-6 py-4">
-                    ${roleBadge}
-                </td>
-                <td class="px-6 py-4">
-                    ${statusBadge}
-                </td>
-                <td class="px-6 py-4 text-sm text-center">
-                    ${actionDropdown}
-                </td>
-            </tr>
-        `;
-    }).join('');
+const formatCurrency = (number) => {
+    return new Intl.NumberFormat('vi-VN').format(number);
 };
 
 const createActionDropdown = (buttons) => {
@@ -220,51 +89,155 @@ const renderAuctionsTable = (auctions) => {
         `;
     }
     return auctions.map(auction => {
-        const statusBadge = auction.is_active
-            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đang diễn ra</span>'
-            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Đã kết thúc</span>';
+        const isActive = new Date(auction.end_at) > new Date();
+        const mainImageUrl = auction.mainImage?.url || '/images/placeholder.png';
         return `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <img src="${auction.main_image || '/images/placeholder.jpg'}" alt="${auction.name}"
-                            class="w-10 h-10 rounded-md object-cover bg-gray-100">
+                        <img src="${mainImageUrl}" alt="${auction.name}" class="w-10 h-10 rounded-md object-cover bg-gray-100">
                         <div>
-                            <p class="text-sm font-medium text-gray-900 truncate max-w-[200px]">
-                                ${auction.name}
-                            </p>
+                            <p class="text-sm font-medium text-gray-900 truncate max-w-[200px]">${auction.name}</p>
                         </div>
                     </div>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">
-                    ${auction.category?.name || 'N/A'}
+                    ${auction.category?.name || '—'}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900">
-                    ${auction.seller?.username || 'N/A'}
+                    ${auction.seller?.username || '—'}
                 </td>
                 <td class="px-6 py-4">
                     <span class="text-sm font-semibold text-[#1447e6]">${formatCurrency(auction.current_price)} đ</span>
                 </td>
                 <td class="px-6 py-4">
-                    ${statusBadge}
+                    ${isActive
+                ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đang diễn ra</span>'
+                : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Đã kết thúc</span>'
+            }
                 </td>
                 <td class="px-6 py-4 text-sm text-center">
                     ${createActionDropdown([
-            {
-                text: 'Xóa',
-                className: 'delete-auction w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
-                attributes: `data-id="${auction.id}"`
-            }
-        ])}
+                {
+                    text: 'Xem chi tiết',
+                    className: 'w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `onclick="window.open('/auctions/${auction.id}', '_blank')"`
+                },
+                {
+                    text: 'Xóa',
+                    className: 'delete-auction w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `data-id="${auction.id}"`
+                }
+            ])}
                 </td>
             </tr>
         `;
     }).join('');
 };
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN').format(amount);
+
+const renderUsersTable = (users) => {
+    if (!users || users.length === 0) {
+        return `
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center">
+                    <p class="text-gray-500">Chưa có người dùng nào</p>
+                </td>
+            </tr>
+        `;
+    }
+    return users.map(user => {
+        const getRoleBadge = (permission) => {
+            switch (permission) {
+                case 2:
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Admin</span>';
+                case 1:
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Seller</span>';
+                default:
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Bidder</span>';
+            }
+        };
+
+        const getUpgradeStatusBadge = (status) => {
+            switch (status) {
+                case 'pending':
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>Chờ duyệt</span>';
+                case 'approved':
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Đã duyệt</span>';
+                case 'rejected':
+                    return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Đã từ chối</span>';
+                default:
+                    return '<span class="text-gray-400 text-sm">—</span>';
+            }
+        };
+
+        const firstLetter = user.username ? user.username.charAt(0).toUpperCase() : '?';
+
+        // Create action buttons based on user status and role
+        let actionButtons = [];
+
+        // If user has pending upgrade request
+        if (user.upgrade_status === 'pending') {
+            actionButtons.push(
+                {
+                    text: 'Duyệt nâng cấp',
+                    className: 'approve-upgrade w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `data-user-id="${user.id}" data-action="approve"`
+                },
+                {
+                    text: 'Từ chối nâng cấp',
+                    className: 'reject-upgrade w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                    attributes: `data-user-id="${user.id}" data-action="reject"`
+                }
+            );
+        }
+
+        // Always show these actions for all users
+        actionButtons.push(
+            {
+                text: 'Xem chi tiết',
+                className: 'view-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            },
+            {
+                text: 'Chỉnh sửa',
+                className: 'edit-user w-full text-left py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            },
+            {
+                text: 'Xóa',
+                className: 'delete-user w-full text-left py-2 px-3 rounded-md text-sm text-red-600 hover:bg-gray-50 focus:outline-none transition-colors',
+                attributes: `data-user-id="${user.id}"`
+            }
+        );
+
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-[#1447e6]/10 text-[#1447e6] flex items-center justify-center text-sm font-medium">
+                            ${firstLetter}
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">${user.username}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${user.email}
+                </td>
+                <td class="px-6 py-4">
+                    ${getRoleBadge(user.permission)}
+                </td>
+                <td class="px-6 py-4">
+                    ${getUpgradeStatusBadge(user.upgrade_status)}
+                </td>
+                <td class="px-6 py-4 text-sm text-center">
+                    ${createActionDropdown(actionButtons)}
+                </td>
+            </tr>
+        `;
+    }).join('');
 };
 document.addEventListener('DOMContentLoaded', () => {
+    // Categories
     setupPagination(
         'categories-table-body',
         'categories-pagination',
@@ -273,41 +246,38 @@ document.addEventListener('DOMContentLoaded', () => {
         'blue',
         renderCategoriesSkeleton
     );
-    setupSearch('search-categories', 'categories-table-body', '/admin/categories/data', renderCategoriesTable, 100, renderCategoriesSkeleton);
+    setupSearch('search-categories', 'categories-pagination');
+
+    // Auctions
     setupPagination(
         'auctions-table-body',
         'auctions-pagination',
         '/admin/auctions/data',
         renderAuctionsTable,
-        'blue',
-        renderAuctionsSkeleton
+        'blue'
     );
-    setupSearch('search-auctions', 'auctions-table-body', '/admin/auctions/data', renderAuctionsTable, 100, renderAuctionsSkeleton);
+    setupSearch('search-auctions', 'auctions-pagination');
     setupFilters(
         ['filter-auction-category', 'filter-auction-status'],
-        'auctions-table-body',
-        '/admin/auctions/data',
-        renderAuctionsTable,
-        renderAuctionsSkeleton
+        'auctions-pagination'
     );
+
+    // Users
     setupPagination(
         'users-table-body',
         'users-pagination',
         '/admin/users/data',
         renderUsersTable,
-        'blue',
-        renderUsersSkeleton
+        'blue'
     );
-    setupSearch('search-users', 'users-table-body', '/admin/users/data', renderUsersTable, 100, renderUsersSkeleton);
+    setupSearch('search-users', 'users-pagination');
     setupFilters(
         ['filter-user-role', 'filter-user-status'],
-        'users-table-body',
-        '/admin/users/data',
-        renderUsersTable,
-        renderUsersSkeleton
+        'users-pagination'
     );
 });
 document.addEventListener('click', async (e) => {
+    // Category actions
     if (e.target.classList.contains('view-category')) {
         const categoryId = e.target.dataset.id;
         const content = document.getElementById('category-detail-content');
@@ -362,6 +332,7 @@ document.addEventListener('click', async (e) => {
             `;
         }
     }
+
     if (e.target.classList.contains('delete-category')) {
         const categoryId = e.target.dataset.id;
         const confirmBtn = document.getElementById('confirm-delete-btn');
@@ -369,223 +340,6 @@ document.addEventListener('click', async (e) => {
         const modal = document.getElementById('modal-confirm-delete');
         if (window.HSOverlay) {
             window.HSOverlay.open(modal);
-        }
-        return;
-    }
-    if (e.target.classList.contains('delete-auction')) {
-        const auctionId = e.target.dataset.id;
-        const confirmBtn = document.getElementById('confirm-delete-auction-btn');
-        confirmBtn.dataset.auctionId = auctionId;
-        const modal = document.getElementById('modal-confirm-delete-auction');
-        if (window.HSOverlay) {
-            window.HSOverlay.open(modal);
-        }
-        return;
-    }
-
-    if (e.target.classList.contains('approve-user')) {
-        const userId = e.target.dataset.userId;
-        const confirmed = await ConfirmModal.show({
-            title: 'Xác nhận duyệt',
-            message: 'Bạn có chắc chắn muốn duyệt nâng cấp tài khoản này?',
-            confirmText: 'Duyệt',
-            cancelText: 'Hủy',
-            type: 'success'
-        });
-        if (!confirmed) return;
-
-        try {
-            const response = await fetch('/admin/users/approve', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId })
-            });
-            const result = await response.json();
-            if (result.success) {
-                window.location.reload();
-            } else {
-                NotificationModal.error(result.error || 'Không thể duyệt nâng cấp tài khoản');
-            }
-        } catch (error) {
-            console.error('Error approving user:', error);
-            NotificationModal.error('Đã xảy ra lỗi khi duyệt nâng cấp tài khoản');
-        }
-        return;
-    }
-
-    if (e.target.classList.contains('reject-user')) {
-        const userId = e.target.dataset.userId;
-        const confirmed = await ConfirmModal.show({
-            title: 'Xác nhận từ chối',
-            message: 'Bạn có chắc chắn muốn từ chối nâng cấp tài khoản này?',
-            confirmText: 'Từ chối',
-            cancelText: 'Hủy',
-            type: 'danger'
-        });
-        if (!confirmed) return;
-
-        try {
-            const response = await fetch('/admin/users/reject', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId })
-            });
-            const result = await response.json();
-            if (result.success) {
-                window.location.reload();
-            } else {
-                NotificationModal.error(result.error || 'Không thể từ chối nâng cấp tài khoản');
-            }
-        } catch (error) {
-            console.error('Error rejecting user:', error);
-            NotificationModal.error('Đã xảy ra lỗi khi từ chối nâng cấp tài khoản');
-        }
-        return;
-    }
-
-
-    if (e.target.classList.contains('view-user')) {
-        const userId = e.target.dataset.userId;
-        const modal = document.getElementById('modal-view-user');
-        const loadingEl = document.getElementById('view-user-loading');
-        const contentEl = document.getElementById('view-user-content');
-
-
-        if (window.HSOverlay) {
-            window.HSOverlay.open(modal);
-        }
-
-
-        if (loadingEl) loadingEl.style.display = 'flex';
-        if (contentEl) contentEl.style.display = 'none';
-
-
-        try {
-            const response = await fetch(`/admin/users/${userId}`);
-            const data = await response.json();
-            if (data.success) {
-                const user = data.user;
-                document.getElementById('view-user-username').textContent = user.username || '—';
-                document.getElementById('view-user-email').textContent = user.email || '—';
-                document.getElementById('view-user-address').textContent = user.address || '—';
-                document.getElementById('view-user-birthday').textContent = user.birthday ? new Date(user.birthday).toLocaleDateString('vi-VN') : '—';
-                document.getElementById('view-user-created').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : '—';
-
-                const roleEl = document.getElementById('view-user-role');
-                if (user.permission === 2) {
-                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Admin</span>';
-                } else if (user.permission === 1) {
-                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Seller</span>';
-                } else {
-                    roleEl.innerHTML = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Bidder</span>';
-                }
-
-                const pendingEl = document.getElementById('view-user-pending');
-                if (user.pending_request) {
-                    pendingEl.innerHTML = `
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
-                            <p class="text-sm font-medium text-yellow-800 mb-1">Yêu cầu nâng cấp đang chờ duyệt</p>
-                            <p class="text-sm text-yellow-700">${user.pending_request.message || 'Không có lý do'}</p>
-                            <p class="text-xs text-yellow-600 mt-1">Gửi lúc: ${new Date(user.pending_request.created_at).toLocaleString('vi-VN')}</p>
-                        </div>
-                    `;
-                } else {
-                    pendingEl.innerHTML = '';
-                }
-
-                if (loadingEl) loadingEl.style.display = 'none';
-                if (contentEl) contentEl.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('Error fetching user:', error);
-            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin người dùng');
-
-            if (window.HSOverlay) {
-                window.HSOverlay.close(modal);
-            }
-        }
-        return;
-    }
-
-
-    if (e.target.classList.contains('edit-user')) {
-        const userId = e.target.dataset.userId;
-        const modal = document.getElementById('modal-edit-user');
-        const loadingEl = document.getElementById('edit-user-loading');
-        const formEl = document.getElementById('edit-user-form');
-        const footerEl = document.getElementById('edit-user-footer');
-
-
-        if (window.HSOverlay) {
-            window.HSOverlay.open(modal);
-        }
-
-
-        if (loadingEl) loadingEl.style.display = 'flex';
-        if (formEl) formEl.style.display = 'none';
-        if (footerEl) footerEl.style.display = 'none';
-
-
-        try {
-            const response = await fetch(`/admin/users/${userId}`);
-            const data = await response.json();
-            if (data.success) {
-                const user = data.user;
-                document.getElementById('edit-user-id').value = user.id;
-                document.getElementById('edit-user-username').value = user.username || '';
-                document.getElementById('edit-user-email').value = user.email || '';
-                document.getElementById('edit-user-permission').value = user.permission;
-
-                if (loadingEl) loadingEl.style.display = 'none';
-                if (formEl) formEl.style.display = 'block';
-                if (footerEl) footerEl.style.display = 'flex';
-            }
-        } catch (error) {
-            console.error('Error fetching user:', error);
-            NotificationModal.error('Đã xảy ra lỗi khi tải thông tin người dùng');
-
-            if (window.HSOverlay) {
-                window.HSOverlay.close(modal);
-            }
-        }
-        return;
-    }
-
-
-    if (e.target.classList.contains('delete-user')) {
-        const userId = e.target.dataset.userId;
-        const confirmed = await ConfirmModal.show({
-            title: 'Xác nhận xóa người dùng',
-            message: 'Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.',
-            confirmText: 'Xóa',
-            cancelText: 'Hủy',
-            type: 'danger'
-        });
-        if (!confirmed) return;
-
-        try {
-            const response = await fetch(`/admin/users/${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const result = await response.json();
-            if (result.success) {
-                NotificationModal.success('Đã xóa người dùng thành công');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                NotificationModal.error(result.error || 'Không thể xóa người dùng');
-            }
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            NotificationModal.error('Đã xảy ra lỗi khi xóa người dùng');
         }
         return;
     }
@@ -879,7 +633,6 @@ if (confirmDeleteAuctionBtn) {
     });
 }
 
-// Add user form
 const formAddUser = document.getElementById('form-add-user');
 if (formAddUser) {
     formAddUser.addEventListener('submit', async (e) => {
@@ -888,27 +641,6 @@ if (formAddUser) {
         const email = document.getElementById('add-user-email').value;
         const password = document.getElementById('add-user-password').value;
         const permission = document.getElementById('add-user-permission').value;
-        const submitBtn = document.getElementById('add-user-btn');
-
-        if (!username || !email || !password) {
-            NotificationModal.warning('Vui lòng điền đầy đủ thông tin');
-            return;
-        }
-
-        // Store original button state
-        const originalHTML = submitBtn.innerHTML;
-        const originalDisabled = submitBtn.disabled;
-
-        // Set loading state
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        submitBtn.innerHTML = `
-            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Đang tạo...
-        `;
 
         try {
             const response = await fetch('/admin/users', {
@@ -920,56 +652,255 @@ if (formAddUser) {
             });
             const result = await response.json();
             if (result.success) {
-                NotificationModal.success('Đã tạo người dùng thành công');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                window.location.reload();
             } else {
-                // Restore button state
-                submitBtn.disabled = originalDisabled;
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                submitBtn.innerHTML = originalHTML;
-
-                NotificationModal.error(result.error || 'Không thể tạo người dùng');
+                alert(result.error || 'Không thể thêm người dùng');
             }
         } catch (error) {
             console.error('Error creating user:', error);
-
-            // Restore button state
-            submitBtn.disabled = originalDisabled;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            submitBtn.innerHTML = originalHTML;
-
-            NotificationModal.error('Đã xảy ra lỗi khi tạo người dùng');
+            alert('Đã xảy ra lỗi khi thêm người dùng');
         }
     });
 }
 
-const saveUserBtn = document.getElementById('save-user-btn');
-if (saveUserBtn) {
-    saveUserBtn.addEventListener('click', async () => {
+document.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('view-user')) {
+        const userId = e.target.dataset.userId;
+        const modal = document.getElementById('modal-view-user');
+        const content = document.getElementById('view-user-content');
+
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+
+        content.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <div class="animate-spin inline-block size-8 border-[3px] border-current border-t-transparent rounded-full" style="color: #1447e6"></div>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const user = data.user;
+                const createdAt = new Date(user.created_at).toLocaleString('vi-VN');
+                const getRoleName = (p) => p === 2 ? 'Admin' : p === 1 ? 'Seller' : 'Bidder';
+                const getStatusName = (s) => s === 'pending' ? 'Chờ duyệt' : s === 'approved' ? 'Đã duyệt' : s === 'rejected' ? 'Đã từ chối' : 'Không có';
+
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 rounded-full bg-[#1447e6]/10 text-[#1447e6] flex items-center justify-center text-2xl font-bold">
+                                ${user.username ? user.username.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-gray-900">${user.username}</h4>
+                                <p class="text-sm text-gray-500">${user.email}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">ID</label>
+                                <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${user.id}</span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Vai trò</label>
+                                <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${getRoleName(user.permission)}</span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Trạng thái nâng cấp</label>
+                                <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${getStatusName(user.upgrade_status)}</span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Ngày tạo</label>
+                                <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${createdAt}</span>
+                            </div>
+                        </div>
+                        ${user.address ? `
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Địa chỉ</label>
+                            <span class="inline-block text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md">${user.address}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="text-center py-4 text-red-600">
+                        Không thể tải thông tin người dùng
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            content.innerHTML = `
+                <div class="text-center py-4 text-red-600">
+                    Đã xảy ra lỗi khi tải thông tin
+                </div>
+            `;
+        }
+        return;
+    }
+
+    // Edit user
+    if (e.target.classList.contains('edit-user')) {
+        const userId = e.target.dataset.userId;
+        const modal = document.getElementById('modal-edit-user');
+        const loadingEl = document.getElementById('edit-user-loading');
+        const formEl = document.getElementById('form-edit-user');
+        const footerEl = document.getElementById('edit-user-footer');
+
+        // Open modal
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+
+        // Show loading
+        loadingEl.style.display = 'flex';
+        formEl.style.display = 'none';
+        footerEl.style.display = 'none';
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const user = data.user;
+                document.getElementById('edit-user-id').value = user.id;
+                document.getElementById('edit-user-username').value = user.username;
+                document.getElementById('edit-user-email').value = user.email;
+                document.getElementById('edit-user-permission').value = user.permission;
+
+                loadingEl.style.display = 'none';
+                formEl.style.display = 'block';
+                footerEl.style.display = 'flex';
+            } else {
+                alert('Không thể tải thông tin người dùng');
+                if (window.HSOverlay) {
+                    window.HSOverlay.close(modal);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            alert('Đã xảy ra lỗi khi tải thông tin người dùng');
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+        }
+        return;
+    }
+
+    if (e.target.classList.contains('delete-user')) {
+        const userId = e.target.dataset.userId;
+        const confirmBtn = document.getElementById('confirm-delete-user-btn');
+        confirmBtn.dataset.userId = userId;
+
+        const modal = document.getElementById('modal-confirm-delete-user');
+        if (window.HSOverlay) {
+            window.HSOverlay.open(modal);
+        }
+        return;
+    }
+
+    if (e.target.classList.contains('approve-upgrade')) {
+        const userId = e.target.dataset.userId;
+        if (confirm('Bạn có chắc chắn muốn duyệt nâng cấp cho người dùng này?')) {
+            try {
+                const response = await fetch(`/admin/users/${userId}/upgrade`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'approve' })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.error || 'Không thể duyệt nâng cấp');
+                }
+            } catch (error) {
+                console.error('Error approving upgrade:', error);
+                alert('Đã xảy ra lỗi khi duyệt nâng cấp');
+            }
+        }
+        return;
+    }
+
+    if (e.target.classList.contains('reject-upgrade')) {
+        const userId = e.target.dataset.userId;
+        if (confirm('Bạn có chắc chắn muốn từ chối nâng cấp cho người dùng này?')) {
+            try {
+                const response = await fetch(`/admin/users/${userId}/upgrade`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'reject' })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.error || 'Không thể từ chối nâng cấp');
+                }
+            } catch (error) {
+                console.error('Error rejecting upgrade:', error);
+                alert('Đã xảy ra lỗi khi từ chối nâng cấp');
+            }
+        }
+        return;
+    }
+}, true);
+
+const confirmDeleteUserBtn = document.getElementById('confirm-delete-user-btn');
+if (confirmDeleteUserBtn) {
+    confirmDeleteUserBtn.addEventListener('click', async () => {
+        const userId = confirmDeleteUserBtn.dataset.userId;
+        if (!userId) return;
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                const modal = document.getElementById('modal-confirm-delete-user');
+                if (window.HSOverlay) {
+                    window.HSOverlay.close(modal);
+                }
+                setTimeout(() => {
+                    alert(result.error || 'Không thể xóa người dùng');
+                }, 300);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            const modal = document.getElementById('modal-confirm-delete-user');
+            if (window.HSOverlay) {
+                window.HSOverlay.close(modal);
+            }
+            setTimeout(() => {
+                alert('Đã xảy ra lỗi khi xóa người dùng');
+            }, 300);
+        }
+    });
+}
+
+const formEditUser = document.getElementById('form-edit-user');
+if (formEditUser) {
+    formEditUser.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const userId = document.getElementById('edit-user-id').value;
         const username = document.getElementById('edit-user-username').value;
         const email = document.getElementById('edit-user-email').value;
         const permission = document.getElementById('edit-user-permission').value;
-
-        if (!username || !email) {
-            NotificationModal.warning('Vui lòng điền đầy đủ thông tin');
-            return;
-        }
-
-        const originalHTML = saveUserBtn.innerHTML;
-        const originalDisabled = saveUserBtn.disabled;
-
-        saveUserBtn.disabled = true;
-        saveUserBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        saveUserBtn.innerHTML = `
-            <svg class="animate-spin size-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Đang lưu...
-        `;
 
         try {
             const response = await fetch(`/admin/users/${userId}`, {
@@ -983,22 +914,11 @@ if (saveUserBtn) {
             if (result.success) {
                 window.location.reload();
             } else {
-
-                saveUserBtn.disabled = originalDisabled;
-                saveUserBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                saveUserBtn.innerHTML = originalHTML;
-
-                NotificationModal.error(result.error || 'Không thể cập nhật người dùng');
+                alert(result.error || 'Không thể cập nhật người dùng');
             }
         } catch (error) {
             console.error('Error updating user:', error);
-
-
-            saveUserBtn.disabled = originalDisabled;
-            saveUserBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            saveUserBtn.innerHTML = originalHTML;
-
-            NotificationModal.error('Đã xảy ra lỗi khi cập nhật người dùng');
+            alert('Đã xảy ra lỗi khi cập nhật người dùng');
         }
     });
 }

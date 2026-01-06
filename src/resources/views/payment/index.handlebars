@@ -1,0 +1,740 @@
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <div class="mb-6">
+            <nav class="flex items-center text-sm text-gray-500">
+                <a href="/" class="hover:text-gray-700">Trang chủ</a>
+                <svg class="mx-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                <a href="/auctions/{{auction.id}}" class="hover:text-gray-700">{{auction.name}}</a>
+                <svg class="mx-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span class="text-gray-900 font-medium">Thanh toán</span>
+            </nav>
+        </div>
+
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Thanh toán & Giao dịch</h1>
+            <p class="text-gray-600">
+                {{#if isSeller}}
+                Bạn là người bán - Theo dõi tiến trình thanh toán và xác nhận giao dịch
+                {{else}}
+                Chúc mừng bạn đã thắng đấu giá! Hoàn tất thanh toán để nhận sản phẩm
+                {{/if}}
+            </p>
+        </div>
+
+        <!-- Stepper -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+            <div class="relative">
+                <!-- Progress Line -->
+                <div class="absolute left-0 top-5 w-full h-0.5 bg-gray-200">
+                    <div class="h-full bg-primary-500 transition-all duration-500"
+                        data-progress="{{#if (eq orderStatus 'completed')}}100{{else if order.payment_proof}}66{{else}}33{{/if}}"
+                        style="width: 0%;">
+                    </div>
+                </div>
+
+                <!-- Steps -->
+                <div class="relative flex justify-between">
+                    <!-- Step 1: Pending Payment -->
+                    <div class="flex flex-col items-center" style="flex: 1">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-primary-500 text-white relative z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">Chờ thanh toán</span>
+                        <span class="text-xs text-gray-500 mt-1">Bước 1</span>
+                    </div>
+
+                    <!-- Step 2: Payment Proof -->
+                    <div class="flex flex-col items-center" style="flex: 1">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center mb-2 {{#if order.payment_proof}}bg-primary-500 text-white{{else}}bg-gray-200 text-gray-400{{/if}} relative z-10">
+                            {{#if order.payment_proof}}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{else}}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{/if}}
+                        </div>
+                        <span
+                            class="text-sm font-medium {{#if order.payment_proof}}text-gray-900{{else}}text-gray-500{{/if}}">Gửi
+                            bằng chứng</span>
+                        <span class="text-xs text-gray-500 mt-1">Bước 2</span>
+                    </div>
+
+                    <!-- Step 3: Confirmed -->
+                    <div class="flex flex-col items-center" style="flex: 1">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center mb-2 {{#if (eq orderStatus 'completed')}}bg-primary-500 text-white{{else}}bg-gray-200 text-gray-400{{/if}} relative z-10">
+                            {{#if (eq orderStatus 'completed')}}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{else}}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{/if}}
+                        </div>
+                        <span
+                            class="text-sm font-medium {{#if (eq orderStatus 'completed')}}text-gray-900{{else}}text-gray-500{{/if}}">Xác
+                            nhận</span>
+                        <span class="text-xs text-gray-500 mt-1">Bước 3</span>
+                    </div>
+
+                    <!-- Step 4: Completed -->
+                    <div class="flex flex-col items-center" style="flex: 1">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center mb-2 {{#if (eq orderStatus 'completed')}}bg-green-500 text-white{{else}}bg-gray-200 text-gray-400{{/if}} relative z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-sm font-medium {{#if (eq orderStatus 'completed')}}text-gray-900{{else}}text-gray-500{{/if}}">Hoàn
+                            tất</span>
+                        <span class="text-xs text-gray-500 mt-1">Bước 4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Step Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Product Info Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Thông tin sản phẩm</h2>
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0">
+                            <img src="{{auction.main_image}}" alt="{{auction.name}}"
+                                class="w-32 h-32 object-cover rounded-xl border border-gray-200">
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{auction.name}}</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    Mã đơn hàng: <span class="font-medium text-gray-900 ml-1">{{order.id}}</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Giá thắng: <span class="font-bold text-primary-600 ml-1">{{formatCurrency
+                                        auction.current_price}}</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    {{#if isSeller}}
+                                    Người mua: <span class="font-medium text-gray-900 ml-1">{{winner.fullname}}</span>
+                                    {{else}}
+                                    Người bán: <span class="font-medium text-gray-900 ml-1">{{seller.fullname}}</span>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1 & 2 Content: Payment Proof Area -->
+                {{#unless (eq orderStatus 'completed')}}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    {{#if isSeller}}
+                    <!-- Seller View: Waiting or Reviewing Payment -->
+                    <div class="text-center py-8">
+                        {{#if order.payment_proof}}
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Xác nhận thanh toán</h3>
+                        <p class="text-gray-600 mb-6">Người mua đã gửi bằng chứng thanh toán. Vui lòng kiểm tra và xác
+                            nhận.</p>
+
+                        <!-- Payment Proof Image -->
+                        <div class="mb-6">
+                            <div class="max-w-md mx-auto border border-gray-200 rounded-xl overflow-hidden">
+                                <img src="{{order.payment_proof}}" alt="Bằng chứng thanh toán" class="w-full h-auto">
+                            </div>
+                        </div>
+
+                        <!-- Confirmation Buttons -->
+                        <div class="flex gap-4 justify-center">
+                            <form method="POST" action="/payment/{{auction.id}}/confirm-payment" class="inline-block">
+                                <input type="hidden" name="auction_id" value="{{auction.id}}">
+                                <input type="hidden" name="confirmed" value="true">
+                                <button type="submit"
+                                    class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Xác nhận thanh toán
+                                </button>
+                            </form>
+                            <form method="POST" action="/payment/{{auction.id}}/confirm-payment" class="inline-block">
+                                <input type="hidden" name="auction_id" value="{{auction.id}}">
+                                <input type="hidden" name="confirmed" value="false">
+                                <button type="submit"
+                                    class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Từ chối
+                                </button>
+                            </form>
+                        </div>
+                        {{else}}
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Chờ thanh toán</h3>
+                        <p class="text-gray-600">Đang chờ người mua gửi bằng chứng thanh toán.</p>
+                        {{/if}}
+                    </div>
+                    {{else}}
+                    <!-- Buyer View: Upload Payment Proof -->
+                    {{#if order.payment_proof}}
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Đã gửi bằng chứng thanh toán</h3>
+                        <p class="text-gray-600 mb-6">Chúng tôi đã nhận được bằng chứng thanh toán của bạn. Vui lòng
+                            chờ người bán xác nhận.</p>
+
+                        <!-- Show Uploaded Image -->
+                        <div class="max-w-md mx-auto border border-gray-200 rounded-xl overflow-hidden">
+                            <img src="{{order.payment_proof}}" alt="Bằng chứng thanh toán" class="w-full h-auto">
+                        </div>
+                    </div>
+                    {{else}}
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Tải bằng chứng thanh toán</h2>
+                        <p class="text-gray-600 mb-6">Vui lòng chuyển khoản theo thông tin bên dưới và tải lên ảnh
+                            chụp màn hình giao dịch.</p>
+
+                        <!-- Payment Instructions -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                            <h3 class="font-semibold text-blue-900 mb-3">Thông tin chuyển khoản</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">Ngân hàng:</span>
+                                    <span class="font-medium text-blue-900">Vietcombank</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">Số tài khoản:</span>
+                                    <span class="font-medium text-blue-900">1234567890</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">Chủ tài khoản:</span>
+                                    <span class="font-medium text-blue-900">{{seller.fullname}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">Số tiền:</span>
+                                    <span class="font-bold text-blue-900">{{formatCurrency
+                                        auction.current_price}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">Nội dung:</span>
+                                    <span class="font-medium text-blue-900">Thanh toan {{order.id}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Form -->
+                        <form method="POST" action="/payment/{{auction.id}}/submit-payment"
+                            enctype="multipart/form-data">
+                            <input type="hidden" name="auction_id" value="{{auction.id}}">
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Bằng chứng thanh toán <span class="text-red-500">*</span>
+                                </label>
+                                <div id="upload-area"
+                                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-500 transition-colors duration-200 cursor-pointer">
+                                    <input type="file" name="payment_proof" id="payment_proof" accept="image/*"
+                                        class="hidden" required>
+                                    <div id="preview-container" class="hidden mb-4">
+                                        <img id="preview-image" src="" alt="Preview"
+                                            class="max-w-full max-h-64 mx-auto rounded-lg">
+                                    </div>
+                                    <div id="upload-placeholder">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="text-gray-600 mb-2">Nhấp để chọn ảnh hoặc kéo thả vào đây</p>
+                                        <p class="text-sm text-gray-500">PNG, JPG tối đa 5MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                Tải lên bằng chứng
+                            </button>
+                        </form>
+                    </div>
+                    {{/if}}
+                    {{/if}}
+                </div>
+                {{else}}
+                <!-- Step 4 Content: Completed -->
+                <div
+                    class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-sm border border-green-200 p-8">
+                    <div class="text-center">
+                        <div
+                            class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-3">Giao dịch hoàn tất!</h2>
+                        <p class="text-gray-600 mb-8">
+                            {{#if isSeller}}
+                            Bạn đã xác nhận thanh toán. Vui lòng liên hệ người mua để giao hàng.
+                            {{else}}
+                            Người bán đã xác nhận thanh toán. Vui lòng liên hệ người bán để nhận hàng.
+                            {{/if}}
+                        </p>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-4 justify-center flex-wrap">
+                            <a href="/"
+                                class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{/unless}}
+
+                <!-- Chat Box -->
+                {{#unless (eq orderStatus 'completed')}}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-3">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Trao đổi với {{#if isSeller}}người mua{{else}}người bán{{/if}}
+                        </h3>
+                    </div>
+
+                    <!-- Messages Container -->
+                    <div id="chat-messages" class="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                        {{#each messages}}
+                        <div data-message-id="{{this.id}}"
+                            class="flex {{#if (eq this.sender_id ../order.seller_id)}}justify-start{{else}}justify-end{{/if}}">
+                            <div
+                                class="max-w-[75%] {{#if (eq this.sender_id ../order.seller_id)}}bg-white{{else}}bg-primary-500 text-white{{/if}} rounded-2xl px-4 py-2 shadow-sm">
+                                <p
+                                    class="text-xs {{#if (eq this.sender_id ../order.seller_id)}}text-gray-500{{else}}text-primary-100{{/if}} mb-1">
+                                    {{this.sender_name}}
+                                </p>
+                                <p class="text-sm">{{this.content}}</p>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="text-center text-gray-400 text-sm py-8">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Chưa có tin nhắn nào
+                        </div>
+                        {{/each}}
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="p-4 border-t border-gray-200 bg-white">
+                        <form id="chat-form" class="flex gap-2">
+                            <input type="text" id="chat-input" placeholder="Nhập tin nhắn..."
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <button type="submit"
+                                class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-full transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {{/unless}}
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Tổng quan đơn hàng</h2>
+
+                    <!-- Status Badge -->
+                    <div class="mb-6">
+                        {{#if (eq orderStatus 'completed')}}
+                        <div
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Hoàn tất
+                        </div>
+                        {{else if order.payment_proof}}
+                        <div
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Chờ xác nhận
+                        </div>
+                        {{else}}
+                        <div
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Chờ thanh toán
+                        </div>
+                        {{/if}}
+                    </div>
+
+                    <div class="space-y-4 border-t border-gray-200 pt-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Giá sản phẩm</span>
+                            <span class="font-medium text-gray-900">{{formatCurrency auction.current_price}}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Phí vận chuyển</span>
+                            <span class="font-medium text-gray-900">Miễn phí</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="flex justify-between">
+                                <span class="text-base font-semibold text-gray-900">Tổng cộng</span>
+                                <span class="text-lg font-bold text-primary-600">{{formatCurrency
+                                    auction.current_price}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-3">Thông tin liên hệ</h3>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            {{#if isSeller}}
+                            <p><span class="font-medium text-gray-900">Người mua:</span> {{winner.username}}</p>
+                            <p><span class="font-medium text-gray-900">Email:</span> {{winner.email}}</p>
+                            {{else}}
+                            <p><span class="font-medium text-gray-900">Người bán:</span> {{seller.username}}</p>
+                            <p><span class="font-medium text-gray-900">Email:</span> {{seller.email}}</p>
+                            {{/if}}
+                        </div>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900 mb-1">Cần hỗ trợ?</h4>
+                                    <p class="text-xs text-gray-600">Liên hệ bộ phận chăm sóc khách hàng nếu bạn cần trợ
+                                        giúp với giao dịch này.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Order Button (Seller Only) -->
+                    {{#if isSeller}}
+                    {{#unless (eq orderStatus 'completed')}}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="openCancelModal()"
+                            class="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Huỷ giao dịch
+                        </button>
+                        <p class="text-xs text-gray-500 mt-2 text-center">
+                            Người mua sẽ nhận đánh giá -1 khi bạn huỷ giao dịch
+                        </p>
+                    </div>
+                    {{/unless}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCancelModal()"></div>
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Xác nhận huỷ giao dịch</h3>
+                <p class="text-gray-600 mb-6">
+                    Bạn có chắc chắn muốn huỷ giao dịch này? Người mua sẽ nhận <span
+                        class="font-semibold text-red-600">đánh giá -1</span> vì không hoàn thành thanh toán.
+                </p>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeCancelModal()"
+                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors duration-200">
+                        Không, quay lại
+                    </button>
+                    <button type="button" onclick="confirmCancelOrder()"
+                        class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors duration-200">
+                        Xác nhận huỷ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const auctionId = '{{auction.id}}';
+    const currentUserId = '{{order.seller_id}}';
+    const sellerId = '{{order.seller_id}}';
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('upload-placeholder').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Add click handler for upload area
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('payment_proof');
+
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', previewImage);
+    }
+
+    // Cancel Modal Functions
+    function openCancelModal() {
+        document.getElementById('cancel-modal').classList.remove('hidden');
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancel-modal').classList.add('hidden');
+    }
+
+    async function confirmCancelOrder() {
+        try {
+            const response = await fetch(`/payment/${auctionId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Đã huỷ giao dịch thành công');
+                window.location.href = '/';
+            } else {
+                alert(result.message || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi huỷ giao dịch');
+        }
+
+        closeCancelModal();
+    }
+
+    // Chat Functions
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = chatInput.value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch(`/payment/${auctionId}/send-message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    appendMessage(result.message);
+                    chatInput.value = '';
+                    scrollToBottom();
+                } else {
+                    alert(result.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi gửi tin nhắn');
+            }
+        });
+    }
+
+    function appendMessage(msg) {
+        const isSeller = msg.sender_id === sellerId;
+        const messageHtml = `
+            <div class="flex ${isSeller ? 'justify-start' : 'justify-end'}" data-message-id="${msg.id}">
+                <div class="max-w-[75%] ${isSeller ? 'bg-white' : 'bg-primary-500 text-white'} rounded-2xl px-4 py-2 shadow-sm">
+                    <p class="text-xs ${isSeller ? 'text-gray-500' : 'text-primary-100'} mb-1">
+                        ${msg.sender_name}
+                    </p>
+                    <p class="text-sm">${msg.content}</p>
+                </div>
+            </div>
+        `;
+
+        // Remove empty state if exists
+        const emptyState = chatMessages.querySelector('.text-center');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+    }
+
+    function scrollToBottom() {
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    // Track existing message IDs
+    let existingMessageIds = new Set();
+
+    // Initialize existing messages
+    if (chatMessages) {
+        chatMessages.querySelectorAll('[data-message-id]').forEach(el => {
+            existingMessageIds.add(el.getAttribute('data-message-id'));
+        });
+    }
+
+    // Auto-refresh messages every 3 seconds (faster response)
+    setInterval(async () => {
+        if (!chatMessages) return;
+
+        try {
+            const response = await fetch(`/payment/${auctionId}/messages`);
+            const result = await response.json();
+
+            if (result.success && result.messages) {
+                // Only append new messages instead of re-rendering all
+                const newMessages = result.messages.filter(msg => !existingMessageIds.has(msg.id));
+
+                if (newMessages.length > 0) {
+                    newMessages.forEach(msg => {
+                        appendMessage(msg);
+                        existingMessageIds.add(msg.id);
+                    });
+                    scrollToBottom();
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing messages:', error);
+        }
+    }, 3000); // Reduced from 10000ms to 3000ms
+
+    // Scroll to bottom on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        scrollToBottom();
+
+        const progressBar = document.querySelector('[data-progress]');
+        if (progressBar) {
+            const progress = progressBar.getAttribute('data-progress');
+            progressBar.style.width = progress + '%';
+        }
+    });
+</script>

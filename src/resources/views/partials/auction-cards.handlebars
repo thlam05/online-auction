@@ -1,0 +1,7 @@
+{{#each auctions}}
+{{#if this.isNew}}
+{{set this "badgeType" "primary"}}
+{{set this "badgeText" "Mới"}}
+{{/if}}
+{{> product-card}}
+{{/each}}

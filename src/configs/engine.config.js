@@ -67,6 +67,8 @@ const configEngine = (app) => {
                 if (!n) return "0";
                 return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             },
+            add: function (a, b) {
+                return Number(a) + Number(b);
             formatCurrency(value) {
                 const number = Number(value) || 0;
                 return new Intl.NumberFormat('vi-VN').format(number);
@@ -95,6 +97,19 @@ const configEngine = (app) => {
                 if (user.permission != 1) return false;
                 if (auction.seller_id != user.id) return false;
                 return true;
+            },
+            isWinnerOfAuction(user, auction) {
+                if (!auction.highest_bidder) return false;
+                return auction.highest_bidder == user.id;
+            },
+            canAccessPayment(user, auction) {
+                // User can access payment if auction is over and they are seller or winner
+                const isOver = new Date(auction.end_at) <= new Date();
+                if (!isOver) return false;
+                if (!auction.highest_bidder) return false;
+                const isSeller = auction.seller_id == user.id;
+                const isWinner = auction.highest_bidder == user.id;
+                return isSeller || isWinner;
             },
             isOver(end_date) {
                 const date = new Date(end_date);
@@ -172,6 +187,26 @@ const configEngine = (app) => {
             },
             less(a, b) {
                 return a < b;
+            },
+            gte(a, b) {
+                return a >= b;
+            },
+            gt(a, b) {
+                return a > b;
+            },
+            eq(a, b) {
+                return a === b;
+            },
+            formatCurrency(value) {
+                if (!value) return "0";
+                return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
+            formatTime(date) {
+                if (!date) return "";
+                const d = new Date(date);
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
             }
         }
     }));

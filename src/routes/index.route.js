@@ -5,6 +5,7 @@ import UserRouter from "./user.route.js";
 import BidRouter from "./bid.route.js";
 import WatchListRouter from "./watch-list.route.js";
 import AdminRouter from "./admin.route.js";
+import PaymentRouter from "./payment.route.js";
 import { ensureAuthenticated, isAdmin } from "../middlewares/authenticate.js";
 
 const route = (app) => {
@@ -12,10 +13,12 @@ const route = (app) => {
     app.use("/home", HomeRouter);
     app.use("/auth", AuthRouter);
     app.use("/auctions", AuctionRouter);
+    app.use("/api/auctions", AuctionRouter);
     app.use("/user", ensureAuthenticated, UserRouter);
     app.use("/bids", BidRouter);
     app.use("/watch-list", ensureAuthenticated, WatchListRouter);
     app.use("/admin", ensureAuthenticated, isAdmin, AdminRouter);
+    app.use("/payment", ensureAuthenticated, PaymentRouter);
 }
 
 export default route
