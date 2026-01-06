@@ -23,8 +23,6 @@ class UserController {
             const id = req.session.passport.user.id
             const { listReviews, rating } = await userRatingService.getRatings(id);
 
-
-
             res.render("user/reviews", {
                 layout: "user-layout",
                 listReviews,
@@ -202,13 +200,14 @@ class UserController {
     async addRating(req, res, next) {
         try {
             const { id } = req.params;
-            const { rating, auction_id } = req.body;
+            const { rating, auction_id, content } = req.body;
             const rater_id = req.session.passport.user.id;
             const user_rating = {
                 rated_id: id,
                 rater_id: rater_id,
                 rating: rating,
-                auction_id: auction_id
+                auction_id: auction_id,
+                content: content
             }
             const newRating = await userRatingService.createOne(user_rating);
             res.json(newRating);

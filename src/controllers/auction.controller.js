@@ -124,8 +124,8 @@ class AuctionController {
             const relateAuctons = await auctionModel.findRelateAuctions(auction.category_id);
             const bidHistories = await bidModel.getBidHistory(id);
             let listReview, rating;
-            if (res.locals.isAudenticated) {
-                const { t_listReview, t_rating } = await userRatingService.getRatings(res.locals.authUser.id);
+            if (res.locals.isAuthenticated) {
+                const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(res.locals.authUser.id);
                 listReview = t_listReview;
                 rating = t_rating;
             }
@@ -147,6 +147,15 @@ class AuctionController {
                     };
                 })
             );
+
+            if (auction.seller && auction.seller.id) {
+                const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.seller.id);
+                auction.seller.rating = rating;
+            }
+            if (auction.highestBidder && auction.highestBidder.id) {
+                const { listReviews: t_listReview, rating: t_rating } = await userRatingService.getRatings(auction.highestBidder.id);
+                auction.highestBidder.rating = rating;
+            }
 
             res.render("auctions/auction-by-id", { auction, messages, relateAuctons, bidHistories, rating, bidders, bidderBlocked });
         } catch (err) {

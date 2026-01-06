@@ -14,6 +14,52 @@
             showPasswordBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
         }
     }
+
+    function markError(input) {
+        input.classList.add("border-red-500");
+    }
+
+    function clearError(input) {
+        input.classList.remove("border-red-500");
+    }
+
+    const formSignIn = document.querySelector("#signin-form");
+
+    if (formSignIn) {
+        formSignIn.onsubmit = function (e) {
+            e.preventDefault();
+
+            const emailInput = document.querySelector("#signin-email");
+            const passwordInput = document.querySelector("#signin-password");
+
+            let isValid = true;
+
+            // EMAIL
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!email || !emailRegex.test(email)) {
+                markError(emailInput);
+                isValid = false;
+            } else {
+                clearError(emailInput);
+            }
+
+            // PASSWORD
+            if (!passwordInput.value) {
+                markError(passwordInput);
+                isValid = false;
+            } else {
+                clearError(passwordInput);
+            }
+
+            if (!isValid) return;
+
+            // ✅ hợp lệ → submit thật
+            formSignIn.submit();
+        };
+    }
+
 </script>
 {{/section}}
 

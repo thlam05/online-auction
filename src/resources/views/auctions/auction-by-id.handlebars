@@ -659,7 +659,7 @@
                 </div>
 
                 <div class="space-y-3 mb-5">
-                    <a href="/user/{{auction.seller.id}}/reviews"
+                    <a {{#if auction.seller.id}} href="/user/{{auction.seller.id}}/reviews" {{/if}}
                         class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
 
                         <div class="flex items-center gap-3">
