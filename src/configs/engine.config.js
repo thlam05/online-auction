@@ -64,6 +64,9 @@ const configEngine = (app) => {
                 if (!n) return "0";
                 return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             },
+            add: function (a, b) {
+                return Number(a) + Number(b);
+            },
             maskName: function (name) {
                 if (!name) return "";
 

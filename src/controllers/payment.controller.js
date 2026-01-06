@@ -31,9 +31,20 @@ export const getPaymentPage = async (req, res) => {
             return res.redirect(`/auctions/${auctionId}`);
         }
 
-        const isSeller = auction.seller_id === userId;
+        const sellerId = auction.seller_id || auction.seller?.id;
+
+        if (!sellerId) {
+            console.error('Seller ID not found for auction:', auctionId);
+            return res.status(500).render('error/500', {
+                layout: 'main',
+                title: 'Lỗi hệ thống'
+            });
+        }
+
+        const isSeller = sellerId === userId;
         const isWinner = winner.id === userId;
 
+        console.log('sellerId:', sellerId, 'userId:', userId);
         console.log('isSeller:', isSeller, 'isWinner:', isWinner);
 
         if (!isSeller && !isWinner) {
@@ -42,12 +53,12 @@ export const getPaymentPage = async (req, res) => {
 
         const order = await orderService.getOrCreateOrder(
             auctionId,
-            auction.seller_id,
+            sellerId,
             winner.id,
             auction.current_price
         );
 
-        const seller = await userService.getUserById(auction.seller_id);
+        const seller = await userService.getUserById(sellerId);
 
         res.render('payment/index', {
             layout: 'main',
