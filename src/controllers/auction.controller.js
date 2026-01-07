@@ -322,12 +322,26 @@ class AuctionController {
 
             const highestBidder = await bidModel.getHighestBidder(id);
 
+            const auction = result.auction;
+            const seller = await userModel.findById(auction.seller_id);
+            const user = req.user;
+
+            const mailJobs = [];
+            mailJobs.push(sendBidSuccessToSeller(auction, seller));
+            mailJobs.push(sendBidSuccessToBidder(auction, user));
+            if (highestBidder.id != preBidder.id && preBidder.email) {
+                mailJobs.push(sendBidSuccessToPreHighestBidder(auction, preBidder));
+            }
+            await Promise.all(mailJobs);
+
             const latestBids = await bidModel.getBidHistory(id);
             const newBidsForHistory = latestBids.slice(0, result.newBids.length).map(bid => ({
                 amount: bid.amount,
                 created_at: bid.created_at,
                 bidder_name: bid.bidder_name
             }));
+
+
 
             return res.json({
                 success: true,
