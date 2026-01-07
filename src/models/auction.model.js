@@ -156,7 +156,7 @@ const auctionModel = {
                 db.raw("json_build_object('url', ai.url, 'is_main', ai.is_main) as \"mainImage\""),
                 db.raw("json_build_object('id', bidder.id, 'username', bidder.username, 'email', bidder.email) as \"highestBidder\"")
             )
-            .orderBy("a.created_at", "desc");
+        // .orderBy("a.created_at", "desc");
     },
     findAllWithRelations() {
         return this.baseAuctionQuerySimple();
