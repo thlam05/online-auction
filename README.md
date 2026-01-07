@@ -11,6 +11,9 @@
 - **Realtime:** fetch API
 - **Other:** Preline UI, Nodemailer, reCAPTCHA v2
 
+## Các file nộp cho đồ án:
+[Google Drive - All Files](https://drive.google.com/drive/folders/1igg3-4h5gjbM_F-bDy0IhOL-smB9UfJT?usp=drive_link)
+
 ## Hướng dẫn cài đặt & chạy web
 
 ### 1. Clone repo
@@ -25,7 +28,7 @@ npm install
 ```
 
 ### 3. Tạo file môi trường
-Tải file `.env` tại [Google Drive - .env](https://drive.google.com/drive/folder/test-env-link)
+Tải file `.env` tại [Google Drive - .env](https://drive.google.com/file/d/1_eRKuV_ixaFfxtVN0L-s7NM8vfM3OdCX/view?usp=sharing)
 
 ### 4. Chạy web
 ```bash
@@ -39,6 +42,14 @@ Truy cập: [http://localhost:3000](http://localhost:3000)
 ```
 1. Admin:
 Email: admin@bidhub
+Password: 123
+
+2. Seller:
+Email: seller@bidhub
+Password: 123
+
+3. Bidder:
+Email: test@bidhub
 Password: 123
 ```
 
