@@ -403,12 +403,12 @@
                                 </button>
                                 {{#if (eq this.upgrade_status "pending")}}
                                 <button type="button"
-                                    class="approve-user w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    class="approve-user approve-upgrade w-full text-left py-2 px-3 rounded-md text-sm text-green-600 hover:bg-gray-50 focus:outline-none transition-colors"
                                     data-user-id="{{this.id}}">
                                     Duyệt nâng cấp
                                 </button>
                                 <button type="button"
-                                    class="reject-user w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors"
+                                    class="reject-user reject-upgrade w-full text-left py-2 px-3 rounded-md text-sm text-orange-600 hover:bg-gray-50 focus:outline-none transition-colors"
                                     data-user-id="{{this.id}}">
                                     Từ chối nâng cấp
                                 </button>

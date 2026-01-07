@@ -298,3 +298,42 @@ export const sendAuctionEndedToWinner = async (auction, bidder) => {
 
     return { info };
 }
+
+export const sendAuctionUpdatedToBidder = async (auction, bidder) => {
+    const transporter = createTransport();
+    const auctionLink = `http://localhost:3000/auctions/${auction.id}`;
+
+    if (!bidder) return {};
+
+    const mailOptions = {
+        from: `"Auction System" <${config.googleAppEmail}>`,
+        to: bidder.email,
+        subject: "Thông tin sản phẩm đấu giá đã được cập nhật",
+        text: `Thông tin của sản phẩm "${auction.name}" đã được người bán cập nhật.
+
+Vui lòng xem lại chi tiết để đảm bảo quyết định ra giá của bạn vẫn phù hợp.
+
+Xem chi tiết phiên đấu giá tại:
+${auctionLink}`,
+        html: `
+            <p>✏️ <strong>Thông tin sản phẩm đã được cập nhật</strong></p>
+            <p>
+                Sản phẩm <strong>${auction.name}</strong> vừa được người bán
+                cập nhật thông tin.
+            </p>
+            <p>
+                👉 <a href="${auctionLink}">
+                    Xem chi tiết phiên đấu giá
+                </a>
+            </p>
+            <p>
+                Vui lòng kiểm tra lại nội dung sản phẩm để đảm bảo quyền lợi của bạn
+                trước khi tiếp tục ra giá.
+            </p>
+        `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    return { info };
+};

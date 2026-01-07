@@ -440,7 +440,7 @@ export const handleUpgrade = async (req, res) => {
             // Upgrade user to seller
             await userModel.updateOne(id, {
                 permission: 1,
-                upgrade_status: 'approved',
+                // upgrade_status: 'approved',
                 updated_at: new Date()
             });
 
