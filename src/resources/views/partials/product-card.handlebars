@@ -35,10 +35,10 @@
             </div>
         </div>
 
-        <div class="mt-auto flex gap-2">
-            <a href="/auctions/{{this.id}}" class="flex-1 inline-flex justify-center items-center gap-2 py-2.5 px-4 
-               bg-primary-500 text-white font-medium rounded-lg 
-               hover:bg-primary-600 transition-colors">
+        <div class="mt-auto flex flex-col gap-2">
+            <a href="/auctions/{{this.id}}" class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 
+              bg-primary-500 text-white font-medium rounded-lg 
+              hover:bg-primary-600 transition-colors">
                 Đấu giá ngay
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -46,8 +46,9 @@
                 </svg>
             </a>
 
-            <button data-action="watch" class="add-watch-list-btn-partial px-4 py-2.5 border border-gray-300 rounded-lg 
-               text-gray-700 hover:bg-gray-100 transition-colors" data-auction-id="{{this.id}}">
+            <button data-action="watch" data-auction-id="{{this.id}}" class="w-full add-watch-list-btn-partial px-4 py-2.5 
+               border border-gray-300 rounded-lg 
+               text-gray-700 hover:bg-gray-100 transition-colors">
                 Theo dõi
             </button>
         </div>

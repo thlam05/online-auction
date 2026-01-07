@@ -184,3 +184,27 @@ const ConfirmModal = {
 
 window.NotificationModal = NotificationModal;
 window.ConfirmModal = ConfirmModal;
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".add-watch-list-btn-partial");
+  if (!btn) return;
+
+  const auction_id = btn.dataset.auctionId;
+
+  try {
+    const res = await fetch("/watch-list/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ auction_id })
+    });
+
+    if (!res.ok) {
+      throw new Error("Request failed");
+    }
+  } catch (err) {
+    console.error(err);
+    NotificationModal.error("Không thể thêm vào danh sách theo dõi");
+  }
+});
