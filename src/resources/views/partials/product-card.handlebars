@@ -1,5 +1,5 @@
-<a href="/auctions/{{this.id}}"
-    class="product-card relative group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col h-full">
+<div class="product-card relative group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all flex flex-col h-full"
+    data-auction-id="{{this.id}}">
     <div class="relative overflow-hidden bg-white">
         <img src="{{imageOrPlaceholder this.mainImage.url}}" alt="{{this.name}}"
             class="product-card-img group-hover:scale-105 transition-transform duration-300"
@@ -35,12 +35,21 @@
             </div>
         </div>
 
-        <span
-            class="w-full inline-flex justify-center items-center gap-2 py-2.5 px-4 bg-primary-500 text-white font-medium rounded-lg group-hover:bg-primary-600 transition-colors mt-auto">
-            Đấu giá ngay
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-        </span>
+        <div class="mt-auto flex gap-2">
+            <a href="/auctions/{{this.id}}" class="flex-1 inline-flex justify-center items-center gap-2 py-2.5 px-4 
+               bg-primary-500 text-white font-medium rounded-lg 
+               hover:bg-primary-600 transition-colors">
+                Đấu giá ngay
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </a>
+
+            <button data-action="watch" class="add-watch-list-btn-partial px-4 py-2.5 border border-gray-300 rounded-lg 
+               text-gray-700 hover:bg-gray-100 transition-colors" data-auction-id="{{this.id}}">
+                Theo dõi
+            </button>
+        </div>
     </div>
-</a>
+</div>
